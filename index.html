@@ -26,6 +26,41 @@
     --sidebar-w: 260px;
     --header-h: 64px;
   }
+  /* ===== LIGHT MODE (MONOCHROME) ===== */
+[data-theme="light"] {
+  --neon: #1a1a1a; /* Warna aksen utama menjadi gelap/hitam */
+  --neon2: #333333;
+  --neon-dim: rgba(0, 0, 0, 0.04);
+  --bg: #f4f4f5; /* Latar belakang abu-abu sangat terang */
+  --bg2: #ffffff; /* Sidebar putih bersih */
+  --bg3: #e4e4e7;
+  --bg4: #ffffff;
+  --surface: rgba(255, 255, 255, 0.98);
+  --border: rgba(0, 0, 0, 0.1);
+  --border-bright: rgba(0, 0, 0, 0.25);
+  --text: #3f3f46;
+  --text-dim: #71717a;
+  --text-bright: #000000;
+}
+
+/* Membalikkan warna pattern grid background agar terlihat di Light Mode */
+[data-theme="light"] body::before {
+  background-image: linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+}
+[data-theme="light"] body::after {
+  background: radial-gradient(circle, rgba(0,0,0,0.03) 0%, transparent 70%);
+}
+
+/* Memastikan teks input terbaca dengan baik di Light Mode */
+[data-theme="light"] input, 
+[data-theme="light"] select, 
+[data-theme="light"] textarea {
+  background: #ffffff;
+  color: #000000;
+}
+[data-theme="light"] .btn-primary {
+  color: #ffffff; /* Teks tombol utama menjadi putih di atas latar hitam */
+}
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { font-size: 14px; }
