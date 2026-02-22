@@ -101,7 +101,8 @@
   /* ─── PAGE & COMPONENTS ─── */
   .content { padding: 36px; flex: 1; transition: padding var(--transition); }
   .page { display: none; } .page.active { display: block; animation: pageIn 0.45s cubic-bezier(0.4,0,0.2,1); }
-  
+  @keyframes pageIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
   .page-header { margin-bottom: 32px; }
   .page-header h1 { font-family: 'DM Serif Display', serif; font-size: 32px; line-height: 1.15; color: var(--text); }
   .page-header h1 em { font-style: italic; color: var(--gray-light); }
@@ -441,11 +442,11 @@
 
                   <div class="form-group"><label for="f-jenissert">Jenis Sertipikat</label><select class="form-control" id="f-jenissert"><option value="">-- Pilih --</option><option>Hak Milik</option><option>HGB</option><option>HGU</option><option>Hak Pakai</option><option>Hak Pengelolaan</option></select></div>
                   <div class="form-group"><label for="f-nosert">Nomor Sertipikat</label><input type="text" class="form-control" id="f-nosert"></div>
-                  <div class="form-group"><label for="f-luas">Luas Tanah (m²)</label><input type="number" class="form-control" id="f-luas" placeholder="0"></div>
+                  <div class="form-group full" style="grid-column:1/-1;"><label for="f-luas">Luas Tanah (m²)</label><input type="number" class="form-control" id="f-luas" placeholder="0"></div>
                   
                   <div class="form-group full" style="grid-column:1/-1; margin-top:10px;"><label>Lokasi / Wilayah Administrasi Objek</label></div>
                   
-                  <div class="form-group">
+                  <div class="form-group full" style="grid-column:1/-1;">
                     <label for="f-kabupaten">Kota / Kabupaten *</label>
                     <select class="form-control" id="f-kabupaten" onchange="handleKabupatenChange()" required>
                       <option value="">-- Pilih Kota/Kabupaten --</option>
@@ -614,7 +615,7 @@
 
 <script>
 // ══════════════════════════════════════════════════════════
-// DATA WILAYAH NTB (SIMULASI KABUPATEN -> KECAMATAN -> DESA)
+// 1. DATA MASTER & SISTEM WILAYAH NTB (KABUPATEN -> KECAMATAN -> DESA)
 // ══════════════════════════════════════════════════════════
 const ntbData = {
   "Kabupaten Lombok Barat": {
@@ -676,9 +677,9 @@ const ntbData = {
   }
 };
 
-// Logika Dropdown Wilayah Berjenjang
 function initWilayah() {
   const kabSelect = document.getElementById('f-kabupaten');
+  if(!kabSelect) return;
   kabSelect.innerHTML = '<option value="">-- Pilih Kota/Kabupaten --</option>';
   Object.keys(ntbData).sort().forEach(kab => {
     kabSelect.add(new Option(kab, kab));
@@ -716,15 +717,16 @@ function handleKecamatanChange() {
     ntbData[kab][kec].sort().forEach(desa => {
       desaSelect.add(new Option(desa, desa));
     });
-    // Opsi tambahan jika desa belum ada di dummy data
+    // Opsi tambahan
     desaSelect.add(new Option("Lainnya...", "Lainnya"));
   } else {
     desaSelect.disabled = true;
   }
 }
 
+
 // ══════════════════════════════════════════════════════════
-// OTENTIKASI & LOGIN LOGIC
+// 2. OTENTIKASI & LOGIKA LOGIN / LOGOUT
 // ══════════════════════════════════════════════════════════
 function checkLogin() {
   const isLoggedIn = localStorage.getItem('sipentas-logged-in');
@@ -752,16 +754,14 @@ function handleLogin(e) {
   }
 }
 
-// LOGIKA DROPDOWN MENU KELUAR
 function toggleUserMenu(e) {
   e.stopPropagation();
   document.getElementById('user-dropdown').classList.toggle('show');
 }
+
 window.addEventListener('click', function(e) {
   const dropdown = document.getElementById('user-dropdown');
-  if(dropdown && dropdown.classList.contains('show')) {
-    dropdown.classList.remove('show');
-  }
+  if(dropdown && dropdown.classList.contains('show')) dropdown.classList.remove('show');
 });
 
 function logout() {
@@ -784,15 +784,14 @@ function togglePassword() {
   }
 }
 
+
 // ══════════════════════════════════════════════════════════
-// FITUR PENGATURAN
+// 3. FITUR PENGATURAN PROFIL
 // ══════════════════════════════════════════════════════════
 async function handleAvatarUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
-
   if (file.size > 2 * 1024 * 1024) { showToast('Gagal: Ukuran foto maksimal 2MB!', 'error'); return; }
-  
   try {
     const base64Image = await readFileAsBase64(file);
     document.getElementById('profile-preview-img').src = base64Image;
@@ -809,16 +808,23 @@ async function handleAvatarUpload(event) {
 function handleSimpanProfil(e) { e.preventDefault(); const namaBaru = document.getElementById('p-nama').value; if(namaBaru) document.getElementById('topbar-user-name').textContent = namaBaru; showToast('Data diri berhasil disimpan!', 'success'); }
 function handleUbahSandi(e) { e.preventDefault(); const baru = document.getElementById('s-new-pass').value; const konfirm = document.getElementById('s-confirm-pass').value; if (baru !== konfirm) { showToast('Konfirmasi sandi tidak cocok!', 'error'); return; } showToast('Kata sandi berhasil diperbarui!', 'success'); e.target.reset(); }
 
+
 // ══════════════════════════════════════════════════════════
-// UTILITAS
+// 4. UTILITAS UMUM
 // ══════════════════════════════════════════════════════════
 function escapeHTML(str) { if (typeof str !== 'string') return str; return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)); }
 function formatNumber(num) { if (!num) return '0'; return new Intl.NumberFormat('id-ID').format(num); }
 function readFileAsBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error); reader.readAsDataURL(file); }); }
 function toggleSidebar() { const sidebar = document.querySelector('.sidebar'); const overlay = document.querySelector('.sidebar-overlay'); if (sidebar) sidebar.classList.toggle('open'); if (overlay) overlay.classList.toggle('active'); }
+function fmtDate(str) { if (!str) return '-'; const d = new Date(str); return isNaN(d) ? str : `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`; }
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function showToast(msg, type = '') { const c = document.getElementById('toast-container'), t = document.createElement('div'); t.className = 'toast ' + type; t.innerHTML = msg; c.appendChild(t); setTimeout(() => t.remove(), 3000); }
+document.querySelectorAll('.modal-overlay').forEach(ov => { ov.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); }); });
+
 
 // ══════════════════════════════════════════════════════════
-// DATA STORE
+// 5. DATABASE PENYIMPANAN
 // ══════════════════════════════════════════════════════════
 let cases = JSON.parse(localStorage.getItem('sipentas-cases') || '[]');
 let calendarEvents = JSON.parse(localStorage.getItem('sipentas-events') || '[]');
@@ -827,8 +833,14 @@ const TAHAPAN_LABELS = ['Surat Usulan dari Kantah', 'Telaah Staff', 'Penelitian 
 const STATUS_MAP = { 0: { label: 'Usulan Masuk', cls: 'status-0' }, 1: { label: 'Telaah Staff', cls: 'status-1' }, 2: { label: 'Penelitian Lapang', cls: 'status-2' }, 3: { label: 'Gelar Kasus', cls: 'status-3' }, 4: { label: 'Penerbitan SK', cls: 'status-4' }, 5: { label: 'Selesai', cls: 'status-5' } };
 const HOLIDAYS_2025 = { '2025-01-01': 'Tahun Baru Masehi', '2025-01-27': 'Isra Mi\'raj', '2025-01-29': 'Tahun Baru Imlek', '2025-03-29': 'Nyepi', '2025-03-31': 'Idul Fitri', '2025-04-01': 'Idul Fitri', '2025-05-01': 'Hari Buruh', '2025-08-17': 'Hari Kemerdekaan RI', '2025-12-25': 'Natal' };
 
+function saveData() { 
+  localStorage.setItem('sipentas-cases', JSON.stringify(cases)); 
+  localStorage.setItem('sipentas-events', JSON.stringify(calendarEvents)); 
+}
+
+
 // ══════════════════════════════════════════════════════════
-// NAVIGATION
+// 6. NAVIGASI, DASHBOARD & RENDER TABEL
 // ══════════════════════════════════════════════════════════
 let currentPage = 'dashboard'; let prevPage = 'dashboard';
 const crumbMap = { 'dashboard': 'Beranda / <span>Dashboard</span>', 'list-cacat': 'Permohonan / <span>Cacat Administrasi</span>', 'list-putusan': 'Permohonan / <span>Putusan Pengadilan</span>', 'tambah': 'Permohonan / <span>Tambah Baru</span>', 'detail': 'Permohonan / <span>Detail Kasus</span>', 'kalender': 'Informasi / <span>Kalender Kegiatan</span>', 'tahapan': 'Informasi / <span>Alur Tahapan</span>', 'pengaturan': 'Sistem / <span>Pengaturan Akun</span>' };
@@ -844,7 +856,7 @@ function navigateTo(page, param) {
   if (page === 'list-cacat') renderTable('cacat'); 
   if (page === 'list-putusan') renderTable('putusan');
   if (page === 'dashboard') { renderDashboard(); renderMiniCal(); } 
-  if (page === 'tambah') { resetForm(param); initWilayah(); } // inisialisasi wilayah saat buka form
+  if (page === 'tambah') { resetForm(param); initWilayah(); } // inisialisasi dropdown wilayah saat menu di klik
   if (page === 'kalender') { renderFullCal(); renderEventsList(); } 
   if (page === 'tahapan') renderAlur();
   
@@ -867,9 +879,6 @@ function renderDashboard() {
   tbody.innerHTML = recent.map(c => `<tr onclick="openDetail('${c.id}')"><td><code style="font-size:12px;background:var(--surface);padding:2px 7px;border-radius:4px">${escapeHTML(c.nomorberkas)}</code></td><td style="font-size:12px">${escapeHTML(c.pemohon)}</td><td><span class="badge ${c.jenis === 'cacat' ? 'badge-admin' : 'badge-court'}"><span class="badge-dot" style="background:${c.jenis==='cacat'?'var(--gray-dark)':'var(--white)'}"></span> ${c.jenis === 'cacat' ? 'Cacat Adm.' : 'Putusan PN'}</span></td><td style="font-size:12px">${escapeHTML(c.kantah)}</td><td><span class="status-badge ${STATUS_MAP[c.currentStep]?.cls || 'status-0'}">${STATUS_MAP[c.currentStep]?.label || '-'}</span></td></tr>`).join('');
 }
 
-// ══════════════════════════════════════════════════════════
-// TABLE RENDER
-// ══════════════════════════════════════════════════════════
 function renderTable(type) {
   const tbody = document.getElementById('tbody-' + type); const search = (document.getElementById('search-' + type)?.value || '').toLowerCase(); const filterStatus = document.getElementById('filter-status-' + type)?.value;
   let filtered = cases.filter(c => c.jenis === type);
@@ -887,101 +896,9 @@ function renderTable(type) {
 }
 function filterTable(type) { renderTable(type); }
 
-// ══════════════════════════════════════════════════════════
-// DETAIL VIEW (Update: Info Wilayah, Penanggung Jawab & Dokumen)
-// ══════════════════════════════════════════════════════════
-function openDetail(id) {
-  const c = cases.find(x => x.id === id); if (!c) return; prevPage = currentPage; currentPage = 'detail';
-
-  const steps = TAHAPAN_LABELS.map((label, i) => {
-    let isCompleted = !!c.tahapan?.[i]?.date;
-    let hasFile = !!c.tahapan?.[i]?.file;
-    let cls = isCompleted ? 'success' : (i === c.currentStep ? 'active' : 'pending');
-
-    let dateStr = c.tahapan?.[i]?.date ? fmtDate(c.tahapan[i].date) : '';
-    let dateHtml = dateStr ? `<div class="step-date">${dateStr}</div>` : '';
-    let noteStr = c.tahapan?.[i]?.note || '';
-    let shortNote = noteStr.length > 55 ? noteStr.substring(0, 55) + '...' : noteStr;
-    let noteHtml = noteStr ? `<div class="step-note">${escapeHTML(shortNote)}</div>` : '';
-    let checkIcon = isCompleted ? `<svg viewBox="0 0 24 24" width="16" height="16" stroke="#1B5E20" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-left:8px"><polyline points="20 6 9 17 4 12"></polyline></svg>` : '';
-    
-    let actionBtn = '';
-    if (i === c.currentStep) actionBtn = `<button class="btn btn-primary btn-sm" style="margin-left:auto;flex-shrink:0" onclick="openUpdateTahapan('${id}',${i})">Update</button>`;
-    else if (isCompleted) actionBtn = `<button class="btn btn-secondary btn-sm" style="margin-left:auto;flex-shrink:0" onclick="viewTahapan('${id}',${i})">Lihat Detail</button>`;
-
-    return `<div class="step-item"><div class="step-num ${cls}">${i+1}</div><div class="step-content"><div class="step-title">${label} ${checkIcon}</div>${dateHtml}${noteHtml}</div>${actionBtn}</div>`;
-  }).join('');
-
-  // Tombol Download Dokumen Usulan
-  let btnUnduhUsulan = '';
-  if(c.dokumenUsulan && c.dokumenUsulan.file) {
-    btnUnduhUsulan = `<a href="${c.dokumenUsulan.file}" download="${c.dokumenUsulan.name}" class="btn btn-secondary btn-sm" style="font-size:11px; padding:6px 12px; text-decoration:none;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg> Unduh Dokumen Usulan (PDF)</a>`;
-  }
-
-  // Tombol Download Dokumen Buku Tanah
-  let btnUnduhBT = '';
-  if(c.dokumenbt && c.dokumenbt.file) {
-    btnUnduhBT = `<a href="${c.dokumenbt.file}" download="${c.dokumenbt.name}" class="btn btn-secondary btn-sm" style="font-size:11px; padding:6px 12px; text-decoration:none;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg> Unduh Buku Tanah (PDF)</a>`;
-  }
-
-  document.getElementById('detail-content').innerHTML = `
-    <div class="detail-header">
-      <div class="detail-case-id">ID BERKAS</div>
-      <div class="detail-title">${escapeHTML(c.nomorberkas)}</div>
-      <div class="detail-metas">
-        <div class="detail-meta-item"><strong>Pemohon:</strong>${escapeHTML(c.pemohon)}</div>
-        <div class="detail-meta-item"><strong>PJ Berkas:</strong>${escapeHTML(c.pj||'-')}</div>
-        <div class="detail-meta-item"><strong>Jenis:</strong>${c.jenis === 'cacat' ? 'Cacat Administrasi' : 'Putusan Pengadilan'}</div>
-        <div class="detail-meta-item"><strong>Kantah:</strong>${escapeHTML(c.kantah)}</div>
-        <div class="detail-meta-item"><strong>Tgl. Usulan:</strong>${fmtDate(c.tglUsulan)}</div>
-      </div>
-      <div style="margin-top:20px; display:flex; gap:10px;">${btnUnduhUsulan}</div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 360px;gap:20px" class="dashboard-grid">
-      <div class="card"><div class="card-header"><span class="card-title">Riwayat Tahapan</span></div><div class="card-body"><div class="stepper">${steps}</div></div></div>
-      <div style="display:flex;flex-direction:column;gap:16px">
-        <div class="card">
-          <div class="card-header"><span class="card-title">Informasi Kasus & Objek</span></div>
-          <div class="card-body">
-            <div class="info-grid">
-              <div class="info-item" style="grid-column:1/-1;"><label>Nama Pemegang Hak</label><span style="font-weight:600;">${escapeHTML(c.pemeganghak||'-')}</span></div>
-              <div class="info-item"><label>Jenis Sertipikat</label><span>${escapeHTML(c.jenissert||'-')}</span></div>
-              <div class="info-item"><label>No. Sertipikat</label><span>${escapeHTML(c.nosert||'-')}</span></div>
-              <div class="info-item"><label>Luas Tanah</label><span>${c.luas ? formatNumber(c.luas) + ' m²' : '-'}</span></div>
-              ${c.jenis === 'putusan' ? `<div class="info-item"><label>No. Putusan</label><span>${escapeHTML(c.noputs||'-')}</span></div>` : ''}
-              
-              <div class="info-item" style="grid-column:1/-1; margin-top:8px; border-top:1px solid var(--border); padding-top:12px;">
-                <label style="margin-bottom:8px;">Lokasi / Domisili Objek Tanah</label>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                  <div><span style="font-size:11px; color:var(--text-muted); display:block;">Desa/Kelurahan</span><span style="font-size:13px;">${escapeHTML(c.desa||'-')}</span></div>
-                  <div><span style="font-size:11px; color:var(--text-muted); display:block;">Kecamatan</span><span style="font-size:13px;">${escapeHTML(c.kecamatan||'-')}</span></div>
-                  <div style="grid-column:1/-1;"><span style="font-size:11px; color:var(--text-muted); display:block;">Kota/Kabupaten</span><span style="font-size:13px;">${escapeHTML(c.kabupaten||'-')}</span></div>
-                </div>
-              </div>
-            </div>
-            ${btnUnduhBT ? `<div style="margin-top:16px;">${btnUnduhBT}</div>` : ''}
-          </div>
-        </div>
-        ${c.uraian ? `<div class="card"><div class="card-header"><span class="card-title">Uraian Singkat Kasus</span></div><div class="card-body"><p style="font-size:13px;line-height:1.7;color:var(--text-sub)">${escapeHTML(c.uraian)}</p></div></div>` : ''}
-        <div class="card"><div class="card-header"><span class="card-title">Status Saat Ini</span></div><div class="card-body"><span class="status-badge ${STATUS_MAP[c.currentStep]?.cls}" style="font-size:13px;padding:6px 14px">${STATUS_MAP[c.currentStep]?.label}</span><div style="margin-top:12px"><div class="progress-bar"><div class="progress-fill" style="width:${Math.round((c.currentStep/5)*100)}%"></div></div><div style="font-size:11px;color:var(--text-muted);margin-top:4px">${Math.round((c.currentStep/5)*100)}% selesai</div></div></div></div>
-      </div>
-    </div>`;
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-detail').classList.add('active'); document.getElementById('page-crumb').innerHTML = crumbMap['detail'];
-}
-function goBackFromDetail() { navigateTo(prevPage === 'detail' ? 'dashboard' : prevPage); }
-
-function viewTahapan(id, stepIdx) {
-  const c = cases.find(x => x.id === id); if (!c) return; const t = c.tahapan[stepIdx]; const label = TAHAPAN_LABELS[stepIdx];
-  let fileHtml = '<p style="font-size:13px;color:var(--text-muted);font-style:italic;">Tidak ada dokumen pendukung yang diunggah.</p>';
-  if (t.file) fileHtml = `<div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:16px; display:flex; align-items:center; justify-content:space-between;"><div style="display:flex; align-items:center; gap:12px; min-width:0;"><div style="width:40px; height:40px; flex-shrink:0; background:#FFEbee; color:#c0392b; border-radius:8px; display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div><div style="min-width:0; overflow:hidden;"><div style="font-size:13px; font-weight:600; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${escapeHTML(t.fileName)}</div><div style="font-size:11px; color:var(--text-muted);">Dokumen PDF Terverifikasi</div></div></div><a href="${t.file}" download="${t.fileName}" class="btn btn-primary btn-sm" style="text-decoration:none; flex-shrink:0;">Unduh</a></div>`;
-  const statusBadge = `<span style="display:inline-flex; align-items:center; gap:6px; background:#1B5E20; color:white; padding:5px 14px; border-radius:20px; font-size:12px; font-weight:600; box-shadow: 0 2px 8px rgba(27,94,32,0.2);"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Tuntas</span>`;
-  document.getElementById('modal-view-tahapan-body').innerHTML = `<div style="margin-bottom:20px;"><div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Nama Tahapan</div><div style="font-size:18px; font-weight:600;">${label}</div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;"><div><div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Tanggal Penyelesaian</div><div style="font-size:15px; font-weight:500;">${fmtDate(t.date)}</div></div><div><div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Status Validasi</div>${statusBadge}</div></div><div style="margin-bottom:24px;"><div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Catatan / Keterangan Petugas</div><div style="font-size:13.5px; line-height:1.6; background:var(--surface); padding:12px 16px; border-radius:var(--radius-sm); color:var(--text-sub);">${escapeHTML(t.note) || '<em>(Tidak ada catatan)</em>'}</div></div><div><div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Bukti Dokumen</div>${fileHtml}</div>`;
-  document.getElementById('btn-edit-tahapan').onclick = function() { closeModal('modal-view-tahapan'); openUpdateTahapan(id, stepIdx); };
-  openModal('modal-view-tahapan');
-}
 
 // ══════════════════════════════════════════════════════════
-// FORM TAMBAH PERMOHONAN 
+// 7. FORM TAMBAH KASUS & UPDATE TAHAPAN
 // ══════════════════════════════════════════════════════════
 let currentFormTab = 'info'; 
 const formTabs = ['info', 'detail']; 
@@ -1006,7 +923,7 @@ function resetForm(preselect) {
   togglePutsanField(); 
   document.getElementById('f-jenis').addEventListener('change', togglePutsanField); 
   
-  // Reset Dropdown
+  // Kosongkan dan matikan dropdown wilayah selain kabupaten
   document.getElementById('f-kecamatan').innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
   document.getElementById('f-kecamatan').disabled = true;
   document.getElementById('f-desa').innerHTML = '<option value="">-- Pilih Desa/Kelurahan --</option>';
@@ -1018,7 +935,7 @@ async function submitForm(e) {
   const jenis = document.getElementById('f-jenis').value; 
   if (!jenis) { showToast('Pilih jenis permohonan!', 'error'); return; } 
 
-  // Membaca file Dokumen Usulan
+  // Membaca Dokumen Usulan
   const fileUsulanInput = document.getElementById('f-dokumenusulan');
   let dokumenUsulanData = { file: null, name: '' };
   if (fileUsulanInput.files.length > 0) {
@@ -1029,7 +946,7 @@ async function submitForm(e) {
     catch(err) { showToast('Gagal membaca Dokumen Usulan', 'error'); return; }
   }
   
-  // Membaca file Buku Tanah
+  // Membaca Buku Tanah
   const fileBTInput = document.getElementById('f-dokumenbt');
   let dokumenbtData = { file: null, name: '' };
   if (fileBTInput.files.length > 0) {
@@ -1040,6 +957,7 @@ async function submitForm(e) {
     catch(err) { showToast('Gagal membaca Buku Tanah', 'error'); return; }
   }
 
+  // Tahapan Kosong (Mulai dari tahap 0)
   const initialTahapan = TAHAPAN_LABELS.map(() => ({ date: '', note: '', file: null, fileName: '' }));
 
   cases.push({ 
@@ -1077,8 +995,102 @@ async function saveTahapanUpdate() { const date = document.getElementById('upd-d
 
 function deleteCase(id) { if (!confirm('Hapus data permohonan ini?')) return; cases = cases.filter(c => c.id !== id); saveData(); updateStats(); renderTable(currentPage === 'list-cacat' ? 'cacat' : 'putusan'); showToast('Data dihapus'); }
 
+
 // ══════════════════════════════════════════════════════════
-// KALENDER 
+// 8. TAMPILAN DETAIL KASUS
+// ══════════════════════════════════════════════════════════
+function openDetail(id) {
+  const c = cases.find(x => x.id === id); if (!c) return; prevPage = currentPage; currentPage = 'detail';
+
+  const steps = TAHAPAN_LABELS.map((label, i) => {
+    let isCompleted = !!c.tahapan?.[i]?.date;
+    let hasFile = !!c.tahapan?.[i]?.file;
+    let cls = isCompleted ? 'success' : (i === c.currentStep ? 'active' : 'pending');
+
+    let dateStr = c.tahapan?.[i]?.date ? fmtDate(c.tahapan[i].date) : '';
+    let dateHtml = dateStr ? `<div class="step-date">${dateStr}</div>` : '';
+    let noteStr = c.tahapan?.[i]?.note || '';
+    let shortNote = noteStr.length > 55 ? noteStr.substring(0, 55) + '...' : noteStr;
+    let noteHtml = noteStr ? `<div class="step-note">${escapeHTML(shortNote)}</div>` : '';
+    let checkIcon = isCompleted ? `<svg viewBox="0 0 24 24" width="16" height="16" stroke="#1B5E20" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-left:8px"><polyline points="20 6 9 17 4 12"></polyline></svg>` : '';
+    
+    let actionBtn = '';
+    if (i === c.currentStep) actionBtn = `<button class="btn btn-primary btn-sm" style="margin-left:auto;flex-shrink:0" onclick="openUpdateTahapan('${id}',${i})">Update</button>`;
+    else if (isCompleted) actionBtn = `<button class="btn btn-secondary btn-sm" style="margin-left:auto;flex-shrink:0" onclick="viewTahapan('${id}',${i})">Lihat Detail</button>`;
+
+    return `<div class="step-item"><div class="step-num ${cls}">${i+1}</div><div class="step-content"><div class="step-title">${label} ${checkIcon}</div>${dateHtml}${noteHtml}</div>${actionBtn}</div>`;
+  }).join('');
+
+  // Tombol Unduh Usulan
+  let btnUnduhUsulan = '';
+  if(c.dokumenUsulan && c.dokumenUsulan.file) {
+    btnUnduhUsulan = `<a href="${c.dokumenUsulan.file}" download="${c.dokumenUsulan.name}" class="btn btn-secondary btn-sm" style="font-size:11px; padding:6px 12px; text-decoration:none;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg> Unduh Dokumen Usulan</a>`;
+  }
+
+  // Tombol Unduh BT
+  let btnUnduhBT = '';
+  if(c.dokumenbt && c.dokumenbt.file) {
+    btnUnduhBT = `<a href="${c.dokumenbt.file}" download="${c.dokumenbt.name}" class="btn btn-secondary btn-sm" style="font-size:11px; padding:6px 12px; text-decoration:none;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg> Unduh Buku Tanah</a>`;
+  }
+
+  document.getElementById('detail-content').innerHTML = `
+    <div class="detail-header">
+      <div class="detail-case-id">ID BERKAS</div>
+      <div class="detail-title">${escapeHTML(c.nomorberkas)}</div>
+      <div class="detail-metas">
+        <div class="detail-meta-item"><strong>Pemohon:</strong>${escapeHTML(c.pemohon)}</div>
+        <div class="detail-meta-item"><strong>PJ Berkas:</strong>${escapeHTML(c.pj||'-')}</div>
+        <div class="detail-meta-item"><strong>Jenis:</strong>${c.jenis === 'cacat' ? 'Cacat Administrasi' : 'Putusan Pengadilan'}</div>
+        <div class="detail-meta-item"><strong>Kantah:</strong>${escapeHTML(c.kantah)}</div>
+        <div class="detail-meta-item"><strong>Tgl. Usulan:</strong>${fmtDate(c.tglUsulan)}</div>
+      </div>
+      <div style="margin-top:20px; display:flex; gap:10px;">${btnUnduhUsulan}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 360px;gap:20px" class="dashboard-grid">
+      <div class="card"><div class="card-header"><span class="card-title">Riwayat Tahapan</span></div><div class="card-body"><div class="stepper">${steps}</div></div></div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Informasi Kasus & Objek</span></div>
+          <div class="card-body">
+            <div class="info-grid">
+              <div class="info-item" style="grid-column:1/-1;"><label>Nama Pemegang Hak</label><span style="font-weight:600;">${escapeHTML(c.pemeganghak||'-')}</span></div>
+              <div class="info-item"><label>Jenis Sertipikat</label><span>${escapeHTML(c.jenissert||'-')}</span></div>
+              <div class="info-item"><label>No. Sertipikat</label><span>${escapeHTML(c.nosert||'-')}</span></div>
+              <div class="info-item"><label>Luas Tanah</label><span>${c.luas ? formatNumber(c.luas) + ' m²' : '-'}</span></div>
+              ${c.jenis === 'putusan' ? `<div class="info-item"><label>No. Putusan</label><span>${escapeHTML(c.noputs||'-')}</span></div>` : ''}
+              
+              <div class="info-item" style="grid-column:1/-1; margin-top:8px; border-top:1px solid var(--border); padding-top:12px;">
+                <label style="margin-bottom:8px;">Lokasi / Wilayah Administrasi Objek</label>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                  <div><span style="font-size:11px; color:var(--text-muted); display:block;">Desa/Kelurahan</span><span style="font-size:13px;">${escapeHTML(c.desa||'-')}</span></div>
+                  <div><span style="font-size:11px; color:var(--text-muted); display:block;">Kecamatan</span><span style="font-size:13px;">${escapeHTML(c.kecamatan||'-')}</span></div>
+                  <div style="grid-column:1/-1;"><span style="font-size:11px; color:var(--text-muted); display:block;">Kota/Kabupaten</span><span style="font-size:13px;">${escapeHTML(c.kabupaten||'-')}</span></div>
+                </div>
+              </div>
+            </div>
+            ${btnUnduhBT ? `<div style="margin-top:16px;">${btnUnduhBT}</div>` : ''}
+          </div>
+        </div>
+        ${c.uraian ? `<div class="card"><div class="card-header"><span class="card-title">Uraian Singkat Kasus</span></div><div class="card-body"><p style="font-size:13px;line-height:1.7;color:var(--text-sub)">${escapeHTML(c.uraian)}</p></div></div>` : ''}
+        <div class="card"><div class="card-header"><span class="card-title">Status Saat Ini</span></div><div class="card-body"><span class="status-badge ${STATUS_MAP[c.currentStep]?.cls}" style="font-size:13px;padding:6px 14px">${STATUS_MAP[c.currentStep]?.label}</span><div style="margin-top:12px"><div class="progress-bar"><div class="progress-fill" style="width:${Math.round((c.currentStep/5)*100)}%"></div></div><div style="font-size:11px;color:var(--text-muted);margin-top:4px">${Math.round((c.currentStep/5)*100)}% selesai</div></div></div></div>
+      </div>
+    </div>`;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-detail').classList.add('active'); document.getElementById('page-crumb').innerHTML = crumbMap['detail'];
+}
+function goBackFromDetail() { navigateTo(prevPage === 'detail' ? 'dashboard' : prevPage); }
+
+function viewTahapan(id, stepIdx) {
+  const c = cases.find(x => x.id === id); if (!c) return; const t = c.tahapan[stepIdx]; const label = TAHAPAN_LABELS[stepIdx];
+  let fileHtml = '<p style="font-size:13px;color:var(--text-muted);font-style:italic;">Tidak ada dokumen pendukung yang diunggah.</p>';
+  if (t.file) fileHtml = `<div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:16px; display:flex; align-items:center; justify-content:space-between;"><div style="display:flex; align-items:center; gap:12px; min-width:0;"><div style="width:40px; height:40px; flex-shrink:0; background:#FFEbee; color:#c0392b; border-radius:8px; display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div><div style="min-width:0; overflow:hidden;"><div style="font-size:13px; font-weight:600; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${escapeHTML(t.fileName)}</div><div style="font-size:11px; color:var(--text-muted);">Dokumen PDF Terverifikasi</div></div></div><a href="${t.file}" download="${t.fileName}" class="btn btn-primary btn-sm" style="text-decoration:none; flex-shrink:0;">Unduh</a></div>`;
+  const statusBadge = `<span style="display:inline-flex; align-items:center; gap:6px; background:#1B5E20; color:white; padding:5px 14px; border-radius:20px; font-size:12px; font-weight:600; box-shadow: 0 2px 8px rgba(27,94,32,0.2);"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Tuntas</span>`;
+  document.getElementById('modal-view-tahapan-body').innerHTML = `<div style="margin-bottom:20px;"><div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Nama Tahapan</div><div style="font-size:18px; font-weight:600;">${label}</div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;"><div><div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Tanggal Penyelesaian</div><div style="font-size:15px; font-weight:500;">${fmtDate(t.date)}</div></div><div><div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Status Validasi</div>${statusBadge}</div></div><div style="margin-bottom:24px;"><div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Catatan / Keterangan Petugas</div><div style="font-size:13.5px; line-height:1.6; background:var(--surface); padding:12px 16px; border-radius:var(--radius-sm); color:var(--text-sub);">${escapeHTML(t.note) || '<em>(Tidak ada catatan)</em>'}</div></div><div><div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Bukti Dokumen</div>${fileHtml}</div>`;
+  document.getElementById('btn-edit-tahapan').onclick = function() { closeModal('modal-view-tahapan'); openUpdateTahapan(id, stepIdx); };
+  openModal('modal-view-tahapan');
+}
+
+// ══════════════════════════════════════════════════════════
+// 9. KALENDER & ALUR TAHAPAN
 // ══════════════════════════════════════════════════════════
 const MONTHS = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']; let miniCalDate = new Date(); let fullCalDate = new Date();
 function dateKey(y, m, d) { return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; } function getEventsForDate(key) { return calendarEvents.filter(e => e.date === key); }
@@ -1088,24 +1100,21 @@ function renderFullCal() { const d = fullCalDate; const y = d.getFullYear(), m =
 function fullCalPrev() { fullCalDate = new Date(fullCalDate.getFullYear(), fullCalDate.getMonth() - 1, 1); renderFullCal(); } function fullCalNext() { fullCalDate = new Date(fullCalDate.getFullYear(), fullCalDate.getMonth() + 1, 1); renderFullCal(); } function fullCalToday() { fullCalDate = new Date(); renderFullCal(); }
 function openDayModal(key) { const [y, m, d] = key.split('-'); const holiday = HOLIDAYS_2025[key]; const events = getEventsForDate(key); document.getElementById('modal-agenda-title').textContent = `Kegiatan — ${parseInt(d)} ${MONTHS[parseInt(m)-1]} ${y}`; let html = holiday ? `<div style="background:#FFF5F5;border:1px solid #FFD0CC;border-radius:8px;padding:12px 16px;margin-bottom:14px;color:#c0392b;font-weight:500;font-size:13px">🎌 ${holiday}</div>` : ''; events.forEach(e => { html += `<div style="border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:10px"><div style="font-size:14px;font-weight:500;">${escapeHTML(e.title)}</div><button onclick="deleteEvent('${e.id}');closeModal('modal-agenda')" style="margin-top:8px;font-size:11px;color:#c0392b;background:none;border:none;cursor:pointer;padding:0">Hapus Kegiatan</button></div>`; }); html += `<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)"><input type="text" class="form-control" id="quick-event-title" placeholder="Judul..." style="margin-bottom:8px"><button class="btn btn-primary" style="width:100%;font-size:13px" onclick="quickAddEvent('${key}')">Tambah</button></div>`; document.getElementById('modal-agenda-body').innerHTML = html; openModal('modal-agenda'); }
 function addCalendarEvent() { const d = document.getElementById('new-event-date').value, t = document.getElementById('new-event-title').value; if(d&&t) { calendarEvents.push({id:'ev'+Date.now(), date:d, title:t}); saveData(); renderFullCal(); renderMiniCal(); showToast('Tersimpan!','success'); } } function quickAddEvent(key) { const t = document.getElementById('quick-event-title').value; if(t) { calendarEvents.push({id:'ev'+Date.now(), date:key, title:t}); saveData(); renderFullCal(); renderMiniCal(); closeModal('modal-agenda'); showToast('Tersimpan!','success'); } } function deleteEvent(id) { calendarEvents = calendarEvents.filter(e => e.id !== id); saveData(); renderFullCal(); renderMiniCal(); } function renderEventsList() { document.getElementById('events-list-panel').innerHTML = '<p style="font-size:12px;color:#999;text-align:center">Daftar agenda disederhanakan di tampilan ini.</p>'; }
-
-// ══════════════════════════════════════════════════════════
-// ALUR TAHAPAN & UTILS
-// ══════════════════════════════════════════════════════════
 function renderAlur() { const steps1 = TAHAPAN_LABELS.map((label, i) => `<div class="step-item"><div class="step-num done">${i+1}</div><div class="step-content"><div class="step-title">${label}</div></div></div>`).join(''); document.getElementById('stepper-alur').innerHTML = steps1; document.getElementById('stepper-alur-2').innerHTML = steps1; }
-function saveData() { localStorage.setItem('sipentas-cases', JSON.stringify(cases)); localStorage.setItem('sipentas-events', JSON.stringify(calendarEvents)); }
-function fmtDate(str) { if (!str) return '-'; const d = new Date(str); return isNaN(d) ? str : `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`; }
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-function showToast(msg, type = '') { const c = document.getElementById('toast-container'), t = document.createElement('div'); t.className = 'toast ' + type; t.innerHTML = msg; c.appendChild(t); setTimeout(() => t.remove(), 3000); }
-document.querySelectorAll('.modal-overlay').forEach(ov => { ov.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); }); });
 
-// Init Sample
+// ══════════════════════════════════════════════════════════
+// 10. INISIALISASI APLIKASI
+// ══════════════════════════════════════════════════════════
 if (cases.length === 0) { 
   cases = [ { id: 'c1', nomorberkas: 'BPN/001', jenis: 'cacat', kantah: 'Kota Mataram', tglUsulan: '2025-02-10', pemohon: 'H. Ahmad', pj: 'Budi Santoso', pemeganghak: 'H. Ahmad', luas: '250', kabupaten: 'Kota Mataram', kecamatan: 'Sekarbela', desa: 'Jempong Baru', tahapan: [{date:'2025-02-10', note:'Berkas dianalisa'}], currentStep: 1 } ]; 
   saveData(); 
 }
-updateStats(); renderDashboard(); renderMiniCal(); renderAlur();
+
+initWilayah();      // Inisialisasi dropdown wilayah di memori
+updateStats();      // Inisialisasi Angka Dashboard
+renderDashboard();  // Render tabel dashboard
+renderMiniCal();    // Render kalender dashboard
+renderAlur();       // Render grafik alur
 
 // Inisialisasi Tampilan Berdasarkan Status Login
 checkLogin();
