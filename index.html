@@ -49,7 +49,7 @@
 
   @media (max-width: 900px) { .login-left { display: none; } }
 
-  /* ─── LAYOUT APLIKASI (App Container) ─── */
+  /* ─── LAYOUT APLIKASI ─── */
   #app-container { display: flex; min-height: 100vh; width: 100vw; }
 
   /* ─── SIDEBAR ─── */
@@ -83,17 +83,25 @@
   .topbar-right { display: flex; align-items: center; gap: 16px; }
   .topbar-btn { width: 36px; height: 36px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--white); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; color: var(--text-muted); }
   .topbar-btn:hover { border-color: var(--gray-dark); color: var(--text); }
-  .user-chip { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px 6px 6px; cursor: pointer; transition: all 0.2s; }
+  
+  /* DROPDOWN MENU AKUN */
+  .dropdown { position: relative; display: inline-block; }
+  .user-chip { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px 6px 6px; cursor: pointer; transition: all 0.2s; user-select: none; }
   .user-chip:hover { border-color: var(--black); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
   .user-avatar { width: 28px; height: 28px; background: var(--black); color: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; overflow:hidden; }
   .user-avatar img { width:100%; height:100%; object-fit:cover; }
   .user-name { font-size: 12px; font-weight: 500; color: var(--text); }
+  .dropdown-menu { position: absolute; top: calc(100% + 8px); right: 0; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--shadow-md); min-width: 160px; display: none; flex-direction: column; z-index: 1000; overflow: hidden; }
+  .dropdown-menu.show { display: flex; animation: fadeDown 0.2s ease; }
+  @keyframes fadeDown { from{opacity:0; transform:translateY(-10px);} to{opacity:1; transform:translateY(0);} }
+  .dropdown-item { padding: 12px 16px; font-size: 13px; color: var(--text); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s; text-decoration: none; font-family: 'DM Sans', sans-serif; border:none; background:none; text-align:left; width:100%; }
+  .dropdown-item:hover { background: var(--surface); }
+  .dropdown-item.danger:hover { color: #C0392B; }
 
   /* ─── PAGE & COMPONENTS ─── */
   .content { padding: 36px; flex: 1; transition: padding var(--transition); }
   .page { display: none; } .page.active { display: block; animation: pageIn 0.45s cubic-bezier(0.4,0,0.2,1); }
-  @keyframes pageIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-
+  
   .page-header { margin-bottom: 32px; }
   .page-header h1 { font-family: 'DM Serif Display', serif; font-size: 32px; line-height: 1.15; color: var(--text); }
   .page-header h1 em { font-style: italic; color: var(--gray-light); }
@@ -108,7 +116,7 @@
   .stat-meta { font-size: 12px; color: var(--text-muted); margin-top: 6px; } .stat-meta strong { color: var(--text-sub); }
 
   .dashboard-grid { display: grid; grid-template-columns: 1fr 340px; gap: 20px; }
-  .settings-grid { display: grid; grid-template-columns: 340px 1fr; gap: 24px; } /* Grid khusus halaman pengaturan */
+  .settings-grid { display: grid; grid-template-columns: 340px 1fr; gap: 24px; }
   
   .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
   .card-header { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
@@ -317,14 +325,27 @@
       </div>
       <div class="topbar-right">
         <button class="topbar-btn" title="Notifikasi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
-        <div class="user-chip" onclick="logout()" title="Klik untuk keluar">
-          <div class="user-avatar" id="topbar-avatar-container">
-            <img id="topbar-avatar-img" src="" alt="Profile" style="display:none;">
-            <span id="topbar-avatar-initials">AD</span>
+        
+        <div class="dropdown">
+          <div class="user-chip" onclick="toggleUserMenu(event)" title="Menu Akun">
+            <div class="user-avatar" id="topbar-avatar-container">
+              <img id="topbar-avatar-img" src="" alt="Profile" style="display:none;">
+              <span id="topbar-avatar-initials">AD</span>
+            </div>
+            <span class="user-name" id="topbar-user-name">Admin BPN NTB</span>
+            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" style="margin-left:4px; opacity:0.5;"><polyline points="6 9 12 15 18 9"></polyline></svg>
           </div>
-          <span class="user-name" id="topbar-user-name">Admin BPN NTB</span>
-          <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" style="margin-left:4px; opacity:0.5;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          <div class="dropdown-menu" id="user-dropdown">
+            <div style="padding:12px 16px; border-bottom:1px solid var(--border); font-size:11px; color:var(--text-muted);">Masuk sebagai Administrator</div>
+            <a class="dropdown-item" href="javascript:void(0)" onclick="navigateTo('pengaturan')">
+              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Pengaturan Profil
+            </a>
+            <button class="dropdown-item danger" onclick="logout()">
+              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Keluar / Log Out
+            </button>
+          </div>
         </div>
+
       </div>
     </header>
 
@@ -362,11 +383,11 @@
       <div class="page" id="page-list-cacat">
         <div class="page-header"><h1>Cacat <em>Administrasi</em></h1><p>Daftar permohonan pembatalan berdasarkan cacat administrasi</p></div>
         <div class="search-row">
-          <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="text" placeholder="Cari nomor berkas, pemohon, lokasi..." id="search-cacat" oninput="filterTable('cacat')"></div>
+          <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="text" placeholder="Cari nomor berkas, pemohon..." id="search-cacat" oninput="filterTable('cacat')"></div>
           <select class="filter-select" id="filter-status-cacat" onchange="filterTable('cacat')"><option value="">Semua Tahapan</option><option value="0">Usulan Masuk</option><option value="1">Telaah Staff</option><option value="2">Penelitian Lapang</option><option value="3">Gelar Kasus</option><option value="4">Penerbitan SK</option><option value="5">Selesai</option></select>
           <button class="btn btn-primary" onclick="navigateTo('tambah')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Tambah</button>
         </div>
-        <div class="card"><div class="scrollable"><table class="data-table"><thead><tr><th>No. Berkas</th><th>Kantor Pertanahan</th><th>Pemohon</th><th>Objek Tanah</th><th>Lokasi</th><th>Tgl. Usulan</th><th>Tahapan</th><th>Progress</th><th>Aksi</th></tr></thead><tbody id="tbody-cacat"></tbody></table></div></div>
+        <div class="card"><div class="scrollable"><table class="data-table"><thead><tr><th>No. Berkas</th><th>Kantor Pertanahan</th><th>Pemohon</th><th>Objek Tanah</th><th>Desa/Kecamatan</th><th>Tgl. Usulan</th><th>Tahapan</th><th>Progress</th><th>Aksi</th></tr></thead><tbody id="tbody-cacat"></tbody></table></div></div>
       </div>
 
       <div class="page" id="page-list-putusan">
@@ -376,15 +397,19 @@
           <select class="filter-select" id="filter-status-putusan" onchange="filterTable('putusan')"><option value="">Semua Tahapan</option><option value="0">Usulan Masuk</option><option value="1">Telaah Staff</option><option value="2">Penelitian Lapang</option><option value="3">Gelar Kasus</option><option value="4">Penerbitan SK</option><option value="5">Selesai</option></select>
           <button class="btn btn-primary" onclick="navigateTo('tambah','putusan')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Tambah</button>
         </div>
-        <div class="card"><div class="scrollable"><table class="data-table"><thead><tr><th>No. Berkas</th><th>Kantor Pertanahan</th><th>Pemohon</th><th>No. Putusan</th><th>Lokasi</th><th>Tgl. Usulan</th><th>Tahapan</th><th>Progress</th><th>Aksi</th></tr></thead><tbody id="tbody-putusan"></tbody></table></div></div>
+        <div class="card"><div class="scrollable"><table class="data-table"><thead><tr><th>No. Berkas</th><th>Kantor Pertanahan</th><th>Pemohon</th><th>No. Putusan</th><th>Desa/Kecamatan</th><th>Tgl. Usulan</th><th>Tahapan</th><th>Progress</th><th>Aksi</th></tr></thead><tbody id="tbody-putusan"></tbody></table></div></div>
       </div>
 
       <div class="page" id="page-tambah">
-        <div class="page-header"><h1>Tambah <em>Permohonan</em></h1><p>Input data permohonan pembatalan baru</p></div>
+        <div class="page-header"><h1>Tambah <em>Permohonan</em></h1><p>Input data permohonan pembatalan baru (Tahapan diproses setelah data tersimpan)</p></div>
         <div class="card" style="max-width:820px">
           <div class="card-header"><span class="card-title">Formulir Permohonan</span></div>
           <div class="card-body">
-            <div class="tabs" style="margin-bottom:24px"><button type="button" class="tab active" onclick="switchFormTab('info')">Informasi Umum</button><button type="button" class="tab" onclick="switchFormTab('detail')">Detail Objek</button><button type="button" class="tab" onclick="switchFormTab('tahapan')">Tahapan Proses</button></div>
+            <div class="tabs" style="margin-bottom:24px">
+              <button type="button" class="tab active" onclick="switchFormTab('info')">Informasi Umum</button>
+              <button type="button" class="tab" onclick="switchFormTab('detail')">Detail Objek Wilayah</button>
+            </div>
+            
             <form id="form-permohonan" onsubmit="submitForm(event)">
               <div id="form-tab-info">
                 <div class="form-grid">
@@ -393,27 +418,39 @@
                   <div class="form-group"><label for="f-kantah">Kantor Pertanahan Pengusul *</label><select class="form-control" id="f-kantah" required><option value="">-- Pilih --</option><option>Kota Mataram</option><option>Lombok Barat</option><option>Lombok Tengah</option><option>Lombok Timur</option><option>Lombok Utara</option><option>Sumbawa</option><option>Sumbawa Barat</option><option>Dompu</option><option>Bima</option><option>Kota Bima</option></select></div>
                   <div class="form-group"><label for="f-tglUsulan">Tanggal Surat Usulan *</label><input type="date" class="form-control" id="f-tglUsulan" required></div>
                   <div class="form-group"><label for="f-pemohon">Nama Pemohon *</label><input type="text" class="form-control" id="f-pemohon" required></div>
-                  <div class="form-group"><label for="f-kontak">No. HP / Kontak</label><input type="text" class="form-control" id="f-kontak" placeholder="08xxxxxxxxxx"></div>
+                  <div class="form-group"><label for="f-kontak">No. HP / Kontak Pemohon</label><input type="text" class="form-control" id="f-kontak" placeholder="08xxxxxxxxxx"></div>
+                  <div class="form-group"><label for="f-pj">Penanggung Jawab Berkas *</label><input type="text" class="form-control" id="f-pj" placeholder="Nama Petugas/Admin Kantah" required></div>
+                  
                   <div class="form-group full form-grid" style="grid-template-columns:1fr 1fr"><div class="form-group" id="f-noputs-group" style="display:none"><label for="f-noputs">Nomor Putusan Pengadilan</label><input type="text" class="form-control" id="f-noputs"></div></div>
                 </div>
               </div>
+              
               <div id="form-tab-detail" style="display:none">
                 <div class="form-grid">
                   <div class="form-group"><label for="f-jenissert">Jenis Sertipikat</label><select class="form-control" id="f-jenissert"><option value="">-- Pilih --</option><option>Hak Milik</option><option>HGB</option><option>HGU</option><option>Hak Pakai</option><option>Hak Pengelolaan</option></select></div>
                   <div class="form-group"><label for="f-nosert">Nomor Sertipikat</label><input type="text" class="form-control" id="f-nosert"></div>
                   <div class="form-group"><label for="f-luas">Luas Tanah (m²)</label><input type="number" class="form-control" id="f-luas" placeholder="0"></div>
-                  <div class="form-group"><label for="f-kecamatan">Kecamatan</label><input type="text" class="form-control" id="f-kecamatan"></div>
-                  <div class="form-group full" style="grid-column:1/-1"><label for="f-lokasi">Lokasi / Alamat</label><textarea class="form-control" id="f-lokasi"></textarea></div>
-                  <div class="form-group full" style="grid-column:1/-1"><label for="f-uraian">Uraian Singkat Kasus</label><textarea class="form-control" id="f-uraian" style="min-height:120px"></textarea></div>
+                  
+                  <div class="form-group"><label for="f-desa">Desa / Kelurahan</label><input type="text" class="form-control" id="f-desa" placeholder="Nama Desa/Kel"></div>
+                  <div class="form-group"><label for="f-kecamatan">Kecamatan</label><input type="text" class="form-control" id="f-kecamatan" placeholder="Nama Kecamatan"></div>
+                  <div class="form-group"><label for="f-kabupaten">Kota / Kabupaten</label><input type="text" class="form-control" id="f-kabupaten" placeholder="Nama Kota/Kabupaten"></div>
+                  
+                  <div class="form-group full" style="grid-column:1/-1;">
+                    <label for="f-dokumenbt">Upload Dokumen Buku Tanah / Surat Ukur (PDF)</label>
+                    <input type="file" class="form-control" id="f-dokumenbt" accept="application/pdf" style="padding:10px;">
+                    <small style="color:var(--text-muted); margin-top:4px; font-size:11px;">Maksimal file 2MB.</small>
+                  </div>
+
+                  <div class="form-group full" style="grid-column:1/-1"><label for="f-uraian">Uraian Singkat Kasus</label><textarea class="form-control" id="f-uraian" style="min-height:100px"></textarea></div>
                 </div>
               </div>
-              <div id="form-tab-tahapan" style="display:none"><p style="font-size:13px;color:var(--text-muted);margin-bottom:20px">Tentukan tahapan yang sudah selesai beserta tanggalnya.</p><div id="tahapan-form-list"></div></div>
+              
               <div class="divider"></div>
               <div style="display:flex;gap:10px;justify-content:flex-end">
                 <button type="button" class="btn btn-secondary" onclick="navigateTo('dashboard')">Batal</button>
                 <button type="button" class="btn btn-secondary" id="btn-prev-tab" style="display:none" onclick="prevFormTab()">← Kembali</button>
                 <button type="button" class="btn btn-primary" id="btn-next-tab" onclick="nextFormTab()">Lanjut →</button>
-                <button type="submit" class="btn btn-primary" id="btn-submit" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg> Simpan</button>
+                <button type="submit" class="btn btn-primary" id="btn-submit" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg> Simpan Data Usulan</button>
               </div>
             </form>
           </div>
@@ -576,6 +613,18 @@ function handleLogin(e) {
   }
 }
 
+// LOGIKA DROPDOWN MENU KELUAR
+function toggleUserMenu(e) {
+  e.stopPropagation(); // Mencegah klik menyebar ke window
+  document.getElementById('user-dropdown').classList.toggle('show');
+}
+window.addEventListener('click', function(e) {
+  const dropdown = document.getElementById('user-dropdown');
+  if(dropdown && dropdown.classList.contains('show')) {
+    dropdown.classList.remove('show');
+  }
+});
+
 function logout() {
   if(confirm('Apakah Anda yakin ingin keluar dari sistem?')) {
     localStorage.removeItem('sipentas-logged-in');
@@ -603,33 +652,25 @@ async function handleAvatarUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
 
-  if (file.size > 2 * 1024 * 1024) {
-    showToast('Gagal: Ukuran foto maksimal 2MB!', 'error');
-    return;
-  }
+  if (file.size > 2 * 1024 * 1024) { showToast('Gagal: Ukuran foto maksimal 2MB!', 'error'); return; }
   
   try {
     const base64Image = await readFileAsBase64(file);
-    // Tampilkan di preview setting
     document.getElementById('profile-preview-img').src = base64Image;
     document.getElementById('profile-preview-img').style.display = 'block';
     document.getElementById('profile-preview-initials').style.display = 'none';
     
-    // Tampilkan juga di Topbar (pojok kanan atas)
     document.getElementById('topbar-avatar-img').src = base64Image;
     document.getElementById('topbar-avatar-img').style.display = 'block';
     document.getElementById('topbar-avatar-initials').style.display = 'none';
 
     showToast('Foto profil berhasil diperbarui!', 'success');
-  } catch (error) {
-    showToast('Gagal memuat gambar.', 'error');
-  }
+  } catch (error) { showToast('Gagal memuat gambar.', 'error'); }
 }
 
 function handleSimpanProfil(e) {
   e.preventDefault();
   const namaBaru = document.getElementById('p-nama').value;
-  // Update nama di topbar
   if(namaBaru) document.getElementById('topbar-user-name').textContent = namaBaru;
   showToast('Data diri berhasil disimpan!', 'success');
 }
@@ -638,14 +679,9 @@ function handleUbahSandi(e) {
   e.preventDefault();
   const baru = document.getElementById('s-new-pass').value;
   const konfirm = document.getElementById('s-confirm-pass').value;
-
-  if (baru !== konfirm) {
-    showToast('Konfirmasi sandi tidak cocok!', 'error');
-    return;
-  }
-
+  if (baru !== konfirm) { showToast('Konfirmasi sandi tidak cocok!', 'error'); return; }
   showToast('Kata sandi berhasil diperbarui!', 'success');
-  e.target.reset(); // Kosongkan form
+  e.target.reset();
 }
 
 // ══════════════════════════════════════════════════════════
@@ -731,25 +767,29 @@ function renderDashboard() {
 }
 
 // ══════════════════════════════════════════════════════════
-// TABLE RENDER
+// TABLE RENDER (Update: Menampilkan Desa/Kecamatan)
 // ══════════════════════════════════════════════════════════
 function renderTable(type) {
   const tbody = document.getElementById('tbody-' + type); const search = (document.getElementById('search-' + type)?.value || '').toLowerCase(); const filterStatus = document.getElementById('filter-status-' + type)?.value;
   let filtered = cases.filter(c => c.jenis === type);
-  if (search) filtered = filtered.filter(c => c.nomorberkas.toLowerCase().includes(search) || c.pemohon.toLowerCase().includes(search) || (c.lokasi||'').toLowerCase().includes(search) || (c.noputs||'').toLowerCase().includes(search));
+  if (search) filtered = filtered.filter(c => c.nomorberkas.toLowerCase().includes(search) || c.pemohon.toLowerCase().includes(search) || (c.desa||'').toLowerCase().includes(search) || (c.noputs||'').toLowerCase().includes(search));
   if (filterStatus !== '' && filterStatus !== undefined) filtered = filtered.filter(c => String(c.currentStep) === String(filterStatus));
 
   if (!filtered.length) { tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:40px">Tidak ada data</td></tr>`; return; }
   tbody.innerHTML = filtered.map(c => {
     const progress = Math.round(((c.currentStep) / 5) * 100); const steps = Array.from({length:5}, (_,i) => `<div class="pipe-step ${i < c.currentStep ? 'done' : i === c.currentStep ? 'active' : ''}"></div>`).join('');
     const extraCol = type === 'putusan' ? `<td style="font-size:12px">${escapeHTML(c.noputs||'-')}</td>` : `<td style="font-size:12px">${escapeHTML(c.nosert||'-')}</td>`;
-    return `<tr onclick="openDetail('${c.id}')"><td><code style="font-size:12px;background:var(--surface);padding:2px 7px;border-radius:4px">${escapeHTML(c.nomorberkas)}</code></td><td style="font-size:12px">${escapeHTML(c.kantah)}</td><td style="font-size:12px">${escapeHTML(c.pemohon)}</td>${extraCol}<td style="font-size:12px">${escapeHTML(c.kecamatan||c.lokasi||'-')}</td><td style="font-size:12px">${fmtDate(c.tglUsulan)}</td><td><span class="status-badge ${STATUS_MAP[c.currentStep]?.cls}">${STATUS_MAP[c.currentStep]?.label}</span></td><td style="min-width:80px"><div style="display:flex;flex-direction:column;gap:3px"><div class="pipeline">${steps}</div><span style="font-size:10px;color:var(--text-muted)">${progress}%</span></div></td><td onclick="event.stopPropagation()"><div style="display:flex;gap:6px"><button class="btn btn-secondary btn-sm" onclick="openDetail('${c.id}')">Detail</button><button class="btn btn-danger btn-sm" onclick="deleteCase('${c.id}')">Hapus</button></div></td></tr>`;
+    
+    // Gabungan Desa dan Kecamatan
+    const domisili = [c.desa, c.kecamatan].filter(Boolean).join(', ');
+
+    return `<tr onclick="openDetail('${c.id}')"><td><code style="font-size:12px;background:var(--surface);padding:2px 7px;border-radius:4px">${escapeHTML(c.nomorberkas)}</code></td><td style="font-size:12px">${escapeHTML(c.kantah)}</td><td style="font-size:12px">${escapeHTML(c.pemohon)}</td>${extraCol}<td style="font-size:12px">${escapeHTML(domisili||'-')}</td><td style="font-size:12px">${fmtDate(c.tglUsulan)}</td><td><span class="status-badge ${STATUS_MAP[c.currentStep]?.cls}">${STATUS_MAP[c.currentStep]?.label}</span></td><td style="min-width:80px"><div style="display:flex;flex-direction:column;gap:3px"><div class="pipeline">${steps}</div><span style="font-size:10px;color:var(--text-muted)">${progress}%</span></div></td><td onclick="event.stopPropagation()"><div style="display:flex;gap:6px"><button class="btn btn-secondary btn-sm" onclick="openDetail('${c.id}')">Detail</button><button class="btn btn-danger btn-sm" onclick="deleteCase('${c.id}')">Hapus</button></div></td></tr>`;
   }).join('');
 }
 function filterTable(type) { renderTable(type); }
 
 // ══════════════════════════════════════════════════════════
-// DETAIL VIEW (DENGAN INDIKATOR CHECKLIST HIJAU)
+// DETAIL VIEW (Update: Penanggung Jawab, Desa, Kec, Dokumen BT)
 // ══════════════════════════════════════════════════════════
 function openDetail(id) {
   const c = cases.find(x => x.id === id); if (!c) return; prevPage = currentPage; currentPage = 'detail';
@@ -775,12 +815,38 @@ function openDetail(id) {
     return `<div class="step-item"><div class="step-num ${cls}">${i+1}</div><div class="step-content"><div class="step-title">${label} ${checkIcon}</div>${dateHtml}${noteHtml}</div>${actionBtn}</div>`;
   }).join('');
 
+  // Tombol Download Dokumen Buku Tanah
+  let btnUnduhBT = '';
+  if(c.dokumenbt && c.dokumenbt.file) {
+    btnUnduhBT = `<a href="${c.dokumenbt.file}" download="${c.dokumenbt.name}" class="btn btn-secondary btn-sm" style="margin-top:12px; font-size:11px; padding:6px 12px; text-decoration:none;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg> Unduh Buku Tanah (PDF)</a>`;
+  } else {
+    btnUnduhBT = `<div style="margin-top:12px; font-size:11px; color:var(--text-muted); font-style:italic;">Buku Tanah/Surat Ukur belum dilampirkan.</div>`;
+  }
+
   document.getElementById('detail-content').innerHTML = `
-    <div class="detail-header"><div class="detail-case-id">ID BERKAS</div><div class="detail-title">${escapeHTML(c.nomorberkas)}</div><div class="detail-metas"><div class="detail-meta-item"><strong>Pemohon:</strong>${escapeHTML(c.pemohon)}</div><div class="detail-meta-item"><strong>Jenis:</strong>${c.jenis === 'cacat' ? 'Cacat Administrasi' : 'Putusan Pengadilan'}</div><div class="detail-meta-item"><strong>Kantah:</strong>${escapeHTML(c.kantah)}</div><div class="detail-meta-item"><strong>Tgl. Usulan:</strong>${fmtDate(c.tglUsulan)}</div></div></div>
+    <div class="detail-header"><div class="detail-case-id">ID BERKAS</div><div class="detail-title">${escapeHTML(c.nomorberkas)}</div><div class="detail-metas"><div class="detail-meta-item"><strong>Pemohon:</strong>${escapeHTML(c.pemohon)}</div><div class="detail-meta-item"><strong>PJ Berkas:</strong>${escapeHTML(c.pj||'-')}</div><div class="detail-meta-item"><strong>Kantah:</strong>${escapeHTML(c.kantah)}</div><div class="detail-meta-item"><strong>Tgl. Usulan:</strong>${fmtDate(c.tglUsulan)}</div></div></div>
     <div style="display:grid;grid-template-columns:1fr 360px;gap:20px" class="dashboard-grid">
       <div class="card"><div class="card-header"><span class="card-title">Riwayat Tahapan</span></div><div class="card-body"><div class="stepper">${steps}</div></div></div>
       <div style="display:flex;flex-direction:column;gap:16px">
-        <div class="card"><div class="card-header"><span class="card-title">Informasi Kasus</span></div><div class="card-body"><div class="info-grid"><div class="info-item"><label>Jenis Sertipikat</label><span>${escapeHTML(c.jenissert||'-')}</span></div><div class="info-item"><label>No. Sertipikat</label><span>${escapeHTML(c.nosert||'-')}</span></div><div class="info-item"><label>Luas Tanah</label><span>${c.luas ? formatNumber(c.luas) + ' m²' : '-'}</span></div><div class="info-item"><label>Kecamatan</label><span>${escapeHTML(c.kecamatan||'-')}</span></div>${c.jenis === 'putusan' ? `<div class="info-item" style="grid-column:1/-1"><label>No. Putusan</label><span>${escapeHTML(c.noputs||'-')}</span></div>` : ''}<div class="info-item" style="grid-column:1/-1"><label>Lokasi</label><span>${escapeHTML(c.lokasi||'-')}</span></div></div></div></div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Informasi Kasus & Objek</span></div>
+          <div class="card-body">
+            <div class="info-grid">
+              <div class="info-item"><label>Jenis Sertipikat</label><span>${escapeHTML(c.jenissert||'-')}</span></div>
+              <div class="info-item"><label>No. Sertipikat</label><span>${escapeHTML(c.nosert||'-')}</span></div>
+              <div class="info-item"><label>Luas Tanah</label><span>${c.luas ? formatNumber(c.luas) + ' m²' : '-'}</span></div>
+              ${c.jenis === 'putusan' ? `<div class="info-item"><label>No. Putusan</label><span>${escapeHTML(c.noputs||'-')}</span></div>` : ''}
+              
+              <div class="info-item" style="grid-column:1/-1; margin-top:8px; border-top:1px solid var(--border); padding-top:12px;">
+                <label>Lokasi / Domisili Objek Tanah</label>
+                <span style="display:block; margin-bottom:4px;"><strong>Desa/Kel:</strong> ${escapeHTML(c.desa||'-')}</span>
+                <span style="display:block; margin-bottom:4px;"><strong>Kecamatan:</strong> ${escapeHTML(c.kecamatan||'-')}</span>
+                <span style="display:block;"><strong>Kab/Kota:</strong> ${escapeHTML(c.kabupaten||'-')}</span>
+              </div>
+            </div>
+            ${btnUnduhBT}
+          </div>
+        </div>
         ${c.uraian ? `<div class="card"><div class="card-header"><span class="card-title">Uraian Kasus</span></div><div class="card-body"><p style="font-size:13px;line-height:1.7;color:var(--text-sub)">${escapeHTML(c.uraian)}</p></div></div>` : ''}
         <div class="card"><div class="card-header"><span class="card-title">Status Saat Ini</span></div><div class="card-body"><span class="status-badge ${STATUS_MAP[c.currentStep]?.cls}" style="font-size:13px;padding:6px 14px">${STATUS_MAP[c.currentStep]?.label}</span><div style="margin-top:12px"><div class="progress-bar"><div class="progress-fill" style="width:${Math.round((c.currentStep/5)*100)}%"></div></div><div style="font-size:11px;color:var(--text-muted);margin-top:4px">${Math.round((c.currentStep/5)*100)}% selesai</div></div></div></div>
       </div>
@@ -800,20 +866,85 @@ function viewTahapan(id, stepIdx) {
 }
 
 // ══════════════════════════════════════════════════════════
-// FORM & UPDATE TAHAPAN (FILE UPLOAD)
+// FORM TAMBAH PERMOHONAN (Update: Tanpa Tab Tahapan)
 // ══════════════════════════════════════════════════════════
-let currentFormTab = 'info'; const formTabs = ['info', 'detail', 'tahapan'];
-function resetForm(preselect) { document.getElementById('form-permohonan').reset(); if (preselect) document.getElementById('f-jenis').value = preselect; showFormTab('info'); renderTahapanForm(); togglePutsanField(); document.getElementById('f-jenis').addEventListener('change', togglePutsanField); }
+let currentFormTab = 'info'; 
+const formTabs = ['info', 'detail']; // Tab tahapan dihapus
+function resetForm(preselect) { 
+  document.getElementById('form-permohonan').reset(); 
+  if (preselect) document.getElementById('f-jenis').value = preselect; 
+  showFormTab('info'); 
+  togglePutsanField(); 
+  document.getElementById('f-jenis').addEventListener('change', togglePutsanField); 
+}
 function togglePutsanField() { document.getElementById('f-noputs-group').style.display = document.getElementById('f-jenis').value === 'putusan' ? '' : 'none'; }
 function switchFormTab(tab) { showFormTab(tab); }
-function showFormTab(tab) { formTabs.forEach(t => { document.getElementById('form-tab-' + t).style.display = t === tab ? '' : 'none'; }); document.querySelectorAll('.tabs .tab').forEach((btn, i) => { btn.classList.toggle('active', formTabs[i] === tab); }); const idx = formTabs.indexOf(tab); document.getElementById('btn-prev-tab').style.display = idx === 0 ? 'none' : ''; document.getElementById('btn-next-tab').style.display = idx === formTabs.length - 1 ? 'none' : ''; document.getElementById('btn-submit').style.display = idx === formTabs.length - 1 ? '' : 'none'; currentFormTab = tab; }
+function showFormTab(tab) { 
+  formTabs.forEach(t => { document.getElementById('form-tab-' + t).style.display = t === tab ? '' : 'none'; }); 
+  document.querySelectorAll('.tabs .tab').forEach((btn, i) => { btn.classList.toggle('active', formTabs[i] === tab); }); 
+  const idx = formTabs.indexOf(tab); 
+  document.getElementById('btn-prev-tab').style.display = idx === 0 ? 'none' : ''; 
+  document.getElementById('btn-next-tab').style.display = idx === formTabs.length - 1 ? 'none' : ''; 
+  document.getElementById('btn-submit').style.display = idx === formTabs.length - 1 ? '' : 'none'; 
+  currentFormTab = tab; 
+}
 function nextFormTab() { const idx = formTabs.indexOf(currentFormTab); if (idx < formTabs.length - 1) showFormTab(formTabs[idx + 1]); }
 function prevFormTab() { const idx = formTabs.indexOf(currentFormTab); if (idx > 0) showFormTab(formTabs[idx - 1]); }
 
-function renderTahapanForm() { document.getElementById('tahapan-form-list').innerHTML = TAHAPAN_LABELS.map((label, i) => `<div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div class="step-num done" style="width:26px;height:26px;font-size:11px">${i+1}</div><div style="font-size:13px;font-weight:500">${label}</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="form-group"><label for="th-date-${i}">Tanggal</label><input type="date" class="form-control form-control-sm" id="th-date-${i}" style="font-size:12px;padding:7px 10px"></div><div class="form-group"><label for="th-note-${i}">Catatan</label><input type="text" class="form-control form-control-sm" id="th-note-${i}" placeholder="Catatan opsional" style="font-size:12px;padding:7px 10px"></div></div></div>`).join(''); }
+async function submitForm(e) { 
+  e.preventDefault(); 
+  const jenis = document.getElementById('f-jenis').value; 
+  if (!jenis) { showToast('Pilih jenis permohonan!', 'error'); return; } 
+  
+  // Membaca file Buku Tanah/Surat Ukur
+  const fileInput = document.getElementById('f-dokumenbt');
+  let dokumenbtData = { file: null, name: '' };
+  
+  if (fileInput.files.length > 0) {
+    const file = fileInput.files[0];
+    if (file.type !== 'application/pdf') { showToast('Buku Tanah harus PDF!', 'error'); return; }
+    if (file.size > 2 * 1024 * 1024) { showToast('Buku Tanah maksimal 2MB!', 'error'); return; }
+    try {
+      dokumenbtData.file = await readFileAsBase64(file);
+      dokumenbtData.name = file.name;
+    } catch(err) {
+      showToast('Gagal membaca file Buku Tanah', 'error'); return;
+    }
+  }
 
-function submitForm(e) { e.preventDefault(); const jenis = document.getElementById('f-jenis').value; if (!jenis) { showToast('Pilih jenis permohonan!', 'error'); return; } const tahapan = TAHAPAN_LABELS.map((_, i) => ({ date: document.getElementById('th-date-' + i)?.value || '', note: document.getElementById('th-note-' + i)?.value || '' })); const currentStep = tahapan.reduce((acc, t, i) => t.date ? i + 1 : acc, 0); cases.push({ id: 'c' + Date.now(), nomorberkas: document.getElementById('f-nomorberkas').value, jenis, kantah: document.getElementById('f-kantah').value, tglUsulan: document.getElementById('f-tglUsulan').value, pemohon: document.getElementById('f-pemohon').value, kontak: document.getElementById('f-kontak').value, noputs: document.getElementById('f-noputs').value, jenissert: document.getElementById('f-jenissert').value, nosert: document.getElementById('f-nosert').value, luas: document.getElementById('f-luas').value, kecamatan: document.getElementById('f-kecamatan').value, lokasi: document.getElementById('f-lokasi').value, uraian: document.getElementById('f-uraian').value, tahapan, currentStep, createdAt: new Date().toISOString() }); saveData(); updateStats(); showToast('Permohonan berhasil disimpan!', 'success'); navigateTo(jenis === 'cacat' ? 'list-cacat' : 'list-putusan'); }
+  // Generate struktur array Tahapan kosong (karena tidak diisi saat Tambah Permohonan)
+  const initialTahapan = TAHAPAN_LABELS.map(() => ({ date: '', note: '', file: null, fileName: '' }));
 
+  cases.push({ 
+    id: 'c' + Date.now(), 
+    nomorberkas: document.getElementById('f-nomorberkas').value, 
+    jenis, 
+    kantah: document.getElementById('f-kantah').value, 
+    tglUsulan: document.getElementById('f-tglUsulan').value, 
+    pemohon: document.getElementById('f-pemohon').value, 
+    kontak: document.getElementById('f-kontak').value, 
+    pj: document.getElementById('f-pj').value, // Penanggung Jawab
+    noputs: document.getElementById('f-noputs').value, 
+    jenissert: document.getElementById('f-jenissert').value, 
+    nosert: document.getElementById('f-nosert').value, 
+    luas: document.getElementById('f-luas').value, 
+    desa: document.getElementById('f-desa').value, // Desa
+    kecamatan: document.getElementById('f-kecamatan').value, // Kecamatan
+    kabupaten: document.getElementById('f-kabupaten').value, // Kab
+    dokumenbt: dokumenbtData, // Data File
+    uraian: document.getElementById('f-uraian').value, 
+    tahapan: initialTahapan, // Tahapan mulai dari 0
+    currentStep: 0, // Posisi step di awal
+    createdAt: new Date().toISOString() 
+  }); 
+
+  saveData(); 
+  updateStats(); 
+  showToast('Permohonan berhasil disimpan!', 'success'); 
+  navigateTo(jenis === 'cacat' ? 'list-cacat' : 'list-putusan'); 
+}
+
+// FUNGSI UPDATE TAHAPAN SATU PER SATU
 let updatingCaseId = ''; let updatingStepIdx = 0;
 function openUpdateTahapan(id, stepIdx) { updatingCaseId = id; updatingStepIdx = stepIdx; const c = cases.find(x => x.id === id); const label = TAHAPAN_LABELS[stepIdx]; const existingFileLabel = c.tahapan?.[stepIdx]?.fileName ? `<div style="font-size:11px;color:#1B5E20;margin-top:4px;font-weight:600;">Terunggah: ${escapeHTML(c.tahapan[stepIdx].fileName)}</div>` : ''; document.getElementById('modal-tahapan-body').innerHTML = `<p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Tahapan: <strong style="color:var(--text)">${label}</strong></p><div class="form-group" style="margin-bottom:12px"><label for="upd-date">Tanggal Penyelesaian *</label><input type="date" class="form-control" id="upd-date" value="${c.tahapan?.[stepIdx]?.date || ''}"></div><div class="form-group" style="margin-bottom:12px"><label for="upd-note">Catatan</label><textarea class="form-control" id="upd-note" placeholder="Catatan proses...">${escapeHTML(c.tahapan?.[stepIdx]?.note || '')}</textarea></div><div class="form-group"><label for="upd-file">Unggah Dokumen PDF (Maks 2MB)</label><input type="file" class="form-control" id="upd-file" accept="application/pdf" style="padding: 7px 14px; font-size: 12px;">${existingFileLabel}</div>`; openModal('modal-tahapan'); }
 
@@ -845,7 +976,7 @@ function showToast(msg, type = '') { const c = document.getElementById('toast-co
 document.querySelectorAll('.modal-overlay').forEach(ov => { ov.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); }); });
 
 // Init Sample
-if (cases.length === 0) { cases = [ { id: 'c1', nomorberkas: 'BPN/001', jenis: 'cacat', kantah: 'Mataram', tglUsulan: '2025-02-10', pemohon: 'H. Ahmad', luas: '250', tahapan: [{date:'2025-02-10', note:'OK'}], currentStep: 1 } ]; saveData(); }
+if (cases.length === 0) { cases = [ { id: 'c1', nomorberkas: 'BPN/001', jenis: 'cacat', kantah: 'Mataram', tglUsulan: '2025-02-10', pemohon: 'H. Ahmad', pj: 'Budi Santoso', luas: '250', desa: 'Sekarbela', kecamatan: 'Mataram', kabupaten: 'Kota Mataram', tahapan: [{date:'2025-02-10', note:'Berkas dianalisa'}], currentStep: 1 } ]; saveData(); }
 updateStats(); renderDashboard(); renderMiniCal(); renderAlur();
 
 // Inisialisasi Tampilan Berdasarkan Status Login
