@@ -617,66 +617,156 @@
 // ══════════════════════════════════════════════════════════
 // 1. DATA MASTER & SISTEM WILAYAH NTB (KABUPATEN -> KECAMATAN -> DESA)
 // ══════════════════════════════════════════════════════════
-const ntbData = {
-  "Kabupaten Lombok Barat": {
-    "Batu Layar": ["Batu Layar", "Meninting", "Senggigi", "Sandik", "Lembah Sari"],
-    "Gerung": ["Gerung Selatan", "Gerung Utara", "Kuranji", "Dasan Geres", "Banyu Urip"],
-    "Kediri": ["Kediri", "Kediri Selatan", "Rumak", "Ombe Baru", "Gelogor"],
-    "Narmada": ["Narmada", "Sesaot", "Suranadi", "Lembuak", "Selat"]
-  },
-  "Kabupaten Lombok Tengah": {
-    "Praya": ["Praya", "Renteng", "Semayan", "Jago", "Tiwn Galih"],
-    "Praya Tengah": ["Batunyala", "Beraim", "Lajut", "Pejanggik", "Pengadang"],
-    "Pujut": ["Kuta", "Sengkol", "Ketara", "Sukadana", "Teruwai"],
-    "Jonggat": ["Puyung", "Sukerara", "Bonder", "Nyerot", "Barejulat"]
-  },
-  "Kabupaten Lombok Timur": {
-    "Selong": ["Selong", "Pancor", "Majidi", "Kelayu Utara", "Kelayu Selatan"],
-    "Masbagik": ["Masbagik Utara", "Masbagik Selatan", "Kesik", "Danger"],
-    "Jerowaru": ["Jerowaru", "Pemongkong", "Serewe", "Sekaroh", "Batu Nampar"],
-    "Sembalun": ["Sembalun Bumbung", "Sembalun Lawang", "Sajang", "Bilok Petung"]
-  },
-  "Kabupaten Lombok Utara": {
-    "Tanjung": ["Tanjung", "Jenggala", "Sokong", "Sigar Penjalin", "Teniga"],
-    "Pemenang": ["Pemenang Barat", "Pemenang Timur", "Malaka", "Gili Indah"],
-    "Bayan": ["Bayan", "Anyar", "Senaru", "Karang Bajo", "Sambik Elen"]
-  },
-  "Kabupaten Sumbawa": {
-    "Sumbawa": ["Sumbawa", "Pekat", "Samapuin", "Lempeh", "Brang Bara"],
-    "Alas": ["Alas", "Kalimango", "Juranalas", "Marente"],
-    "Empang": ["Empang Atas", "Empang Bawah", "Bunga Eja", "Jotang"],
-    "Plampang": ["Plampang", "Sepakat", "Muer", "Sepayung"]
-  },
-  "Kabupaten Sumbawa Barat": {
-    "Taliwang": ["Kuang", "Menala", "Sampir", "Bugis", "Dalam"],
-    "Seteluk": ["Seteluk Atas", "Seteluk Tengah", "Kelanir", "Air Suning"],
-    "Maluk": ["Maluk", "Pasir Putih", "Benete", "Bukit Damai"]
-  },
-  "Kabupaten Dompu": {
-    "Dompu": ["Bada", "Bali", "Potu", "Karijawa", "Dorebara"],
-    "Woja": ["Baka Jaya", "Monta Baru", "Wawonduru", "Simpasai"],
-    "Pekat": ["Pekat", "Calabai", "Nangakara", "Kadindi"]
-  },
-  "Kabupaten Bima": {
-    "Woha": ["Tente", "Talabiu", "Naru", "Donggobolo", "Rabakodo"],
-    "Bolo": ["Sila", "Rato", "Rasadou", "Leu"],
-    "Sape": ["Naru Barat", "Naru Timur", "Sangia", "Bugis"]
-  },
+const rawNTB = {
   "Kota Mataram": {
-    "Ampenan": ["Ampenan Selatan", "Ampenan Tengah", "Ampenan Utara", "Banjar", "Bintaro"],
-    "Cakranegara": ["Cakranegara Barat", "Cakranegara Selatan", "Cakranegara Timur", "Cakranegara Utara"],
-    "Mataram": ["Mataram Timur", "Pageangan", "Pejanggik", "Punto"],
-    "Sandubaya": ["Abian Tubuh Baru", "Babakan", "Mandalika", "Selagalas"],
-    "Sekarbela": ["Jempong Baru", "Karang Pule", "Kekalik Jaya", "Tanjung Karang"],
-    "Selaparang": ["Gomong", "Monjok", "Rembiga", "Udayana"]
+    "Ampenan": "Ampenan Selatan,Ampenan Tengah,Ampenan Utara,Banjar,Bintaro,Dayan Peken,Kebun Sari,Pande Besi,Pejeruk,Taman Sari",
+    "Cakranegara": "Cakranegara Barat,Cakranegara Selatan,Cakranegara Selatan Baru,Cakranegara Timur,Cakranegara Utara,Cakra Barat,Karang Taliwang,Mayura,Sayang-sayang,Taliwang",
+    "Mataram": "Mataram Timur,Pageangan,Pejanggik,Punia,Pagutan,Pagutan Barat,Pagutan Timur",
+    "Sandubaya": "Abian Tubuh Baru,Babakan,Dasan Cermen,Mandalika,Selagalas,Turida,Bertais",
+    "Sekarbela": "Jempong Baru,Karang Pule,Kekalik Jaya,Tanjung Karang,Tanjung Karang Permai",
+    "Selaparang": "Dasan Agung,Dasan Agung Baru,Gomong,Karang Baru,Mataram Barat,Monjok,Monjok Barat,Monjok Timur,Rembiga"
   },
   "Kota Bima": {
-    "Mpunda": ["Penatoi", "Lewirato", "Sadia", "Mande"],
-    "Raba": ["Raba", "Penaraga", "Kendo", "Ntobo"],
-    "Asakota": ["Melayu", "Jatiwangi", "Kolo", "Ule"]
+    "Asakota": "Jatibaru,Jatibaru Timur,Jatiwangi,Kolo,Melayu,Ule",
+    "Mpunda": "Lewirato,Mande,Manggemaci,Matakando,Monggonao,Panggi,Penatoi,Sadia,Santi",
+    "Raba": "Kendo,Nitu,Ntobo,Penaraga,Rabangodu Selatan,Rabangodu Utara,Raba Dompu Barat,Raba Dompu Timur,Rite,Rontu",
+    "Rasanae Barat": "Dara,Nae,Pane,Paruga,Tanjung",
+    "Rasanae Timur": "Dodu,Kumbe,Kumpa,Nungga,Oimbo,Lelamase"
+  },
+  "Kabupaten Lombok Barat": {
+    "Batu Layar": "Batu Layar,Batu Layar Barat,Bengkaung,Lembah Sari,Meninting,Pusuk Lestari,Sandik,Senggigi,Senteluk",
+    "Gerung": "Babussalam,Banyu Urip,Beleka,Dasan Geres,Dasan Tapen,Gapuk,Gerung Selatan,Gerung Utara,Kebun Ayu,Mesanggok,Suka Makmur,Tempos",
+    "Gunungsari": "Bukittinggi,Dopang,Gelangsar,Gunungsari,Jatisela,Kekait,Kekeri,Mekarsari,Midang,Nambik,Penimbung,Ranjok,Sesela,Taman Sari",
+    "Kediri": "Banyumulek,Dasan Baru,Gelogor,Jagaraga Indah,Kediri,Kediri Selatan,Lelede,Montong Are,Ombe Baru,Rumak",
+    "Kuripan": "Giri Sasak,Jagaraga,Kuripan,Kuripan Selatan,Kuripan Timur,Kuripan Utara",
+    "Labuapi": "Bagik Polak,Bagik Polak Barat,Bajur,Bengkel,Dasan Tapen,Karang Bongkot,Kuranji,Kuranji Dalang,Labuapi,Merembu,Perampuan,Terong Tawah",
+    "Lembar": "Bakong,Eyat Mayang,Jembatan Gantung,Jembatan Kembar,Jembatan Kembar Timur,Lembar,Lembar Selatan,Mareje,Mareje Timur,Sekotong Timur",
+    "Lingsar": "Batu Kumbung,Batu Mekar,Bug-bug,Dasan Geria,Duman,Gegelang,Gegerung,Karang Bayan,Langko,Lingsar,Peteluan Indah,Saribaye,Sigerongan",
+    "Narmada": "Badrain,Batu Kuta,Buwun Sejati,Dasan Tereng,Gerimax Indah,Golong,Krama Jaya,Lebah Sempaga,Lembuak,Mekarsari,Narmada,Nyur Lembang,Pakuan,Peresak,Peru,Puyot,Sedau,Selat,Sesaot,Suranadi,Tanak Beak",
+    "Sekotong": "Batu Putih,Buwun Mas,Cendi Manik,Gili Gede Indah,Kedaro,Pelangan,Sekotong Barat,Sekotong Tengah,Taman Baru"
+  },
+  "Kabupaten Lombok Utara": {
+    "Bayan": "Akar-Akar,Anyar,Bayan,Karang Bajo,Loloan,Mumbul Sari,Sambik Elen,Senaru,Sukadana",
+    "Gangga": "Bentek,Genggelang,Gondang,Rempek,Sambik Bangkol",
+    "Kayangan": "Dangiang,Gumantar,Kayangan,Pendua,Salut,Santong,Selengen,Sesait",
+    "Pemenang": "Gili Indah,Malaka,Menggala,Pemenang Barat,Pemenang Timur",
+    "Tanjung": "Jenggala,Medana,Sigar Penjalin,Sokong,Tanjung,Tegal Maja,Teniga"
+  },
+  "Kabupaten Lombok Tengah": {
+    "Batukliang": "Aik Darek,Barabali,Beber,Bujak,Lantan,Mantang,Mekar Bersatu,Pagutan,Peresak,Tampak Siring",
+    "Batukliang Utara": "Aik Berik,Aik Bukak,Karang Sidemen,Lelong,Mas-Mas,Setiling,Teratak,Tratak",
+    "Janapria": "Bakan,Durian,Janapria,Jango,Keria,Langgo,Lekor,Loangmaka,Pendem,Saba,Selebung,Setuta",
+    "Jonggat": "Barejulat,Batutulis,Bonder,Bunkate,Gemel,Jelantik,Nyerot,Pengenjek,Puyung,Sukarara,Ubung",
+    "Kopang": "Aik Bual,Bebuak,Darmaji,Dasan Baru,Kopang Rembiga,Lendang Are,Monggas,Muncan,Semparu,Wajageseng",
+    "Praya": "Aik Mual,Bunut Baok,Gerunung,Jago,Leneng,Mekar Damai,Mertak Tombok,Panji Sari,Pejanggik,Prapen,Praya,Renteng,Semayan,Tiwugalih,Tonjeng",
+    "Praya Barat": "Banyu Urip,Batujai,Bonder,Kateng,Mangkung,Mekar Sari,Penujak,Selong Belanak,Setanggor,Tanak Rarang",
+    "Praya Barat Daya": "Batu Jangkih,Darek,Kabul,Montong Ajan,Montong Sapah,Pandan Indah,Pelambik,Ranggagata,Serage",
+    "Praya Tengah": "Batunyala,Beraim,Dakung,Gerantung,Jero Gunung,Jurang Jaler,Kelebuh,Lajut,Pejanggik,Pengadang,Prai Meke,Sasake",
+    "Praya Timur": "Beleka,Bilelando,Ganti,Kidang,Landah,Marong,Mujur,Sengkerang,Semoyang,Sukaraja",
+    "Pringgarata": "Arjangka,Bagu,Bilebante,Menemeng,Murbaya,Pemepek,Pringgarata,Sepakek,Sintung",
+    "Pujut": "Bangkat Parak,Gapura,Kawo,Ketara,Kuta,Mertak,Pengengat,Prabu,Rembitan,Sengkol,Sukadana,Teruwai,Tumpak"
+  },
+  "Kabupaten Lombok Timur": {
+    "Aikmel": "Aik Prapa,Aikmel,Aikmel Barat,Aikmel Timur,Aikmel Utara,Bagik Nyaka Santri,Kembang Kerang,Kembang Kerang Daya,Keroya,Toya",
+    "Jerowaru": "Batu Nampar,Batu Nampar Selatan,Ekas Buana,Jerowaru,Kwang Rundun,Pene,Pemongkong,Pandan Wangi,Pare Mas,Sekaroh,Sepapan,Serewe,Seriwe,Sukaraja,Wakan",
+    "Keruak": "Batu Putik,Dane Rase,Ketapang Raya,Keruak,Mendana Raya,Montong Belae,Pijot,Pijot Utara,Pulau Maringkik,Selebung Ketangga,Sepit,Setungkep Lingsar,Tanjung Luar",
+    "Labuhan Haji": "Banjarsari,Ijobalit,Kertasari,Korleko,Korleko Selatan,Labuhan Haji,Penedagandor,Teros,Tirtanadi",
+    "Masbagik": "Danger,Kesik,Kumbang,Masbagik Selatan,Masbagik Timur,Masbagik Utara,Masbagik Utara Baru,Paok Motong",
+    "Montong Gading": "Jenggik,Jenggik Utara,Kilang,Lendang Nangka,Lendang Nangka Utara,Montong Betok,Pringgajurang,Pringgajurang Utara",
+    "Pringgabaya": "Anggaraksa,Apitaik,Batuyang,Gunung Malang,Kerumut,Pringgabaya,Pringgabaya Utara,Pohgading,Pohgading Timur,Seruni Mumbul,Tanak Gadang",
+    "Pringgasela": "Aikdewik,Jurit,Jurit Baru,Pengadangan,Pengadangan Barat,Pringgasela,Pringgasela Selatan,Pringgasela Timur,Rempung,Suela",
+    "Sakra": "Kabar,Keselet,Moyot,Rumbuk,Rumbuk Timur,Sakra,Sakra Selatan,Songak,Suwangi",
+    "Sakra Barat": "Borok Toyang,Boyemare,Bungtiang,Gadungmas,Gunung Rajak,Jerogunung,Kembang Are,Mengkuru,Montong Beter,Pematung,Pejaring,Pengkelak Mas,Rensing,Rensing Bat,Rensing Raya,Sukarara",
+    "Sakra Timur": "Gelanggang,Gereneng,Gereneng Timur,Lepak,Lenting,Menceh,Montong Tangi,Padak Guar,Surabaya,Surabaya Utara",
+    "Sambelia": "Bagik Manis,Belanting,Dadap,Darakunci,Gunung Rajak,Labuhan Pandan,Madayin,Obel Obel,Padak Guar,Sambelia,Senanggalih,Sugian",
+    "Selong": "Denggen,Denggen Timur,Kelayu Selatan,Kelayu Utara,Kembang Sari,Majidi,Pancor,Rakam,Sandubaya,Sekarteja,Selong",
+    "Sembalun": "Bilok Petung,Sajang,Sembalun,Sembalun Bumbung,Sembalun Lawang,Sembalun Timba Gading",
+    "Sikur": "Gelora,Kembang Kuning,Kota Raja,Loyok,Montong Baan,Montong Baan Selatan,Semaya,Sikur,Sikur Barat,Sikur Selatan,Tete Batu,Tetebatu Selatan",
+    "Suela": "Ketangga,Mekar Sari,Perigi,Puncak Jeringo,Sapit,Selaparang,Suela,Suntalangu",
+    "Sukamulia": "Dasan Lekong,Jantuk,Nyiur Tebel,Padamara,Paok Pampang,Setanggor,Setanggor Selatan,Sukamulia,Sukamulia Timur",
+    "Suralaga": "Anjani,Bagik Payung,Bagik Payung Selatan,Bagik Payung Timur,Bintang Rinjani,Dasan Borok,Dames Damai,Gapuk,Gerung Permai,Kerongkong,Paok Lombok,Suralaga,Tumbuh Mulia,Waringin",
+    "Terara": "Embung Kandong,Embung Raja,Jenggik,Kalianyar,Lando,Leming,Pandan Dure,Rarang,Rarang Bat,Rarang Selatan,Rarang Tengah,Santong,Selagik,Suradadi,Terara",
+    "Wanasaba": "Bandok,Bebidas,Karang Baru,Karang Baru Timur,Mamben Daya,Mamben Lauk,Mamben Baru,Otak Desa,Tembeng Putik,Wanasaba,Wanasaba Daya,Wanasaba Lauk",
+    "Lenek": "Lenek,Lenek Baru,Lenek Daya,Lenek Duren,Lenek Kalibambang,Lenek Lauk,Lenek Pasiraman,Lenek Pesiraman,Lenek Ramban Biak,Sukarema"
+  },
+  "Kabupaten Sumbawa": {
+    "Alas": "Alas,Alas Barat,Kalimango,Pulau Bungin",
+    "Alas Barat": "Gontar,Labuhan Mapin,Usar Mapin",
+    "Batu Lanteh": "Batudulang,Kelungkung,Tepal",
+    "Buer": "Labuhan Burung,Pulau Kaung",
+    "Empang": "Empang Atas,Empang Bawah,Jotang",
+    "Labangka": "Labangka,Sekokat,Suka Damai",
+    "Labuhan Badas": "Labuhan Badas,Labuhan Sumbawa,Karang Dima",
+    "Lantung": "Lantung,Sepukur",
+    "Lape": "Lape,Dete",
+    "Lenangguar": "Lenangguar,Ledang",
+    "Lopok": "Lopok,Mama,Langam",
+    "Lunyuk": "Lunyuk Ode,Lunyuk Rea",
+    "Maronge": "Maronge,Simu",
+    "Moyo Hilir": "Moyo,Olat Rawa",
+    "Moyo Hulu": "Semamung,Batu Bulan",
+    "Moyo Utara": "Sebewe,Songkar",
+    "Orong Telu": "Kelawis,Senawang",
+    "Plampang": "Plampang,Sepakat,Muer",
+    "Rhee": "Rhee,Sampe",
+    "Ropang": "Ropang,Ranan",
+    "Sumbawa": "Brang Bara,Lempeh,Pekat,Samapuin,Bugis,Brang Biji,Seketeng,Uma Sima",
+    "Tarano": "Tarano,Banda",
+    "Unter Iwes": "Kerato,Pelita",
+    "Utan": "Utan,Motong,Sabedo"
+  },
+  "Kabupaten Sumbawa Barat": {
+    "Brang Ene": "Kalimantong,Mura",
+    "Brang Rea": "Bangkat Monteh,Lamuntet,Tepas",
+    "Jereweh": "Belo,Beru,Goa",
+    "Maluk": "Benete,Bukit Damai,Maluk,Pasir Putih",
+    "Poto Tano": "Kertasari,Mantar,Poto Tano",
+    "Sekongkang": "Sekongkang Atas,Sekongkang Bawah,Tongo",
+    "Seteluk": "Air Suning,Kelanir,Seteluk Atas,Seteluk Tengah",
+    "Taliwang": "Bugis,Dalam,Kuang,Menala,Sampir,Telaga Bertong"
+  },
+  "Kabupaten Dompu": {
+    "Dompu": "Bada,Bali,Dorebara,Karijawa,Kandai I,Potu",
+    "Hu'u": "Adu,Daha,Hu'u",
+    "Kempo": "Doro Kobo,Kempo,Ta'a",
+    "Kilo": "Ki Wu,Lasi,Malaju",
+    "Manggelewa": "Banggo,Doromelo,Nusa Jaya",
+    "Pajo": "Jambu,Lepadi,Rangga",
+    "Pekat": "Calabai,Kadindi,Pekat",
+    "Woja": "Baka Jaya,Monta Baru,Simpasai,Wawonduru"
+  },
+  "Kabupaten Bima": {
+    "Ambalawi": "Kole,Mawu,Rite",
+    "Belo": "Cenggu,Ngali,Renda",
+    "Bolo": "Bontokape,Leu,Rato,Sila",
+    "Donggo": "Doridungga,Kala,O'o",
+    "Lambitu": "Kaboro,Kuta,Sambori",
+    "Lambu": "Hidirasa,Kaleo,Lambu",
+    "Langgudu": "Doro O'o,Rupe,Waworada",
+    "Mada Pangga": "Bolo,Dena,Monggo",
+    "Monta": "Baralau,Monta,Tangga",
+    "Palibelo": "Nata,Ntonggu,Panda",
+    "Parado": "Kanca,Lere,Paradowane",
+    "Sanggar": "Boro,Kore,Oi Saro",
+    "Sape": "Bugis,Naru Barat,Sangia",
+    "Soromandi": "Bajo,Kananta,Sampungu",
+    "Tambora": "Kawinda Nae,Oi Bura",
+    "Wawo": "Kambita,Maria,Ntori",
+    "Wera": "Bala,Ntoke,Tawali",
+    "Woha": "Donggobolo,Naru,Rabakodo,Talabiu,Tente"
   }
 };
 
+// Merubah string kompresi menjadi Objek JS rapi untuk dropdown
+const ntbData = {};
+for (const kab in rawNTB) {
+  ntbData[kab] = {};
+  for (const kec in rawNTB[kab]) {
+    ntbData[kab][kec] = rawNTB[kab][kec].split(',').sort();
+  }
+}
+
+// Fungsi Inisialisasi Kota/Kabupaten
 function initWilayah() {
   const kabSelect = document.getElementById('f-kabupaten');
   if(!kabSelect) return;
@@ -714,10 +804,9 @@ function handleKecamatanChange() {
 
   if (kab && kec && ntbData[kab][kec]) {
     desaSelect.disabled = false;
-    ntbData[kab][kec].sort().forEach(desa => {
+    ntbData[kab][kec].forEach(desa => {
       desaSelect.add(new Option(desa, desa));
     });
-    // Opsi tambahan
     desaSelect.add(new Option("Lainnya...", "Lainnya"));
   } else {
     desaSelect.disabled = true;
@@ -856,7 +945,7 @@ function navigateTo(page, param) {
   if (page === 'list-cacat') renderTable('cacat'); 
   if (page === 'list-putusan') renderTable('putusan');
   if (page === 'dashboard') { renderDashboard(); renderMiniCal(); } 
-  if (page === 'tambah') { resetForm(param); initWilayah(); } // inisialisasi dropdown wilayah saat menu di klik
+  if (page === 'tambah') { resetForm(param); } 
   if (page === 'kalender') { renderFullCal(); renderEventsList(); } 
   if (page === 'tahapan') renderAlur();
   
@@ -923,6 +1012,8 @@ function resetForm(preselect) {
   togglePutsanField(); 
   document.getElementById('f-jenis').addEventListener('change', togglePutsanField); 
   
+  // Reload Kab dari database
+  initWilayah();
   // Kosongkan dan matikan dropdown wilayah selain kabupaten
   document.getElementById('f-kecamatan').innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
   document.getElementById('f-kecamatan').disabled = true;
@@ -1021,13 +1112,11 @@ function openDetail(id) {
     return `<div class="step-item"><div class="step-num ${cls}">${i+1}</div><div class="step-content"><div class="step-title">${label} ${checkIcon}</div>${dateHtml}${noteHtml}</div>${actionBtn}</div>`;
   }).join('');
 
-  // Tombol Unduh Usulan
   let btnUnduhUsulan = '';
   if(c.dokumenUsulan && c.dokumenUsulan.file) {
     btnUnduhUsulan = `<a href="${c.dokumenUsulan.file}" download="${c.dokumenUsulan.name}" class="btn btn-secondary btn-sm" style="font-size:11px; padding:6px 12px; text-decoration:none;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg> Unduh Dokumen Usulan</a>`;
   }
 
-  // Tombol Unduh BT
   let btnUnduhBT = '';
   if(c.dokumenbt && c.dokumenbt.file) {
     btnUnduhBT = `<a href="${c.dokumenbt.file}" download="${c.dokumenbt.name}" class="btn btn-secondary btn-sm" style="font-size:11px; padding:6px 12px; text-decoration:none;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg> Unduh Buku Tanah</a>`;
@@ -1089,6 +1178,7 @@ function viewTahapan(id, stepIdx) {
   openModal('modal-view-tahapan');
 }
 
+
 // ══════════════════════════════════════════════════════════
 // 9. KALENDER & ALUR TAHAPAN
 // ══════════════════════════════════════════════════════════
@@ -1110,11 +1200,11 @@ if (cases.length === 0) {
   saveData(); 
 }
 
-initWilayah();      // Inisialisasi dropdown wilayah di memori
-updateStats();      // Inisialisasi Angka Dashboard
-renderDashboard();  // Render tabel dashboard
-renderMiniCal();    // Render kalender dashboard
-renderAlur();       // Render grafik alur
+initWilayah();      // Inisialisasi awal dropdown wilayah
+updateStats();      
+renderDashboard();  
+renderMiniCal();    
+renderAlur();       
 
 // Inisialisasi Tampilan Berdasarkan Status Login
 checkLogin();
