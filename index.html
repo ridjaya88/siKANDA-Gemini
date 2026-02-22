@@ -144,6 +144,7 @@
   .form-group { display: flex; flex-direction: column; gap: 6px; } .form-group label { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); cursor: pointer; }
   .form-control { padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 13.5px; color: var(--text); outline: none; transition: border-color 0.2s, box-shadow 0.2s; width: 100%; }
   .form-control:focus { border-color: var(--black); box-shadow: 0 0 0 3px rgba(5,5,5,0.06); }
+  .form-control:disabled { background: var(--surface); cursor: not-allowed; opacity: 0.7; }
   select.form-control { cursor: pointer; } textarea.form-control { resize: vertical; min-height: 80px; }
   
   .search-row { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; }
@@ -407,7 +408,7 @@
           <div class="card-body">
             <div class="tabs" style="margin-bottom:24px">
               <button type="button" class="tab active" onclick="switchFormTab('info')">Informasi Umum</button>
-              <button type="button" class="tab" onclick="switchFormTab('detail')">Detail Objek Wilayah</button>
+              <button type="button" class="tab" onclick="switchFormTab('detail')">Detail Objek</button>
             </div>
             
             <form id="form-permohonan" onsubmit="submitForm(event)">
@@ -422,20 +423,48 @@
                   <div class="form-group"><label for="f-pj">Penanggung Jawab Berkas *</label><input type="text" class="form-control" id="f-pj" placeholder="Nama Petugas/Admin Kantah" required></div>
                   
                   <div class="form-group full form-grid" style="grid-template-columns:1fr 1fr"><div class="form-group" id="f-noputs-group" style="display:none"><label for="f-noputs">Nomor Putusan Pengadilan</label><input type="text" class="form-control" id="f-noputs"></div></div>
+                  
+                  <div class="form-group full" style="grid-column:1/-1;">
+                    <label for="f-dokumenusulan">Upload Dokumen Usulan (PDF)</label>
+                    <input type="file" class="form-control" id="f-dokumenusulan" accept="application/pdf" style="padding:10px;">
+                    <small style="color:var(--text-muted); margin-top:4px; font-size:11px;">Maksimal file 2MB.</small>
+                  </div>
                 </div>
               </div>
               
               <div id="form-tab-detail" style="display:none">
                 <div class="form-grid">
+                  <div class="form-group full" style="grid-column:1/-1;">
+                    <label for="f-pemeganghak">Nama Pemegang Hak *</label>
+                    <input type="text" class="form-control" id="f-pemeganghak" placeholder="Nama yang tertera pada sertipikat" required>
+                  </div>
+
                   <div class="form-group"><label for="f-jenissert">Jenis Sertipikat</label><select class="form-control" id="f-jenissert"><option value="">-- Pilih --</option><option>Hak Milik</option><option>HGB</option><option>HGU</option><option>Hak Pakai</option><option>Hak Pengelolaan</option></select></div>
                   <div class="form-group"><label for="f-nosert">Nomor Sertipikat</label><input type="text" class="form-control" id="f-nosert"></div>
                   <div class="form-group"><label for="f-luas">Luas Tanah (m²)</label><input type="number" class="form-control" id="f-luas" placeholder="0"></div>
                   
-                  <div class="form-group"><label for="f-desa">Desa / Kelurahan</label><input type="text" class="form-control" id="f-desa" placeholder="Nama Desa/Kel"></div>
-                  <div class="form-group"><label for="f-kecamatan">Kecamatan</label><input type="text" class="form-control" id="f-kecamatan" placeholder="Nama Kecamatan"></div>
-                  <div class="form-group"><label for="f-kabupaten">Kota / Kabupaten</label><input type="text" class="form-control" id="f-kabupaten" placeholder="Nama Kota/Kabupaten"></div>
+                  <div class="form-group full" style="grid-column:1/-1; margin-top:10px;"><label>Lokasi / Wilayah Administrasi Objek</label></div>
                   
-                  <div class="form-group full" style="grid-column:1/-1;">
+                  <div class="form-group">
+                    <label for="f-kabupaten">Kota / Kabupaten *</label>
+                    <select class="form-control" id="f-kabupaten" onchange="handleKabupatenChange()" required>
+                      <option value="">-- Pilih Kota/Kabupaten --</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="f-kecamatan">Kecamatan *</label>
+                    <select class="form-control" id="f-kecamatan" onchange="handleKecamatanChange()" disabled required>
+                      <option value="">-- Pilih Kecamatan --</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="f-desa">Desa / Kelurahan *</label>
+                    <select class="form-control" id="f-desa" disabled required>
+                      <option value="">-- Pilih Desa/Kelurahan --</option>
+                    </select>
+                  </div>
+                  
+                  <div class="form-group full" style="grid-column:1/-1; margin-top:10px;">
                     <label for="f-dokumenbt">Upload Dokumen Buku Tanah / Surat Ukur (PDF)</label>
                     <input type="file" class="form-control" id="f-dokumenbt" accept="application/pdf" style="padding:10px;">
                     <small style="color:var(--text-muted); margin-top:4px; font-size:11px;">Maksimal file 2MB.</small>
@@ -585,6 +614,116 @@
 
 <script>
 // ══════════════════════════════════════════════════════════
+// DATA WILAYAH NTB (SIMULASI KABUPATEN -> KECAMATAN -> DESA)
+// ══════════════════════════════════════════════════════════
+const ntbData = {
+  "Kabupaten Lombok Barat": {
+    "Batu Layar": ["Batu Layar", "Meninting", "Senggigi", "Sandik", "Lembah Sari"],
+    "Gerung": ["Gerung Selatan", "Gerung Utara", "Kuranji", "Dasan Geres", "Banyu Urip"],
+    "Kediri": ["Kediri", "Kediri Selatan", "Rumak", "Ombe Baru", "Gelogor"],
+    "Narmada": ["Narmada", "Sesaot", "Suranadi", "Lembuak", "Selat"]
+  },
+  "Kabupaten Lombok Tengah": {
+    "Praya": ["Praya", "Renteng", "Semayan", "Jago", "Tiwn Galih"],
+    "Praya Tengah": ["Batunyala", "Beraim", "Lajut", "Pejanggik", "Pengadang"],
+    "Pujut": ["Kuta", "Sengkol", "Ketara", "Sukadana", "Teruwai"],
+    "Jonggat": ["Puyung", "Sukerara", "Bonder", "Nyerot", "Barejulat"]
+  },
+  "Kabupaten Lombok Timur": {
+    "Selong": ["Selong", "Pancor", "Majidi", "Kelayu Utara", "Kelayu Selatan"],
+    "Masbagik": ["Masbagik Utara", "Masbagik Selatan", "Kesik", "Danger"],
+    "Jerowaru": ["Jerowaru", "Pemongkong", "Serewe", "Sekaroh", "Batu Nampar"],
+    "Sembalun": ["Sembalun Bumbung", "Sembalun Lawang", "Sajang", "Bilok Petung"]
+  },
+  "Kabupaten Lombok Utara": {
+    "Tanjung": ["Tanjung", "Jenggala", "Sokong", "Sigar Penjalin", "Teniga"],
+    "Pemenang": ["Pemenang Barat", "Pemenang Timur", "Malaka", "Gili Indah"],
+    "Bayan": ["Bayan", "Anyar", "Senaru", "Karang Bajo", "Sambik Elen"]
+  },
+  "Kabupaten Sumbawa": {
+    "Sumbawa": ["Sumbawa", "Pekat", "Samapuin", "Lempeh", "Brang Bara"],
+    "Alas": ["Alas", "Kalimango", "Juranalas", "Marente"],
+    "Empang": ["Empang Atas", "Empang Bawah", "Bunga Eja", "Jotang"],
+    "Plampang": ["Plampang", "Sepakat", "Muer", "Sepayung"]
+  },
+  "Kabupaten Sumbawa Barat": {
+    "Taliwang": ["Kuang", "Menala", "Sampir", "Bugis", "Dalam"],
+    "Seteluk": ["Seteluk Atas", "Seteluk Tengah", "Kelanir", "Air Suning"],
+    "Maluk": ["Maluk", "Pasir Putih", "Benete", "Bukit Damai"]
+  },
+  "Kabupaten Dompu": {
+    "Dompu": ["Bada", "Bali", "Potu", "Karijawa", "Dorebara"],
+    "Woja": ["Baka Jaya", "Monta Baru", "Wawonduru", "Simpasai"],
+    "Pekat": ["Pekat", "Calabai", "Nangakara", "Kadindi"]
+  },
+  "Kabupaten Bima": {
+    "Woha": ["Tente", "Talabiu", "Naru", "Donggobolo", "Rabakodo"],
+    "Bolo": ["Sila", "Rato", "Rasadou", "Leu"],
+    "Sape": ["Naru Barat", "Naru Timur", "Sangia", "Bugis"]
+  },
+  "Kota Mataram": {
+    "Ampenan": ["Ampenan Selatan", "Ampenan Tengah", "Ampenan Utara", "Banjar", "Bintaro"],
+    "Cakranegara": ["Cakranegara Barat", "Cakranegara Selatan", "Cakranegara Timur", "Cakranegara Utara"],
+    "Mataram": ["Mataram Timur", "Pageangan", "Pejanggik", "Punto"],
+    "Sandubaya": ["Abian Tubuh Baru", "Babakan", "Mandalika", "Selagalas"],
+    "Sekarbela": ["Jempong Baru", "Karang Pule", "Kekalik Jaya", "Tanjung Karang"],
+    "Selaparang": ["Gomong", "Monjok", "Rembiga", "Udayana"]
+  },
+  "Kota Bima": {
+    "Mpunda": ["Penatoi", "Lewirato", "Sadia", "Mande"],
+    "Raba": ["Raba", "Penaraga", "Kendo", "Ntobo"],
+    "Asakota": ["Melayu", "Jatiwangi", "Kolo", "Ule"]
+  }
+};
+
+// Logika Dropdown Wilayah Berjenjang
+function initWilayah() {
+  const kabSelect = document.getElementById('f-kabupaten');
+  kabSelect.innerHTML = '<option value="">-- Pilih Kota/Kabupaten --</option>';
+  Object.keys(ntbData).sort().forEach(kab => {
+    kabSelect.add(new Option(kab, kab));
+  });
+}
+
+function handleKabupatenChange() {
+  const kab = document.getElementById('f-kabupaten').value;
+  const kecSelect = document.getElementById('f-kecamatan');
+  const desaSelect = document.getElementById('f-desa');
+  
+  kecSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+  desaSelect.innerHTML = '<option value="">-- Pilih Desa/Kelurahan --</option>';
+  desaSelect.disabled = true;
+
+  if (kab && ntbData[kab]) {
+    kecSelect.disabled = false;
+    Object.keys(ntbData[kab]).sort().forEach(kec => {
+      kecSelect.add(new Option(kec, kec));
+    });
+  } else {
+    kecSelect.disabled = true;
+  }
+}
+
+function handleKecamatanChange() {
+  const kab = document.getElementById('f-kabupaten').value;
+  const kec = document.getElementById('f-kecamatan').value;
+  const desaSelect = document.getElementById('f-desa');
+  
+  desaSelect.innerHTML = '<option value="">-- Pilih Desa/Kelurahan --</option>';
+
+  if (kab && kec && ntbData[kab][kec]) {
+    desaSelect.disabled = false;
+    ntbData[kab][kec].sort().forEach(desa => {
+      desaSelect.add(new Option(desa, desa));
+    });
+    // Opsi tambahan jika desa belum ada di dummy data
+    desaSelect.add(new Option("Lainnya...", "Lainnya"));
+  } else {
+    desaSelect.disabled = true;
+  }
+}
+
+// ══════════════════════════════════════════════════════════
 // OTENTIKASI & LOGIN LOGIC
 // ══════════════════════════════════════════════════════════
 function checkLogin() {
@@ -615,7 +754,7 @@ function handleLogin(e) {
 
 // LOGIKA DROPDOWN MENU KELUAR
 function toggleUserMenu(e) {
-  e.stopPropagation(); // Mencegah klik menyebar ke window
+  e.stopPropagation();
   document.getElementById('user-dropdown').classList.toggle('show');
 }
 window.addEventListener('click', function(e) {
@@ -646,7 +785,7 @@ function togglePassword() {
 }
 
 // ══════════════════════════════════════════════════════════
-// FITUR PENGATURAN (FOTO PROFIL, DATA DIRI, SANDI)
+// FITUR PENGATURAN
 // ══════════════════════════════════════════════════════════
 async function handleAvatarUpload(event) {
   const file = event.target.files[0];
@@ -667,45 +806,16 @@ async function handleAvatarUpload(event) {
     showToast('Foto profil berhasil diperbarui!', 'success');
   } catch (error) { showToast('Gagal memuat gambar.', 'error'); }
 }
-
-function handleSimpanProfil(e) {
-  e.preventDefault();
-  const namaBaru = document.getElementById('p-nama').value;
-  if(namaBaru) document.getElementById('topbar-user-name').textContent = namaBaru;
-  showToast('Data diri berhasil disimpan!', 'success');
-}
-
-function handleUbahSandi(e) {
-  e.preventDefault();
-  const baru = document.getElementById('s-new-pass').value;
-  const konfirm = document.getElementById('s-confirm-pass').value;
-  if (baru !== konfirm) { showToast('Konfirmasi sandi tidak cocok!', 'error'); return; }
-  showToast('Kata sandi berhasil diperbarui!', 'success');
-  e.target.reset();
-}
+function handleSimpanProfil(e) { e.preventDefault(); const namaBaru = document.getElementById('p-nama').value; if(namaBaru) document.getElementById('topbar-user-name').textContent = namaBaru; showToast('Data diri berhasil disimpan!', 'success'); }
+function handleUbahSandi(e) { e.preventDefault(); const baru = document.getElementById('s-new-pass').value; const konfirm = document.getElementById('s-confirm-pass').value; if (baru !== konfirm) { showToast('Konfirmasi sandi tidak cocok!', 'error'); return; } showToast('Kata sandi berhasil diperbarui!', 'success'); e.target.reset(); }
 
 // ══════════════════════════════════════════════════════════
-// UTILITAS (XSS, FORMAT, BASE64)
+// UTILITAS
 // ══════════════════════════════════════════════════════════
-function escapeHTML(str) {
-  if (typeof str !== 'string') return str;
-  return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
-}
-function formatNumber(num) {
-  if (!num) return '0'; return new Intl.NumberFormat('id-ID').format(num);
-}
-function readFileAsBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-    reader.readAsDataURL(file);
-  });
-}
-function toggleSidebar() {
-  const sidebar = document.querySelector('.sidebar'); const overlay = document.querySelector('.sidebar-overlay');
-  if (sidebar) sidebar.classList.toggle('open'); if (overlay) overlay.classList.toggle('active');
-}
+function escapeHTML(str) { if (typeof str !== 'string') return str; return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)); }
+function formatNumber(num) { if (!num) return '0'; return new Intl.NumberFormat('id-ID').format(num); }
+function readFileAsBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error); reader.readAsDataURL(file); }); }
+function toggleSidebar() { const sidebar = document.querySelector('.sidebar'); const overlay = document.querySelector('.sidebar-overlay'); if (sidebar) sidebar.classList.toggle('open'); if (overlay) overlay.classList.toggle('active'); }
 
 // ══════════════════════════════════════════════════════════
 // DATA STORE
@@ -718,19 +828,10 @@ const STATUS_MAP = { 0: { label: 'Usulan Masuk', cls: 'status-0' }, 1: { label: 
 const HOLIDAYS_2025 = { '2025-01-01': 'Tahun Baru Masehi', '2025-01-27': 'Isra Mi\'raj', '2025-01-29': 'Tahun Baru Imlek', '2025-03-29': 'Nyepi', '2025-03-31': 'Idul Fitri', '2025-04-01': 'Idul Fitri', '2025-05-01': 'Hari Buruh', '2025-08-17': 'Hari Kemerdekaan RI', '2025-12-25': 'Natal' };
 
 // ══════════════════════════════════════════════════════════
-// NAVIGATION & STATS
+// NAVIGATION
 // ══════════════════════════════════════════════════════════
 let currentPage = 'dashboard'; let prevPage = 'dashboard';
-const crumbMap = { 
-  'dashboard': 'Beranda / <span>Dashboard</span>', 
-  'list-cacat': 'Permohonan / <span>Cacat Administrasi</span>', 
-  'list-putusan': 'Permohonan / <span>Putusan Pengadilan</span>', 
-  'tambah': 'Permohonan / <span>Tambah Baru</span>', 
-  'detail': 'Permohonan / <span>Detail Kasus</span>', 
-  'kalender': 'Informasi / <span>Kalender Kegiatan</span>', 
-  'tahapan': 'Informasi / <span>Alur Tahapan</span>',
-  'pengaturan': 'Sistem / <span>Pengaturan Akun</span>' 
-};
+const crumbMap = { 'dashboard': 'Beranda / <span>Dashboard</span>', 'list-cacat': 'Permohonan / <span>Cacat Administrasi</span>', 'list-putusan': 'Permohonan / <span>Putusan Pengadilan</span>', 'tambah': 'Permohonan / <span>Tambah Baru</span>', 'detail': 'Permohonan / <span>Detail Kasus</span>', 'kalender': 'Informasi / <span>Kalender Kegiatan</span>', 'tahapan': 'Informasi / <span>Alur Tahapan</span>', 'pengaturan': 'Sistem / <span>Pengaturan Akun</span>' };
 
 function navigateTo(page, param) {
   prevPage = currentPage; currentPage = page;
@@ -743,7 +844,7 @@ function navigateTo(page, param) {
   if (page === 'list-cacat') renderTable('cacat'); 
   if (page === 'list-putusan') renderTable('putusan');
   if (page === 'dashboard') { renderDashboard(); renderMiniCal(); } 
-  if (page === 'tambah') { resetForm(param); }
+  if (page === 'tambah') { resetForm(param); initWilayah(); } // inisialisasi wilayah saat buka form
   if (page === 'kalender') { renderFullCal(); renderEventsList(); } 
   if (page === 'tahapan') renderAlur();
   
@@ -767,7 +868,7 @@ function renderDashboard() {
 }
 
 // ══════════════════════════════════════════════════════════
-// TABLE RENDER (Update: Menampilkan Desa/Kecamatan)
+// TABLE RENDER
 // ══════════════════════════════════════════════════════════
 function renderTable(type) {
   const tbody = document.getElementById('tbody-' + type); const search = (document.getElementById('search-' + type)?.value || '').toLowerCase(); const filterStatus = document.getElementById('filter-status-' + type)?.value;
@@ -779,8 +880,6 @@ function renderTable(type) {
   tbody.innerHTML = filtered.map(c => {
     const progress = Math.round(((c.currentStep) / 5) * 100); const steps = Array.from({length:5}, (_,i) => `<div class="pipe-step ${i < c.currentStep ? 'done' : i === c.currentStep ? 'active' : ''}"></div>`).join('');
     const extraCol = type === 'putusan' ? `<td style="font-size:12px">${escapeHTML(c.noputs||'-')}</td>` : `<td style="font-size:12px">${escapeHTML(c.nosert||'-')}</td>`;
-    
-    // Gabungan Desa dan Kecamatan
     const domisili = [c.desa, c.kecamatan].filter(Boolean).join(', ');
 
     return `<tr onclick="openDetail('${c.id}')"><td><code style="font-size:12px;background:var(--surface);padding:2px 7px;border-radius:4px">${escapeHTML(c.nomorberkas)}</code></td><td style="font-size:12px">${escapeHTML(c.kantah)}</td><td style="font-size:12px">${escapeHTML(c.pemohon)}</td>${extraCol}<td style="font-size:12px">${escapeHTML(domisili||'-')}</td><td style="font-size:12px">${fmtDate(c.tglUsulan)}</td><td><span class="status-badge ${STATUS_MAP[c.currentStep]?.cls}">${STATUS_MAP[c.currentStep]?.label}</span></td><td style="min-width:80px"><div style="display:flex;flex-direction:column;gap:3px"><div class="pipeline">${steps}</div><span style="font-size:10px;color:var(--text-muted)">${progress}%</span></div></td><td onclick="event.stopPropagation()"><div style="display:flex;gap:6px"><button class="btn btn-secondary btn-sm" onclick="openDetail('${c.id}')">Detail</button><button class="btn btn-danger btn-sm" onclick="deleteCase('${c.id}')">Hapus</button></div></td></tr>`;
@@ -789,7 +888,7 @@ function renderTable(type) {
 function filterTable(type) { renderTable(type); }
 
 // ══════════════════════════════════════════════════════════
-// DETAIL VIEW (Update: Penanggung Jawab, Desa, Kec, Dokumen BT)
+// DETAIL VIEW (Update: Info Wilayah, Penanggung Jawab & Dokumen)
 // ══════════════════════════════════════════════════════════
 function openDetail(id) {
   const c = cases.find(x => x.id === id); if (!c) return; prevPage = currentPage; currentPage = 'detail';
@@ -801,11 +900,9 @@ function openDetail(id) {
 
     let dateStr = c.tahapan?.[i]?.date ? fmtDate(c.tahapan[i].date) : '';
     let dateHtml = dateStr ? `<div class="step-date">${dateStr}</div>` : '';
-    
     let noteStr = c.tahapan?.[i]?.note || '';
     let shortNote = noteStr.length > 55 ? noteStr.substring(0, 55) + '...' : noteStr;
     let noteHtml = noteStr ? `<div class="step-note">${escapeHTML(shortNote)}</div>` : '';
-    
     let checkIcon = isCompleted ? `<svg viewBox="0 0 24 24" width="16" height="16" stroke="#1B5E20" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-left:8px"><polyline points="20 6 9 17 4 12"></polyline></svg>` : '';
     
     let actionBtn = '';
@@ -815,16 +912,31 @@ function openDetail(id) {
     return `<div class="step-item"><div class="step-num ${cls}">${i+1}</div><div class="step-content"><div class="step-title">${label} ${checkIcon}</div>${dateHtml}${noteHtml}</div>${actionBtn}</div>`;
   }).join('');
 
+  // Tombol Download Dokumen Usulan
+  let btnUnduhUsulan = '';
+  if(c.dokumenUsulan && c.dokumenUsulan.file) {
+    btnUnduhUsulan = `<a href="${c.dokumenUsulan.file}" download="${c.dokumenUsulan.name}" class="btn btn-secondary btn-sm" style="font-size:11px; padding:6px 12px; text-decoration:none;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg> Unduh Dokumen Usulan (PDF)</a>`;
+  }
+
   // Tombol Download Dokumen Buku Tanah
   let btnUnduhBT = '';
   if(c.dokumenbt && c.dokumenbt.file) {
-    btnUnduhBT = `<a href="${c.dokumenbt.file}" download="${c.dokumenbt.name}" class="btn btn-secondary btn-sm" style="margin-top:12px; font-size:11px; padding:6px 12px; text-decoration:none;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg> Unduh Buku Tanah (PDF)</a>`;
-  } else {
-    btnUnduhBT = `<div style="margin-top:12px; font-size:11px; color:var(--text-muted); font-style:italic;">Buku Tanah/Surat Ukur belum dilampirkan.</div>`;
+    btnUnduhBT = `<a href="${c.dokumenbt.file}" download="${c.dokumenbt.name}" class="btn btn-secondary btn-sm" style="font-size:11px; padding:6px 12px; text-decoration:none;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg> Unduh Buku Tanah (PDF)</a>`;
   }
 
   document.getElementById('detail-content').innerHTML = `
-    <div class="detail-header"><div class="detail-case-id">ID BERKAS</div><div class="detail-title">${escapeHTML(c.nomorberkas)}</div><div class="detail-metas"><div class="detail-meta-item"><strong>Pemohon:</strong>${escapeHTML(c.pemohon)}</div><div class="detail-meta-item"><strong>PJ Berkas:</strong>${escapeHTML(c.pj||'-')}</div><div class="detail-meta-item"><strong>Kantah:</strong>${escapeHTML(c.kantah)}</div><div class="detail-meta-item"><strong>Tgl. Usulan:</strong>${fmtDate(c.tglUsulan)}</div></div></div>
+    <div class="detail-header">
+      <div class="detail-case-id">ID BERKAS</div>
+      <div class="detail-title">${escapeHTML(c.nomorberkas)}</div>
+      <div class="detail-metas">
+        <div class="detail-meta-item"><strong>Pemohon:</strong>${escapeHTML(c.pemohon)}</div>
+        <div class="detail-meta-item"><strong>PJ Berkas:</strong>${escapeHTML(c.pj||'-')}</div>
+        <div class="detail-meta-item"><strong>Jenis:</strong>${c.jenis === 'cacat' ? 'Cacat Administrasi' : 'Putusan Pengadilan'}</div>
+        <div class="detail-meta-item"><strong>Kantah:</strong>${escapeHTML(c.kantah)}</div>
+        <div class="detail-meta-item"><strong>Tgl. Usulan:</strong>${fmtDate(c.tglUsulan)}</div>
+      </div>
+      <div style="margin-top:20px; display:flex; gap:10px;">${btnUnduhUsulan}</div>
+    </div>
     <div style="display:grid;grid-template-columns:1fr 360px;gap:20px" class="dashboard-grid">
       <div class="card"><div class="card-header"><span class="card-title">Riwayat Tahapan</span></div><div class="card-body"><div class="stepper">${steps}</div></div></div>
       <div style="display:flex;flex-direction:column;gap:16px">
@@ -832,22 +944,25 @@ function openDetail(id) {
           <div class="card-header"><span class="card-title">Informasi Kasus & Objek</span></div>
           <div class="card-body">
             <div class="info-grid">
+              <div class="info-item" style="grid-column:1/-1;"><label>Nama Pemegang Hak</label><span style="font-weight:600;">${escapeHTML(c.pemeganghak||'-')}</span></div>
               <div class="info-item"><label>Jenis Sertipikat</label><span>${escapeHTML(c.jenissert||'-')}</span></div>
               <div class="info-item"><label>No. Sertipikat</label><span>${escapeHTML(c.nosert||'-')}</span></div>
               <div class="info-item"><label>Luas Tanah</label><span>${c.luas ? formatNumber(c.luas) + ' m²' : '-'}</span></div>
               ${c.jenis === 'putusan' ? `<div class="info-item"><label>No. Putusan</label><span>${escapeHTML(c.noputs||'-')}</span></div>` : ''}
               
               <div class="info-item" style="grid-column:1/-1; margin-top:8px; border-top:1px solid var(--border); padding-top:12px;">
-                <label>Lokasi / Domisili Objek Tanah</label>
-                <span style="display:block; margin-bottom:4px;"><strong>Desa/Kel:</strong> ${escapeHTML(c.desa||'-')}</span>
-                <span style="display:block; margin-bottom:4px;"><strong>Kecamatan:</strong> ${escapeHTML(c.kecamatan||'-')}</span>
-                <span style="display:block;"><strong>Kab/Kota:</strong> ${escapeHTML(c.kabupaten||'-')}</span>
+                <label style="margin-bottom:8px;">Lokasi / Domisili Objek Tanah</label>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                  <div><span style="font-size:11px; color:var(--text-muted); display:block;">Desa/Kelurahan</span><span style="font-size:13px;">${escapeHTML(c.desa||'-')}</span></div>
+                  <div><span style="font-size:11px; color:var(--text-muted); display:block;">Kecamatan</span><span style="font-size:13px;">${escapeHTML(c.kecamatan||'-')}</span></div>
+                  <div style="grid-column:1/-1;"><span style="font-size:11px; color:var(--text-muted); display:block;">Kota/Kabupaten</span><span style="font-size:13px;">${escapeHTML(c.kabupaten||'-')}</span></div>
+                </div>
               </div>
             </div>
-            ${btnUnduhBT}
+            ${btnUnduhBT ? `<div style="margin-top:16px;">${btnUnduhBT}</div>` : ''}
           </div>
         </div>
-        ${c.uraian ? `<div class="card"><div class="card-header"><span class="card-title">Uraian Kasus</span></div><div class="card-body"><p style="font-size:13px;line-height:1.7;color:var(--text-sub)">${escapeHTML(c.uraian)}</p></div></div>` : ''}
+        ${c.uraian ? `<div class="card"><div class="card-header"><span class="card-title">Uraian Singkat Kasus</span></div><div class="card-body"><p style="font-size:13px;line-height:1.7;color:var(--text-sub)">${escapeHTML(c.uraian)}</p></div></div>` : ''}
         <div class="card"><div class="card-header"><span class="card-title">Status Saat Ini</span></div><div class="card-body"><span class="status-badge ${STATUS_MAP[c.currentStep]?.cls}" style="font-size:13px;padding:6px 14px">${STATUS_MAP[c.currentStep]?.label}</span><div style="margin-top:12px"><div class="progress-bar"><div class="progress-fill" style="width:${Math.round((c.currentStep/5)*100)}%"></div></div><div style="font-size:11px;color:var(--text-muted);margin-top:4px">${Math.round((c.currentStep/5)*100)}% selesai</div></div></div></div>
       </div>
     </div>`;
@@ -866,18 +981,11 @@ function viewTahapan(id, stepIdx) {
 }
 
 // ══════════════════════════════════════════════════════════
-// FORM TAMBAH PERMOHONAN (Update: Tanpa Tab Tahapan)
+// FORM TAMBAH PERMOHONAN 
 // ══════════════════════════════════════════════════════════
 let currentFormTab = 'info'; 
-const formTabs = ['info', 'detail']; // Tab tahapan dihapus
-function resetForm(preselect) { 
-  document.getElementById('form-permohonan').reset(); 
-  if (preselect) document.getElementById('f-jenis').value = preselect; 
-  showFormTab('info'); 
-  togglePutsanField(); 
-  document.getElementById('f-jenis').addEventListener('change', togglePutsanField); 
-}
-function togglePutsanField() { document.getElementById('f-noputs-group').style.display = document.getElementById('f-jenis').value === 'putusan' ? '' : 'none'; }
+const formTabs = ['info', 'detail']; 
+
 function switchFormTab(tab) { showFormTab(tab); }
 function showFormTab(tab) { 
   formTabs.forEach(t => { document.getElementById('form-tab-' + t).style.display = t === tab ? '' : 'none'; }); 
@@ -891,60 +999,77 @@ function showFormTab(tab) {
 function nextFormTab() { const idx = formTabs.indexOf(currentFormTab); if (idx < formTabs.length - 1) showFormTab(formTabs[idx + 1]); }
 function prevFormTab() { const idx = formTabs.indexOf(currentFormTab); if (idx > 0) showFormTab(formTabs[idx - 1]); }
 
+function resetForm(preselect) { 
+  document.getElementById('form-permohonan').reset(); 
+  if (preselect) document.getElementById('f-jenis').value = preselect; 
+  showFormTab('info'); 
+  togglePutsanField(); 
+  document.getElementById('f-jenis').addEventListener('change', togglePutsanField); 
+  
+  // Reset Dropdown
+  document.getElementById('f-kecamatan').innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+  document.getElementById('f-kecamatan').disabled = true;
+  document.getElementById('f-desa').innerHTML = '<option value="">-- Pilih Desa/Kelurahan --</option>';
+  document.getElementById('f-desa').disabled = true;
+}
+
 async function submitForm(e) { 
   e.preventDefault(); 
   const jenis = document.getElementById('f-jenis').value; 
   if (!jenis) { showToast('Pilih jenis permohonan!', 'error'); return; } 
+
+  // Membaca file Dokumen Usulan
+  const fileUsulanInput = document.getElementById('f-dokumenusulan');
+  let dokumenUsulanData = { file: null, name: '' };
+  if (fileUsulanInput.files.length > 0) {
+    const file = fileUsulanInput.files[0];
+    if (file.type !== 'application/pdf') { showToast('Dokumen Usulan harus PDF!', 'error'); return; }
+    if (file.size > 2 * 1024 * 1024) { showToast('Dokumen Usulan maks 2MB!', 'error'); return; }
+    try { dokumenUsulanData.file = await readFileAsBase64(file); dokumenUsulanData.name = file.name; } 
+    catch(err) { showToast('Gagal membaca Dokumen Usulan', 'error'); return; }
+  }
   
-  // Membaca file Buku Tanah/Surat Ukur
-  const fileInput = document.getElementById('f-dokumenbt');
+  // Membaca file Buku Tanah
+  const fileBTInput = document.getElementById('f-dokumenbt');
   let dokumenbtData = { file: null, name: '' };
-  
-  if (fileInput.files.length > 0) {
-    const file = fileInput.files[0];
+  if (fileBTInput.files.length > 0) {
+    const file = fileBTInput.files[0];
     if (file.type !== 'application/pdf') { showToast('Buku Tanah harus PDF!', 'error'); return; }
-    if (file.size > 2 * 1024 * 1024) { showToast('Buku Tanah maksimal 2MB!', 'error'); return; }
-    try {
-      dokumenbtData.file = await readFileAsBase64(file);
-      dokumenbtData.name = file.name;
-    } catch(err) {
-      showToast('Gagal membaca file Buku Tanah', 'error'); return;
-    }
+    if (file.size > 2 * 1024 * 1024) { showToast('Buku Tanah maks 2MB!', 'error'); return; }
+    try { dokumenbtData.file = await readFileAsBase64(file); dokumenbtData.name = file.name; } 
+    catch(err) { showToast('Gagal membaca Buku Tanah', 'error'); return; }
   }
 
-  // Generate struktur array Tahapan kosong (karena tidak diisi saat Tambah Permohonan)
   const initialTahapan = TAHAPAN_LABELS.map(() => ({ date: '', note: '', file: null, fileName: '' }));
 
   cases.push({ 
     id: 'c' + Date.now(), 
     nomorberkas: document.getElementById('f-nomorberkas').value, 
-    jenis, 
-    kantah: document.getElementById('f-kantah').value, 
+    jenis, kantah: document.getElementById('f-kantah').value, 
     tglUsulan: document.getElementById('f-tglUsulan').value, 
     pemohon: document.getElementById('f-pemohon').value, 
     kontak: document.getElementById('f-kontak').value, 
-    pj: document.getElementById('f-pj').value, // Penanggung Jawab
+    pj: document.getElementById('f-pj').value, 
     noputs: document.getElementById('f-noputs').value, 
+    dokumenUsulan: dokumenUsulanData,
+    pemeganghak: document.getElementById('f-pemeganghak').value,
     jenissert: document.getElementById('f-jenissert').value, 
     nosert: document.getElementById('f-nosert').value, 
     luas: document.getElementById('f-luas').value, 
-    desa: document.getElementById('f-desa').value, // Desa
-    kecamatan: document.getElementById('f-kecamatan').value, // Kecamatan
-    kabupaten: document.getElementById('f-kabupaten').value, // Kab
-    dokumenbt: dokumenbtData, // Data File
+    kabupaten: document.getElementById('f-kabupaten').value,
+    kecamatan: document.getElementById('f-kecamatan').value,
+    desa: document.getElementById('f-desa').value,
+    dokumenbt: dokumenbtData,
     uraian: document.getElementById('f-uraian').value, 
-    tahapan: initialTahapan, // Tahapan mulai dari 0
-    currentStep: 0, // Posisi step di awal
+    tahapan: initialTahapan, 
+    currentStep: 0, 
     createdAt: new Date().toISOString() 
   }); 
 
-  saveData(); 
-  updateStats(); 
-  showToast('Permohonan berhasil disimpan!', 'success'); 
+  saveData(); updateStats(); showToast('Permohonan berhasil disimpan!', 'success'); 
   navigateTo(jenis === 'cacat' ? 'list-cacat' : 'list-putusan'); 
 }
 
-// FUNGSI UPDATE TAHAPAN SATU PER SATU
 let updatingCaseId = ''; let updatingStepIdx = 0;
 function openUpdateTahapan(id, stepIdx) { updatingCaseId = id; updatingStepIdx = stepIdx; const c = cases.find(x => x.id === id); const label = TAHAPAN_LABELS[stepIdx]; const existingFileLabel = c.tahapan?.[stepIdx]?.fileName ? `<div style="font-size:11px;color:#1B5E20;margin-top:4px;font-weight:600;">Terunggah: ${escapeHTML(c.tahapan[stepIdx].fileName)}</div>` : ''; document.getElementById('modal-tahapan-body').innerHTML = `<p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Tahapan: <strong style="color:var(--text)">${label}</strong></p><div class="form-group" style="margin-bottom:12px"><label for="upd-date">Tanggal Penyelesaian *</label><input type="date" class="form-control" id="upd-date" value="${c.tahapan?.[stepIdx]?.date || ''}"></div><div class="form-group" style="margin-bottom:12px"><label for="upd-note">Catatan</label><textarea class="form-control" id="upd-note" placeholder="Catatan proses...">${escapeHTML(c.tahapan?.[stepIdx]?.note || '')}</textarea></div><div class="form-group"><label for="upd-file">Unggah Dokumen PDF (Maks 2MB)</label><input type="file" class="form-control" id="upd-file" accept="application/pdf" style="padding: 7px 14px; font-size: 12px;">${existingFileLabel}</div>`; openModal('modal-tahapan'); }
 
@@ -976,7 +1101,10 @@ function showToast(msg, type = '') { const c = document.getElementById('toast-co
 document.querySelectorAll('.modal-overlay').forEach(ov => { ov.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); }); });
 
 // Init Sample
-if (cases.length === 0) { cases = [ { id: 'c1', nomorberkas: 'BPN/001', jenis: 'cacat', kantah: 'Mataram', tglUsulan: '2025-02-10', pemohon: 'H. Ahmad', pj: 'Budi Santoso', luas: '250', desa: 'Sekarbela', kecamatan: 'Mataram', kabupaten: 'Kota Mataram', tahapan: [{date:'2025-02-10', note:'Berkas dianalisa'}], currentStep: 1 } ]; saveData(); }
+if (cases.length === 0) { 
+  cases = [ { id: 'c1', nomorberkas: 'BPN/001', jenis: 'cacat', kantah: 'Kota Mataram', tglUsulan: '2025-02-10', pemohon: 'H. Ahmad', pj: 'Budi Santoso', pemeganghak: 'H. Ahmad', luas: '250', kabupaten: 'Kota Mataram', kecamatan: 'Sekarbela', desa: 'Jempong Baru', tahapan: [{date:'2025-02-10', note:'Berkas dianalisa'}], currentStep: 1 } ]; 
+  saveData(); 
+}
 updateStats(); renderDashboard(); renderMiniCal(); renderAlur();
 
 // Inisialisasi Tampilan Berdasarkan Status Login
