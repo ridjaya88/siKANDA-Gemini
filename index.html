@@ -91,7 +91,7 @@
   .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
   .badge-admin { background: #F0F0F0; color: var(--gray-dark); border: 1px solid #E0E0E0; } .badge-court { background: var(--black); color: var(--white); }
   .badge-dot { width: 5px; height: 5px; border-radius: 50%; }
-  .status-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
   .status-1 { background: #FFF8E1; color: #B7791F; } .status-2 { background: #E8F5E9; color: #2E7D32; } .status-3 { background: #E3F2FD; color: #1565C0; } .status-4 { background: #F3E5F5; color: #6A1B9A; } .status-5 { background: #E8F5E9; color: #1B5E20; } .status-0 { background: var(--surface); color: var(--text-muted); }
   
   .pipeline { display: flex; gap: 4px; align-items: center; flex-wrap: nowrap; overflow: hidden; }
@@ -456,18 +456,17 @@ function renderTable(type) {
 function filterTable(type) { renderTable(type); }
 
 // ══════════════════════════════════════════════════════════
-// DETAIL VIEW (DENGAN INDIKATOR HIJAU & TOMBOL LIHAT DETAIL)
+// DETAIL VIEW (DENGAN INDIKATOR CHECKLIST HIJAU)
 // ══════════════════════════════════════════════════════════
 function openDetail(id) {
   const c = cases.find(x => x.id === id); if (!c) return; prevPage = currentPage; currentPage = 'detail';
 
   const steps = TAHAPAN_LABELS.map((label, i) => {
-    let isCompleted = !!c.tahapan?.[i]?.date;
+    let isCompleted = !!c.tahapan?.[i]?.date; // Ada tanggal berarti tuntas
     let hasFile = !!c.tahapan?.[i]?.file;
     
     let cls = 'pending';
-    if (isCompleted && hasFile) cls = 'success';
-    else if (isCompleted) cls = 'done';
+    if (isCompleted) cls = 'success'; // Semua yang sudah tuntas akan menjadi hijau
     else if (i === c.currentStep) cls = 'active';
 
     let dateStr = c.tahapan?.[i]?.date ? fmtDate(c.tahapan[i].date) : '';
@@ -478,16 +477,14 @@ function openDetail(id) {
     let shortNote = noteStr.length > 55 ? noteStr.substring(0, 55) + '...' : noteStr;
     let noteHtml = noteStr ? `<div class="step-note">${escapeHTML(shortNote)}</div>` : '';
     
-    // Ikon centang hijau jika selesai + ada dokumen
-    let checkIcon = (isCompleted && hasFile) ? `<svg viewBox="0 0 24 24" width="16" height="16" stroke="#1B5E20" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-left:8px"><polyline points="20 6 9 17 4 12"></polyline></svg>` : '';
+    // Ikon centang hijau akan muncul pada SEMUA tahapan yang valid (selesai/tuntas)
+    let checkIcon = isCompleted ? `<svg viewBox="0 0 24 24" width="16" height="16" stroke="#1B5E20" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-left:8px"><polyline points="20 6 9 17 4 12"></polyline></svg>` : '';
     
     // Logika Tombol Aksi di Kanan
     let actionBtn = '';
     if (i === c.currentStep) {
-      // Tombol Update untuk tahapan yang SEDANG aktif
       actionBtn = `<button class="btn btn-primary btn-sm" style="margin-left:auto;flex-shrink:0" onclick="openUpdateTahapan('${id}',${i})">Update</button>`;
     } else if (isCompleted) {
-      // Tombol Detail untuk tahapan yang SUDAH SELESAI
       actionBtn = `<button class="btn btn-secondary btn-sm" style="margin-left:auto;flex-shrink:0" onclick="viewTahapan('${id}',${i})">Lihat Detail</button>`;
     }
 
@@ -517,7 +514,7 @@ function goBackFromDetail() { navigateTo(prevPage === 'detail' ? 'dashboard' : p
 
 
 // ══════════════════════════════════════════════════════════
-// FITUR BARU: MODAL VIEW DETAIL TAHAPAN
+// FITUR MODAL VIEW DETAIL TAHAPAN
 // ══════════════════════════════════════════════════════════
 function viewTahapan(id, stepIdx) {
   const c = cases.find(x => x.id === id); 
@@ -544,6 +541,14 @@ function viewTahapan(id, stepIdx) {
     `;
   }
 
+  // Badge Status Validasi Tuntas (Warna Hijau BPN & Checklist)
+  const statusBadge = `
+    <span style="display:inline-flex; align-items:center; gap:6px; background:#1B5E20; color:white; padding:5px 14px; border-radius:20px; font-size:12px; font-weight:600; box-shadow: 0 2px 8px rgba(27,94,32,0.2);">
+      <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      Tuntas
+    </span>
+  `;
+
   // Isi data ke dalam modal
   document.getElementById('modal-view-tahapan-body').innerHTML = `
     <div style="margin-bottom:20px;">
@@ -552,12 +557,12 @@ function viewTahapan(id, stepIdx) {
     </div>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
       <div>
-        <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Tanggal Selesai</div>
-        <div style="font-size:14px; font-weight:500;">${fmtDate(t.date)}</div>
+        <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Tanggal Penyelesaian</div>
+        <div style="font-size:15px; font-weight:500;">${fmtDate(t.date)}</div>
       </div>
       <div>
-        <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Status Validasi</div>
-        <div style="font-size:13px;"><span class="status-badge status-2" style="padding:4px 12px;">Tuntas</span></div>
+        <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Status Validasi</div>
+        ${statusBadge}
       </div>
     </div>
     <div style="margin-bottom:24px;">
@@ -573,7 +578,7 @@ function viewTahapan(id, stepIdx) {
   // Hubungkan tombol Edit Data ke fungsi Update
   document.getElementById('btn-edit-tahapan').onclick = function() {
     closeModal('modal-view-tahapan');
-    openUpdateTahapan(id, stepIdx); // Panggil fungsi form edit
+    openUpdateTahapan(id, stepIdx);
   };
 
   openModal('modal-view-tahapan');
@@ -645,7 +650,7 @@ let miniCalDate = new Date(); let fullCalDate = new Date();
 function dateKey(y, m, d) { return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
 function getEventsForDate(key) { return calendarEvents.filter(e => e.date === key); }
 
-function renderMiniCal() { /* (Logika render bulan kecil sama persis) */ 
+function renderMiniCal() { /* (Logika render bulan kecil) */ 
   const d = miniCalDate; const y = d.getFullYear(), m = d.getMonth();
   document.getElementById('mini-cal-label').textContent = `${MONTHS[m]} ${y}`;
   const first = new Date(y, m, 1).getDay(); const days = new Date(y, m + 1, 0).getDate(); const today = new Date(); let html = ''; let total = Math.ceil((first + days) / 7) * 7;
