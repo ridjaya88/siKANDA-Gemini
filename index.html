@@ -1,1241 +1,1983 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <div class="header-right">
-  <div class="header-clock" id="clock">--:--:--</div>
-  
-  <button class="btn btn-ghost" onclick="toggleTheme()" title="Ubah Tema" style="padding: 7px 10px;">
-    <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-  </button>
-
-  <button class="btn btn-danger" onclick="logout()" title="Keluar dari Sistem">
-    LOGOUT
-  </button>
-</div>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SIKANDA - Kanwil BPN NTB | Bidang Pengendalian & Penanganan Sengketa</title>
-<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,300;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<title>SIPENTAS — BPN NTB · Bidang Pengendalian & Penanganan Sengketa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* ===== LIGHT MODE (MONOCHROME) ===== */
-[data-theme="light"] {
-  --neon: #1a1a1a; /* Warna aksen utama menjadi gelap/hitam */
-  --neon2: #333333;
-  --neon-dim: rgba(0, 0, 0, 0.04);
-  --bg: #f4f4f5; /* Latar belakang abu-abu sangat terang */
-  --bg2: #ffffff; /* Sidebar putih bersih */
-  --bg3: #e4e4e7;
-  --bg4: #ffffff;
-  --surface: rgba(255, 255, 255, 0.98);
-  --border: rgba(0, 0, 0, 0.1);
-  --border-bright: rgba(0, 0, 0, 0.25);
-  --text: #3f3f46;
-  --text-dim: #71717a;
-  --text-bright: #000000;
-}
-
-/* Membalikkan warna pattern grid background agar terlihat di Light Mode */
-[data-theme="light"] body::before {
-  background-image: linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
-}
-[data-theme="light"] body::after {
-  background: radial-gradient(circle, rgba(0,0,0,0.03) 0%, transparent 70%);
-}
-
-/* Memastikan teks input terbaca dengan baik di Light Mode */
-[data-theme="light"] input, 
-[data-theme="light"] select, 
-[data-theme="light"] textarea {
-  background: #ffffff;
-  color: #000000;
-}
-[data-theme="light"] .btn-primary {
-  color: #ffffff; /* Teks tombol utama menjadi putih di atas latar hitam */
-}
-    --neon: #c8ff00;
-    --neon2: #b8eb00;
-    --neon-dim: rgba(200,255,0,0.08);
-    --bg: #0d0d0d;
-    --bg2: #111111;
-    --bg3: #161616;
-    --bg4: #1a1a1a;
-    --surface: rgba(20,20,20,0.97);
-    --border: rgba(255,255,255,0.08);
-    --border-bright: rgba(200,255,0,0.45);
-    --text: #a0a0a0;
-    --text-dim: #8a8a8a; /* Diperbaiki: Warna lebih terang agar kontras & mudah dibaca */
-    --text-bright: #ffffff;
-    --danger: #ff3d55;
-    --warning: #ffaa00;
-    --info: #4db8ff;
-    --sidebar-w: 260px;
-    --header-h: 64px;
+    --white: #FFFFFF;
+    --black: #050505;
+    --gray-light: #B3B3B3;
+    --gray-dark: #2B2B2B;
+    --bg: #FFFFFF;
+    --surface: #F7F7F7;
+    --border: #E8E8E8;
+    --accent: #050505;
+    --text: #050505;
+    --text-muted: #B3B3B3;
+    --text-sub: #2B2B2B;
+    --radius: 12px;
+    --radius-sm: 6px;
+    --shadow: 0 2px 16px rgba(5,5,5,0.06);
+    --shadow-md: 0 8px 32px rgba(5,5,5,0.10);
+    --transition: 0.35s cubic-bezier(0.4,0,0.2,1);
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { font-size: 14px; }
-  body { font-family: 'Josefin Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 
-  /* Grid bg */
-  body::before {
-    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-    background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-    background-size: 40px 40px;
-  }
-  body::after {
-    content: ''; position: fixed; top: -40%; left: -20%; width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(200,255,0,0.03) 0%, transparent 70%); pointer-events: none; z-index: 0;
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
   }
 
-  /* ===== LOGIN OVERLAY ===== */
-  #login-overlay {
-    position: fixed; inset: 0; background: rgba(13,13,13,0.95); z-index: 99999;
+  /* ─── LAYOUT ─── */
+  .app { display: flex; min-height: 100vh; }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    width: 260px;
+    background: var(--black);
+    color: var(--white);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    z-index: 100;
+    transition: transform var(--transition);
+    overflow: hidden;
+  }
+  .sidebar::before {
+    content: '';
+    position: absolute;
+    top: -120px; left: -80px;
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(179,179,179,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .sidebar-brand {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .brand-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 20px;
+    padding: 4px 12px 4px 4px;
+    margin-bottom: 14px;
+  }
+  .brand-dot {
+    width: 20px; height: 20px;
+    background: var(--white);
+    border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    backdrop-filter: blur(10px); transition: opacity 0.5s ease;
   }
-  .login-box {
-    background: var(--surface); border: 1px solid var(--border-bright); padding: 40px; 
-    border-radius: 16px; width: 100%; max-width: 400px; text-align: center; 
-    box-shadow: 0 0 30px rgba(200,255,0,0.1); animation: fadeUp 0.5s ease forwards;
+  .brand-dot svg { width: 10px; height: 10px; }
+  .brand-badge span { font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; opacity: 0.7; text-transform: uppercase; }
+  .brand-title { font-family: 'DM Serif Display', serif; font-size: 22px; line-height: 1.2; color: var(--white); }
+  .brand-title em { font-style: italic; color: var(--gray-light); }
+  .brand-sub { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 4px; letter-spacing: 0.02em; line-height: 1.5; }
+
+  .sidebar-nav { padding: 16px 12px; flex: 1; overflow-y: auto; }
+  .nav-section-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+    padding: 12px 12px 6px;
   }
-  .login-box h1 { color: var(--neon); font-size: 24px; letter-spacing: 3px; margin-bottom: 10px; }
-  .login-box p { color: var(--text-dim); margin-bottom: 30px; font-size: 12px; }
-  .login-box input { width: 100%; padding: 12px; margin-bottom: 20px; text-align: center; letter-spacing: 2px; }
-
-  /* ===== SIDEBAR ===== */
-  #sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-w); background: var(--bg2); border-right: 1px solid var(--border); z-index: 100; display: flex; flex-direction: column; overflow: hidden; transition: width 0.35s cubic-bezier(.77,0,.18,1); }
-  #sidebar.collapsed { width: 64px; }
-  .sidebar-header { padding: 16px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 64px; }
-  #sidebar.collapsed .sidebar-header { justify-content: center; }
-  .logo-mark { display: flex; align-items: center; gap: 12px; overflow: hidden; }
-  .logo-icon { width: 36px; height: 36px; background: var(--neon); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; color: #000; flex-shrink: 0; }
-  .logo-text { overflow: hidden; white-space: nowrap; }
-  .logo-title { font-size: 13px; font-weight: 700; color: var(--neon); letter-spacing: 2px; }
-  .logo-sub { font-size: 9px; color: var(--text-dim); letter-spacing: 1px; line-height: 1.4; margin-top: 2px; }
-  
-  .sidebar-nav { flex: 1; overflow-y: auto; overflow-x: visible; padding: 12px 8px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
-  #sidebar.collapsed .sidebar-nav { overflow: visible; }
-  .nav-section-label { font-size: 9px; letter-spacing: 2px; color: var(--text-dim); padding: 8px 8px 4px; text-transform: uppercase; white-space: nowrap; transition: opacity 0.3s; }
-  #sidebar.collapsed .nav-section-label { opacity: 0; }
-  
-  .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer; margin-bottom: 2px; transition: all 0.2s ease; position: relative; overflow: hidden; white-space: nowrap; border: 1px solid transparent; }
-  .nav-item:hover { background: var(--neon-dim); border-color: var(--border); color: var(--neon); }
-  .nav-item.active { background: rgba(200,255,0,0.07); border-color: var(--border-bright); color: var(--neon); }
-  .nav-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--neon); }
-  .nav-icon { width: 20px; height: 20px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-  .nav-icon svg { width: 18px; height: 18px; }
-  .nav-label { font-size: 13px; font-weight: 500; letter-spacing: 0.5px; overflow: hidden; text-overflow: ellipsis; }
-  .nav-badge { margin-left: auto; background: var(--neon); color: #000; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; flex-shrink: 0; }
-  
-  .sidebar-footer { padding: 12px; border-top: 1px solid var(--border); flex-shrink: 0; }
-  .user-card { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 8px; background: var(--neon-dim); border: 1px solid var(--border); overflow: hidden; }
-  .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--neon); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #000; flex-shrink: 0; }
-  .user-info { overflow: hidden; }
-  .user-name { font-size: 12px; font-weight: 600; color: var(--text-bright); white-space: nowrap; }
-  .user-role { font-size: 10px; color: var(--text-dim); white-space: nowrap; }
-
-  #collapse-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text-dim); cursor: pointer; transition: all 0.22s ease; flex-shrink: 0; }
-  #collapse-btn:hover { background: var(--neon-dim); border-color: var(--border-bright); color: var(--neon); }
-  #collapse-btn svg { width: 16px; height: 16px; transition: transform 0.35s cubic-bezier(.77,0,.18,1); }
-  #sidebar.collapsed #collapse-btn svg { transform: rotate(180deg); }
-  #sidebar.collapsed #collapse-btn { margin: 0 auto; }
-
-  /* Tooltip for collapsed nav items */
-  #sidebar.collapsed .nav-item { justify-content: center; }
-  #sidebar.collapsed .nav-item::after {
-    content: attr(data-label); position: absolute; left: calc(100% + 12px); top: 50%; transform: translateY(-50%);
-    background: var(--bg3); border: 1px solid var(--border-bright); color: var(--text-bright); font-size: 11px;
-    font-weight: 600; letter-spacing: 1px; padding: 6px 12px; border-radius: 6px; white-space: nowrap;
-    opacity: 0; pointer-events: none; transition: opacity 0.15s ease; z-index: 200;
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    margin-bottom: 2px;
+    color: rgba(255,255,255,0.55);
+    font-size: 13.5px;
+    font-weight: 400;
+    user-select: none;
   }
-  #sidebar.collapsed .nav-item:hover::after { opacity: 1; }
-  #sidebar.collapsed .nav-badge, #sidebar.collapsed .logo-text, #sidebar.collapsed .user-info, #sidebar.collapsed .nav-label { display: none; }
-  #sidebar.collapsed .logo-mark { justify-content: center; }
-  #sidebar.collapsed .logo-icon { margin: 0; }
-  #sidebar.collapsed .nav-section-label { opacity: 0; pointer-events: none; }
-  #sidebar.collapsed .user-card { justify-content: center; padding: 10px 8px; }
+  .nav-item svg { width: 16px; height: 16px; opacity: 0.7; flex-shrink: 0; }
+  .nav-item:hover { background: rgba(255,255,255,0.07); color: var(--white); }
+  .nav-item:hover svg { opacity: 1; }
+  .nav-item.active {
+    background: rgba(255,255,255,0.10);
+    color: var(--white);
+    font-weight: 500;
+  }
+  .nav-item.active svg { opacity: 1; }
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 20%; height: 60%;
+    width: 2px;
+    background: var(--white);
+    border-radius: 2px;
+  }
+  .nav-badge {
+    margin-left: auto;
+    background: rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.6);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 10px;
+  }
+  .nav-item.active .nav-badge { background: var(--white); color: var(--black); }
 
-  /* ===== HEADER ===== */
-  #header { position: fixed; top: 0; left: var(--sidebar-w); right: 0; height: var(--header-h); background: rgba(13,13,13,0.97); border-bottom: 1px solid var(--border); backdrop-filter: blur(10px); z-index: 99; display: flex; align-items: center; padding: 0 24px; gap: 16px; transition: left 0.35s cubic-bezier(.77,0,.18,1); }
-  #sidebar.collapsed ~ #header { left: 64px; }
-  #back-btn { display: none; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text-dim); cursor: pointer; transition: all 0.2s ease; flex-shrink: 0; margin-right: 4px; }
-  #back-btn:hover { background: var(--neon-dim); border-color: var(--neon); color: var(--neon); transform: translateX(-2px); }
-  #back-btn.visible { display: flex; }
-  
-  .page-title { font-size: 14px; font-weight: 600; color: var(--neon); letter-spacing: 2px; }
-  .breadcrumb { font-size: 11px; color: var(--text-dim); letter-spacing: 1px; }
-  .header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
-  .header-clock { font-family: 'Share Tech Mono', monospace; font-size: 13px; color: var(--neon); letter-spacing: 2px; }
+  .sidebar-footer {
+    padding: 16px 24px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    font-size: 11px;
+    color: rgba(255,255,255,0.25);
+    line-height: 1.6;
+  }
 
-  /* ===== BUTTONS ===== */
-  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 6px; font-family: 'Josefin Sans', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 1px; cursor: pointer; transition: all 0.2s ease; border: none; text-transform: uppercase; }
-  .btn-primary { background: var(--neon); color: #000; }
-  .btn-primary:hover { background: #d4ff1a; transform: translateY(-1px); }
-  .btn-ghost { background: transparent; color: var(--neon); border: 1px solid var(--border-bright); }
-  .btn-ghost:hover { background: var(--neon-dim); border-color: var(--neon); }
-  .btn-danger { background: transparent; color: var(--danger); border: 1px solid rgba(255,77,106,0.4); }
-  .btn-danger:hover { background: rgba(255,77,106,0.1); }
-  .btn-export { background: rgba(77,184,255,0.1); color: var(--info); border: 1px solid rgba(77,184,255,0.3); }
-  .btn-export:hover { background: rgba(77,184,255,0.2); }
+  /* ─── MAIN CONTENT ─── */
+  .main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
-  /* ===== MAIN CONTENT & ANIMATIONS ===== */
-  #main { margin-left: var(--sidebar-w); margin-top: var(--header-h); padding: 24px; min-height: calc(100vh - var(--header-h)); position: relative; z-index: 1; transition: margin-left 0.35s cubic-bezier(.77,0,.18,1); }
-  #sidebar.collapsed ~ #header ~ #main, #sidebar.collapsed + #header + #main { margin-left: 64px; }
-  .page { display: none; animation: pageIn 0.4s cubic-bezier(.25,.46,.45,.94) forwards; }
-  .page.active { display: block; }
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 36px;
+    height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .page-crumb { font-size: 12px; color: var(--text-muted); letter-spacing: 0.02em; }
+  .page-crumb span { color: var(--text); font-weight: 500; }
+  .topbar-right { display: flex; align-items: center; gap: 16px; }
+  .topbar-btn {
+    width: 36px; height: 36px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    color: var(--text-muted);
+  }
+  .topbar-btn:hover { border-color: var(--gray-dark); color: var(--text); }
+  .topbar-btn svg { width: 16px; height: 16px; }
+  .user-chip {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px 6px 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .user-chip:hover { border-color: var(--gray-dark); }
+  .user-avatar {
+    width: 28px; height: 28px;
+    background: var(--black);
+    color: var(--white);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .user-name { font-size: 12px; font-weight: 500; color: var(--text); }
 
-  @keyframes pageIn { from { opacity: 0; transform: translateY(16px) scale(0.98); filter: blur(4px); } to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
-  @keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes pulse-glow { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+  /* ─── PAGE CONTENT ─── */
+  .content { padding: 36px; flex: 1; }
+  .page { display: none; }
+  .page.active { display: block; animation: pageIn 0.45s cubic-bezier(0.4,0,0.2,1); }
 
-  .stagger-1 { animation-delay: 0.05s; } .stagger-2 { animation-delay: 0.1s; } .stagger-3 { animation-delay: 0.15s; }
-  .stagger-4 { animation-delay: 0.2s; } .stagger-5 { animation-delay: 0.25s; }
+  @keyframes pageIn {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-  /* ===== CARDS ===== */
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; position: relative; overflow: hidden; backdrop-filter: blur(10px); }
-  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--neon), transparent); opacity: 0; transition: opacity 0.3s; }
-  .card:hover::before { opacity: 1; }
-  .card-title { font-size: 11px; font-weight: 600; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 12px; }
+  /* ─── PAGE HEADER ─── */
+  .page-header { margin-bottom: 32px; }
+  .page-header h1 { font-family: 'DM Serif Display', serif; font-size: 32px; line-height: 1.15; color: var(--text); }
+  .page-header h1 em { font-style: italic; color: var(--gray-light); }
+  .page-header p { color: var(--text-muted); font-size: 14px; margin-top: 6px; }
 
-  /* ===== STAT CARDS ===== */
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
-  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; position: relative; overflow: hidden; cursor: pointer; transition: all 0.3s ease; animation: fadeUp 0.5s ease forwards; opacity: 0; }
-  .stat-card:hover { border-color: var(--border-bright); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
-  .stat-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--neon), transparent); }
-  .stat-value { font-size: 32px; font-weight: 700; color: var(--text-bright); line-height: 1; margin-bottom: 6px; }
-  .stat-label { font-size: 11px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; }
-  .stat-icon { position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; background: var(--neon-dim); border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--neon); }
+  /* ─── STATS GRID ─── */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  .stat-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    transition: box-shadow 0.2s, transform 0.2s;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--black);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+  .stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .stat-card:hover::after { transform: scaleX(1); }
+  .stat-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+  .stat-value { font-family: 'DM Serif Display', serif; font-size: 36px; line-height: 1; color: var(--text); }
+  .stat-meta { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+  .stat-meta strong { color: var(--text-sub); }
 
-  /* ===== DASHBOARD SPECIFIC ===== */
+  /* ─── DASHBOARD GRID ─── */
   .dashboard-grid { display: grid; grid-template-columns: 1fr 340px; gap: 20px; }
-  .progress-bar-wrap { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; margin-top: 6px; }
-  .progress-bar-fill { height: 100%; background: var(--neon); border-radius: 3px; transition: width 1s cubic-bezier(.22,1,.36,1); }
-  
-  .activity-list { display: flex; flex-direction: column; gap: 10px; }
-  .activity-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg4); border: 1px solid var(--border); border-radius: 8px; animation: fadeUp 0.4s ease forwards; opacity: 0; transition: all 0.2s; }
-  .activity-item:hover { border-color: var(--border-bright); background: var(--neon-dim); }
-  .activity-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; animation: pulse-glow 2s infinite; }
-  .activity-content { flex: 1; }
-  .activity-title { font-size: 13px; font-weight: 600; color: var(--text-bright); margin-bottom: 2px; }
-  .activity-meta { font-size: 11px; color: var(--text-dim); }
-  .activity-time { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--text-dim); white-space: nowrap; }
+  .dashboard-main { display: flex; flex-direction: column; gap: 20px; }
 
-  /* ===== CALENDAR ===== */
-  .calendar-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
-  .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-  .cal-month { font-size: 13px; font-weight: 700; color: var(--neon); letter-spacing: 2px; }
-  .cal-nav { display: flex; gap: 6px; }
-  .cal-nav-btn { width: 28px; height: 28px; background: var(--bg4); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--neon); transition: all 0.2s; }
-  .cal-nav-btn:hover { background: var(--neon-dim); border-color: var(--neon); }
-  .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin-bottom: 8px; }
-  .cal-day-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; color: var(--text-dim); padding: 4px; text-transform: uppercase; }
-  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
-  .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s; position: relative; color: var(--text); }
-  .cal-day-inner { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
-  .cal-day:not(.today):not(.holiday):hover .cal-day-inner { background: var(--neon-dim); color: var(--neon); }
-  .cal-day.other-month { color: rgba(255,255,255,0.12); }
-  .cal-day.is-sunday { color: #ff6b6b; }
-  .cal-day.holiday { color: #ffffff; font-weight: 700; }
-  .cal-day.holiday .cal-day-inner { background: rgba(255,61,85,0.85); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; }
-  .cal-day.today .cal-day-inner { background: var(--neon); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; color: #000; font-weight: 700; position: relative; z-index: 1; }
-  .cal-day.holiday.today .cal-day-inner { background: var(--neon); color: #000; }
-  .cal-day.holiday::before { content: attr(data-holiday); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: #1a1a1a; border: 1px solid rgba(255,61,85,0.5); color: #ff6b6b; font-size: 10px; font-weight: 600; letter-spacing: 0.5px; padding: 5px 10px; border-radius: 6px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.15s ease; z-index: 999; max-width: 180px; white-space: normal; text-align: center; line-height: 1.3; }
-  .cal-day.holiday:hover::before { opacity: 1; }
-  .cal-day.has-event::after { content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background: var(--neon); }
-  .cal-day.today.has-event::after { background: #000; }
-  
-  .cal-legend { display: flex; align-items: center; gap: 16px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
-  .cal-legend-item { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--text-dim); letter-spacing: 0.5px; }
-  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  .cal-events { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px; max-height: 200px; overflow-y: auto; }
-  .cal-event-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px; border-radius: 8px; margin-bottom: 6px; background: var(--neon-dim); border: 1px solid var(--border); animation: fadeUp 0.3s ease; }
-  .cal-event-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--neon); margin-top: 3px; flex-shrink: 0; }
-  .cal-event-text { font-size: 12px; line-height: 1.4; flex:1; }
-  .cal-event-date { font-size: 10px; color: var(--text-dim); }
-
-  /* ===== TABLE ===== */
-  .table-wrapper { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
-  table { width: 100%; border-collapse: collapse; }
-  thead tr { background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); }
-  th { padding: 12px 16px; font-size: 10px; font-weight: 600; letter-spacing: 2px; color: var(--neon); text-transform: uppercase; text-align: left; white-space: nowrap; }
-  tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.2s; }
-  tbody tr:hover { background: var(--neon-dim); }
-  td { padding: 12px 16px; font-size: 13px; color: var(--text); white-space: nowrap; }
-  
-  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
-  .badge-green { background: rgba(200,255,0,0.1); color: var(--neon); border: 1px solid rgba(200,255,0,0.3); }
-  .badge-yellow { background: rgba(255,170,0,0.1); color: var(--warning); border: 1px solid rgba(255,170,0,0.3); }
-  .badge-red { background: rgba(255,61,85,0.1); color: var(--danger); border: 1px solid rgba(255,61,85,0.3); }
-  .badge-blue { background: rgba(77,184,255,0.1); color: var(--info); border: 1px solid rgba(77,184,255,0.3); }
-
-  .action-btns { display: flex; gap: 6px; }
-  .icon-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--text-dim); cursor: pointer; transition: all 0.2s; }
-  .icon-btn:hover.edit { border-color: var(--info); color: var(--info); background: rgba(77,184,255,0.08); }
-  .icon-btn:hover.delete { border-color: var(--danger); color: var(--danger); background: rgba(255,61,85,0.08); }
-  .icon-btn:hover.view { border-color: var(--neon); color: var(--neon); background: var(--neon-dim); }
-
-  /* ===== FORM ===== */
-  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
-  .form-group { display: flex; flex-direction: column; gap: 6px; }
-  label { font-size: 11px; font-weight: 600; letter-spacing: 1px; color: var(--text); text-transform: uppercase; }
-  input, select, textarea { background: var(--bg4); border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; color: var(--text-bright); font-family: 'Josefin Sans', sans-serif; font-size: 13px; outline: none; transition: all 0.2s; width: 100%; }
-  input:focus, select:focus, textarea:focus { border-color: var(--neon); box-shadow: 0 0 0 2px rgba(200,255,0,0.12); }
-  textarea { resize: vertical; min-height: 80px; }
-  select:disabled { opacity: 0.35; cursor: not-allowed; }
-  optgroup { background: var(--bg3); color: var(--neon); font-weight: 700; font-size: 10px; letter-spacing: 1px; }
-  option { background: var(--bg4); color: var(--text-bright); font-weight: 400; }
-
-  /* ===== TOOLBAR ===== */
-  .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-  .toolbar h2 { font-size: 14px; font-weight: 700; color: var(--text-bright); letter-spacing: 2px; flex: 1; }
-  .search-bar { position: relative; width: 260px; }
-  .search-bar input { padding-left: 36px; width: 100%; }
-  .search-bar svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-dim); width: 16px; height: 16px; }
-
-  /* ===== MODAL ===== */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; animation: fadeIn 0.2s ease; }
-  .modal-overlay.open { display: flex; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  .modal { background: var(--bg3); border: 1px solid var(--border-bright); border-radius: 16px; padding: 28px; width: 90%; max-width: 640px; max-height: 90vh; overflow-y: auto; animation: modalIn 0.3s cubic-bezier(.34,1.56,.64,1) forwards; position: relative; }
-  @keyframes modalIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
-  .modal-title { font-size: 14px; font-weight: 700; color: var(--neon); }
-  .close-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid var(--border); background: transparent; color: var(--text-dim); cursor: pointer; transition: all 0.2s; }
-  .close-btn:hover { background: rgba(255,77,106,0.1); border-color: var(--danger); color: var(--danger); }
-  .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
-  .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
-  .info-row:last-child { border-bottom: none; }
-  .info-row .key { color: var(--text-dim); }
-  .info-row .val { color: var(--text-bright); font-weight: 500; }
-
-  /* Toast */
-  #toast { position: fixed; bottom: 24px; right: 24px; background: var(--bg3); border: 1px solid var(--neon); border-radius: 10px; padding: 14px 20px; color: var(--neon); font-size: 13px; font-weight: 600; letter-spacing: 0.5px; z-index: 9999; transform: translateX(200%); transition: transform 0.4s cubic-bezier(.34,1.56,.64,1); display: flex; align-items: center; gap: 10px; }
-  #toast.show { transform: translateX(0); }
-
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg2); }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--neon); }
-
-  @media (max-width: 768px) {
-    .dashboard-grid { grid-template-columns: 1fr; }
-    .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    .toolbar h2 { width: 100%; flex: none; }
+  /* ─── CARD ─── */
+  .card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
   }
+  .card-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .card-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; color: var(--text); }
+  .card-body { padding: 22px; }
+  .card-action {
+    font-size: 12px; color: var(--text-muted); cursor: pointer;
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 5px 12px; transition: all 0.2s;
+    background: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .card-action:hover { border-color: var(--gray-dark); color: var(--text); }
+
+  /* ─── CALENDAR ─── */
+  .calendar-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .cal-month-label { font-family: 'DM Serif Display', serif; font-size: 18px; }
+  .cal-nav-btns { display: flex; gap: 6px; }
+  .cal-nav-btn {
+    width: 30px; height: 30px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; color: var(--text-muted);
+  }
+  .cal-nav-btn:hover { border-color: var(--black); color: var(--black); }
+  .cal-nav-btn svg { width: 14px; height: 14px; }
+  .cal-days-header {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 8px;
+  }
+  .cal-day-name {
+    text-align: center; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text-muted); padding: 4px 0;
+  }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .cal-cell {
+    aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; border-radius: var(--radius-sm);
+    cursor: pointer; position: relative;
+    transition: all 0.2s;
+    color: var(--text-sub);
+    flex-direction: column;
+    gap: 2px;
+  }
+  .cal-cell:hover { background: var(--surface); }
+  .cal-cell.other-month { color: var(--text-muted); opacity: 0.4; }
+  .cal-cell.today {
+    background: var(--black);
+    color: var(--white) !important;
+    font-weight: 700;
+  }
+  .cal-cell.holiday { color: #c0392b; font-weight: 600; }
+  .cal-cell.has-event::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    width: 4px; height: 4px;
+    background: var(--black);
+    border-radius: 50%;
+  }
+  .cal-cell.today.has-event::after { background: var(--white); }
+  .cal-cell.holiday.has-event::after { background: #c0392b; }
+
+  /* ─── AGENDA LIST ─── */
+  .agenda-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .agenda-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .agenda-date-badge {
+    width: 42px; height: 42px; flex-shrink: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700;
+    line-height: 1;
+    color: var(--text);
+  }
+  .agenda-date-badge small { font-size: 9px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.06em; margin-top: 2px; }
+  .agenda-info .agenda-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+  .agenda-info .agenda-meta { font-size: 11px; color: var(--text-muted); }
+
+  /* ─── RECENT CASES TABLE ─── */
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th {
+    text-align: left; padding: 10px 14px;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .data-table td {
+    padding: 12px 14px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr { transition: background 0.15s; cursor: pointer; }
+  .data-table tr:hover td { background: var(--surface); }
+  .data-table tr:first-child td { /* skip header */ }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px; font-weight: 600;
+    white-space: nowrap;
+  }
+  .badge-admin { background: #F0F0F0; color: var(--gray-dark); border: 1px solid #E0E0E0; }
+  .badge-court { background: var(--black); color: var(--white); }
+  .badge-dot { width: 5px; height: 5px; border-radius: 50%; }
+
+  .status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px; font-weight: 600;
+  }
+  .status-1 { background: #FFF8E1; color: #B7791F; } /* Telaah Staff */
+  .status-2 { background: #E8F5E9; color: #2E7D32; } /* Penelitian */
+  .status-3 { background: #E3F2FD; color: #1565C0; } /* Gelar Kasus */
+  .status-4 { background: #F3E5F5; color: #6A1B9A; } /* SK Pembatalan */
+  .status-5 { background: #E8F5E9; color: #1B5E20; } /* Selesai */
+  .status-0 { background: var(--surface); color: var(--text-muted); } /* Usulan Masuk */
+
+  /* ─── PROGRESS PIPELINE ─── */
+  .pipeline {
+    display: flex; gap: 4px; align-items: center;
+    flex-wrap: nowrap;
+    overflow: hidden;
+  }
+  .pipe-step {
+    flex: 1; height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    position: relative;
+    min-width: 0;
+  }
+  .pipe-step.done { background: var(--black); }
+  .pipe-step.active { background: var(--gray-dark); }
+
+  /* ─── FORM ─── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .form-grid.full { grid-template-columns: 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--text-muted);
+  }
+  .form-control {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+  }
+  .form-control:focus { border-color: var(--black); box-shadow: 0 0 0 3px rgba(5,5,5,0.06); }
+  select.form-control { cursor: pointer; }
+  textarea.form-control { resize: vertical; min-height: 80px; }
+
+  /* ─── BUTTONS ─── */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px; font-weight: 500;
+    cursor: pointer; border: none; outline: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn svg { width: 15px; height: 15px; }
+  .btn-primary { background: var(--black); color: var(--white); }
+  .btn-primary:hover { background: var(--gray-dark); }
+  .btn-secondary { background: var(--white); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--gray-dark); }
+  .btn-ghost { background: none; color: var(--text-muted); border: none; }
+  .btn-ghost:hover { color: var(--text); }
+  .btn-sm { padding: 7px 14px; font-size: 12px; }
+  .btn-danger { background: #FFF5F5; color: #C0392B; border: 1px solid #FFD0CC; }
+  .btn-danger:hover { background: #FFE8E5; }
+
+  /* ─── DIVIDER ─── */
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+  /* ─── DETAIL VIEW ─── */
+  .detail-header {
+    background: var(--black);
+    color: var(--white);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .detail-header::before {
+    content: '';
+    position: absolute;
+    right: -40px; top: -40px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%);
+  }
+  .detail-case-id { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.10em; opacity: 0.5; margin-bottom: 8px; }
+  .detail-title { font-family: 'DM Serif Display', serif; font-size: 22px; line-height: 1.3; margin-bottom: 10px; }
+  .detail-metas { display: flex; gap: 20px; flex-wrap: wrap; }
+  .detail-meta-item { font-size: 12px; opacity: 0.6; }
+  .detail-meta-item strong { opacity: 1; margin-right: 4px; }
+
+  /* ─── STEPPER ─── */
+  .stepper { margin: 20px 0; }
+  .step-item {
+    display: flex; gap: 16px; padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .step-item:last-child { border-bottom: none; }
+  .step-num {
+    width: 32px; height: 32px; flex-shrink: 0;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700;
+  }
+  .step-num.done { background: var(--black); color: var(--white); }
+  .step-num.active { background: var(--gray-dark); color: var(--white); }
+  .step-num.pending { background: var(--surface); color: var(--text-muted); border: 1px solid var(--border); }
+  .step-content .step-title { font-size: 13.5px; font-weight: 500; margin-bottom: 4px; }
+  .step-content .step-date { font-size: 11px; color: var(--text-muted); }
+  .step-content .step-note { font-size: 12px; color: var(--text-sub); margin-top: 6px; background: var(--surface); border-radius: var(--radius-sm); padding: 8px 12px; }
+
+  /* ─── SEARCH ─── */
+  .search-row { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; }
+  .search-box {
+    flex: 1; min-width: 200px;
+    display: flex; align-items: center; gap: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0 14px;
+    background: var(--white);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search-box:focus-within { border-color: var(--black); box-shadow: 0 0 0 3px rgba(5,5,5,0.06); }
+  .search-box svg { width: 15px; height: 15px; color: var(--text-muted); flex-shrink: 0; }
+  .search-box input { border: none; outline: none; font-family: 'DM Sans', sans-serif; font-size: 13.5px; color: var(--text); background: none; width: 100%; padding: 10px 0; }
+  .filter-select { padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); outline: none; cursor: pointer; }
+
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(5,5,5,0.4);
+    backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--white);
+    border-radius: var(--radius);
+    width: 90%; max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 80px rgba(5,5,5,0.2);
+    transform: translateY(20px) scale(0.97);
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+  .modal-overlay.open .modal { transform: none; }
+  .modal-header {
+    padding: 22px 24px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; background: var(--white); z-index: 1;
+  }
+  .modal-title { font-family: 'DM Serif Display', serif; font-size: 20px; }
+  .modal-close { width: 32px; height: 32px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .modal-close:hover { background: var(--surface); }
+  .modal-close svg { width: 14px; height: 14px; }
+  .modal-body { padding: 24px; }
+  .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+
+  /* ─── EMPTY STATE ─── */
+  .empty-state { text-align: center; padding: 60px 20px; }
+  .empty-state svg { width: 48px; height: 48px; color: var(--text-muted); margin: 0 auto 16px; display: block; }
+  .empty-state h3 { font-family: 'DM Serif Display', serif; font-size: 20px; margin-bottom: 8px; }
+  .empty-state p { font-size: 13px; color: var(--text-muted); }
+
+  /* ─── NOTIFICATION TOAST ─── */
+  #toast-container { position: fixed; bottom: 28px; right: 28px; z-index: 999; display: flex; flex-direction: column; gap: 10px; }
+  .toast {
+    background: var(--black); color: var(--white);
+    padding: 13px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    display: flex; align-items: center; gap: 10px;
+    box-shadow: var(--shadow-md);
+    animation: toastIn 0.35s cubic-bezier(0.4,0,0.2,1);
+    max-width: 320px;
+  }
+  .toast.success { background: #1B5E20; }
+  .toast.error { background: #B71C1C; }
+  @keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--gray-light); }
+
+  /* ─── SECTION DIVIDER ─── */
+  .section-divider {
+    display: flex; align-items: center; gap: 16px;
+    margin: 28px 0 20px;
+  }
+  .section-divider h2 { font-family: 'DM Serif Display', serif; font-size: 20px; white-space: nowrap; }
+  .section-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ─── RESPONSIVE TWEAKS ─── */
+  @media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .dashboard-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ─── PRINT / SCROLLBAR ─── */
+  .scrollable { overflow-x: auto; }
+
+  /* ─── CALENDAR TOOLTIP ─── */
+  .cal-tooltip {
+    position: absolute;
+    background: var(--black); color: var(--white);
+    padding: 6px 10px; border-radius: var(--radius-sm);
+    font-size: 11px; white-space: nowrap;
+    z-index: 20; pointer-events: none;
+    bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+    opacity: 0; transition: opacity 0.2s;
+    max-width: 200px; white-space: normal; text-align: center;
+  }
+  .cal-cell:hover .cal-tooltip { opacity: 1; }
+  .cal-cell { position: relative; }
+
+  /* ─── GANTT PROGRESS ─── */
+  .progress-bar { background: var(--border); border-radius: 3px; height: 6px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--black); border-radius: 3px; transition: width 0.6s ease; }
+
+  /* ─── TABS ─── */
+  .tabs { display: flex; gap: 2px; background: var(--surface); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 20px; width: fit-content; }
+  .tab {
+    padding: 7px 16px; border-radius: 6px; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all 0.2s; color: var(--text-muted); border: none; background: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tab.active { background: var(--white); color: var(--text); box-shadow: 0 1px 4px rgba(5,5,5,0.08); }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  /* ─── INFO ROW ─── */
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .info-item label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 4px; }
+  .info-item span { font-size: 13.5px; color: var(--text); }
+
 </style>
 </head>
 <body>
+<div class="app">
 
-<div id="login-overlay">
-  <div class="login-box">
-    <h1>SIKANDA</h1>
-    <p>Sistem Informasi Pengendalian & Penanganan Sengketa<br>Kanwil BPN Provinsi NTB</p>
-    <input type="password" id="login-pwd" placeholder="Masukkan Password: admin" onkeypress="if(event.key==='Enter') verifyLogin()">
-    <button class="btn btn-primary" style="width:100%; justify-content:center; padding:12px;" onclick="verifyLogin()">LOGIN SISTEM</button>
-    <div id="login-error" style="color:var(--danger); font-size:11px; margin-top:10px; opacity:0; transition:0.3s;">Password salah! Gunakan: admin</div>
-  </div>
-</div>
-
-<nav id="sidebar">
-  <div class="sidebar-header">
-    <div class="logo-mark">
-      <div class="logo-icon">BPN</div>
-      <div class="logo-text">
-        <div class="logo-title">SIKANDA</div>
-        <div class="logo-sub">KANWIL BPN PROV. NTB<br>BIDANG PPSEN</div>
+  <!-- ─── SIDEBAR ─── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-badge">
+        <div class="brand-dot">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="color:#050505"><circle cx="12" cy="12" r="5"/></svg>
+        </div>
+        <span>BPN · NTB</span>
       </div>
+      <div class="brand-title">SIPENTAS<em>.</em></div>
+      <div class="brand-sub">Sistem Informasi Pengendalian &amp;<br>Penanganan Sengketa</div>
     </div>
-    <button id="collapse-btn" onclick="toggleSidebar()" title="Tutup/Buka Sidebar">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-    </button>
-  </div>
-
-  <div class="sidebar-nav">
-    <div class="nav-section-label">UTAMA</div>
-    <div class="nav-item active" data-label="Dashboard" onclick="navigateTo('dashboard', this)">
-      <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
-      <span class="nav-label">Dashboard</span>
-    </div>
-
-    <div class="nav-section-label">SURAT</div>
-    <div class="nav-item" data-label="Surat Masuk" onclick="navigateTo('surat-masuk', this)">
-      <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013 4.18 2 2 0 014.98 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L9.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg></div>
-      <span class="nav-label">Surat Masuk</span>
-      <span class="nav-badge" id="badge-masuk">0</span>
-    </div>
-    <div class="nav-item" data-label="Surat Keluar" onclick="navigateTo('surat-keluar', this)">
-      <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div>
-      <span class="nav-label">Surat Keluar</span>
-      <span class="nav-badge" id="badge-keluar">0</span>
-    </div>
-
-    <div class="nav-section-label">PEMBATALAN</div>
-    <div class="nav-item" data-label="Permohonan Pembatalan" onclick="navigateTo('pembatalan', this)">
-      <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
-      <span class="nav-label">Permohonan Pembatalan</span>
-    </div>
-
-    <div class="nav-section-label">PERKARA & SENGKETA</div>
-    <div class="nav-item" data-label="Penanganan Perkara" onclick="navigateTo('perkara', this)">
-      <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M12 2L5 7l-3 7h6l-3-7"/><path d="M12 2l7 5 3 7h-6l3-7"/><line x1="5" y1="21" x2="19" y2="21"/><path d="M5 14a4 4 0 0 0 6 0"/><path d="M13 14a4 4 0 0 0 6 0"/></svg></div>
-      <span class="nav-label">Penanganan Perkara</span>
-    </div>
-    <div class="nav-item" data-label="Penanganan Sengketa" onclick="navigateTo('sengketa', this)">
-      <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
-      <span class="nav-label">Penanganan Sengketa</span>
-    </div>
-
-    <div class="nav-section-label">PIDANA</div>
-    <div class="nav-item" data-label="Tindak Pidana Pertanahan" onclick="navigateTo('tipidana', this)">
-      <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="14" r="3"/><circle cx="17" cy="14" r="3"/><path d="M7 11V8a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v3"/><line x1="10" y1="14" x2="14" y2="14"/><path d="M4.5 14H4a2 2 0 0 1-2-2v-1a2 2 0 0 1 2-2h.5"/><path d="M19.5 14H20a2 2 0 0 0 2-2v-1a2 2 0 0 0-2-2h-.5"/></svg></div>
-      <span class="nav-label">Tindak Pidana Pertanahan</span>
-    </div>
-  </div>
-
-  <div class="sidebar-footer">
-    <div class="user-card">
-      <div class="user-avatar">AD</div>
-      <div class="user-info">
-        <div class="user-name">Administrator</div>
-        <div class="user-role">Kepala Bidang PPSEN</div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Utama</div>
+      <div class="nav-item active" onclick="navigateTo('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
       </div>
+
+      <div class="nav-section-label" style="margin-top:8px">Permohonan Pembatalan</div>
+      <div class="nav-item" onclick="navigateTo('list-cacat')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Cacat Administrasi
+        <span class="nav-badge" id="badge-cacat">0</span>
+      </div>
+      <div class="nav-item" onclick="navigateTo('list-putusan')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        Putusan Pengadilan
+        <span class="nav-badge" id="badge-putusan">0</span>
+      </div>
+      <div class="nav-item" onclick="navigateTo('tambah')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Tambah Permohonan
+      </div>
+
+      <div class="nav-section-label" style="margin-top:8px">Informasi</div>
+      <div class="nav-item" onclick="navigateTo('kalender')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Kalender Kegiatan
+      </div>
+      <div class="nav-item" onclick="navigateTo('tahapan')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Alur Tahapan
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      Kantor Wilayah BPN<br>Provinsi Nusa Tenggara Barat<br>
+      <span style="opacity:0.5">© 2025 Bidang Pengendalian &amp; Sengketa</span>
     </div>
-  </div>
-</nav>
+  </aside>
 
-<header id="header">
-  <button id="back-btn" onclick="goBack()" title="Kembali ke halaman sebelumnya">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-  </button>
-  <div>
-    <div class="page-title" id="page-title">DASHBOARD</div>
-    <div class="breadcrumb" id="breadcrumb">Beranda / Dashboard</div>
-  </div>
-  <div class="header-right">
-    <div class="header-clock" id="clock">--:--:--</div>
-    <button class="btn btn-danger" onclick="logout()" title="Keluar dari Sistem">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      LOGOUT
-    </button>
-  </div>
-</header>
+  <!-- ─── MAIN ─── -->
+  <div class="main">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="page-crumb" id="page-crumb">Beranda / <span>Dashboard</span></div>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-btn" title="Notifikasi">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </button>
+        <div class="user-chip">
+          <div class="user-avatar">AD</div>
+          <span class="user-name">Admin BPN NTB</span>
+        </div>
+      </div>
+    </header>
 
-<main id="main">
+    <!-- CONTENT -->
+    <div class="content">
 
-  <div class="page active" id="page-dashboard">
-    <div class="stats-grid">
-      <div class="stat-card stagger-1" onclick="navigateToWithNav('surat-masuk')">
-        <div class="stat-value" id="stat-masuk">0</div>
-        <div class="stat-label">Surat Masuk</div>
-        <div class="stat-trend">Data tersimpan di perangkat</div>
-        <div class="stat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013 4.18 2 2 0 014.98 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L9.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg></div>
-      </div>
-      <div class="stat-card stagger-2" onclick="navigateToWithNav('surat-keluar')">
-        <div class="stat-value" id="stat-keluar">0</div>
-        <div class="stat-label">Surat Keluar</div>
-        <div class="stat-trend">Data tersimpan di perangkat</div>
-        <div class="stat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div>
-      </div>
-      <div class="stat-card stagger-3" onclick="navigateToWithNav('pembatalan')">
-        <div class="stat-value" id="stat-pembatalan">0</div>
-        <div class="stat-label">Permohonan Pembatalan</div>
-        <div class="stat-trend">Data tersimpan di perangkat</div>
-        <div class="stat-icon" style="color:var(--warning)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
-      </div>
-      <div class="stat-card stagger-4" onclick="navigateToWithNav('perkara')">
-        <div class="stat-value" id="stat-perkara">0</div>
-        <div class="stat-label">Penanganan Perkara</div>
-        <div class="stat-trend">Data tersimpan di perangkat</div>
-        <div class="stat-icon" style="color:var(--danger)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M12 2L5 7l-3 7h6l-3-7"/><path d="M12 2l7 5 3 7h-6l3-7"/><line x1="5" y1="21" x2="19" y2="21"/><path d="M5 14a4 4 0 0 0 6 0"/><path d="M13 14a4 4 0 0 0 6 0"/></svg></div>
-      </div>
-      <div class="stat-card stagger-5" onclick="navigateToWithNav('sengketa')">
-        <div class="stat-value" id="stat-sengketa">0</div>
-        <div class="stat-label">Penanganan Sengketa</div>
-        <div class="stat-trend">Data tersimpan di perangkat</div>
-        <div class="stat-icon" style="color:var(--info)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
-      </div>
-      <div class="stat-card stagger-5" onclick="navigateToWithNav('tipidana')">
-        <div class="stat-value" id="stat-tipidana">0</div>
-        <div class="stat-label">Tindak Pidana Pertanahan</div>
-        <div class="stat-trend">Data tersimpan di perangkat</div>
-        <div class="stat-icon" style="color:var(--danger)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="14" r="3"/><circle cx="17" cy="14" r="3"/><path d="M7 11V8a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v3"/><line x1="10" y1="14" x2="14" y2="14"/><path d="M4.5 14H4a2 2 0 0 1-2-2v-1a2 2 0 0 1 2-2h.5"/><path d="M19.5 14H20a2 2 0 0 0 2-2v-1a2 2 0 0 0-2-2h-.5"/></svg></div>
-      </div>
-    </div>
+      <!-- ═══════════════════════════════════════ DASHBOARD ═══ -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-header">
+          <h1>Selamat Datang<em>,</em> di SIPENTAS</h1>
+          <p>Sistem Informasi Pengendalian &amp; Penanganan Sengketa — Kanwil BPN NTB</p>
+        </div>
 
-    <div class="dashboard-grid">
-      <div>
-        <div class="card" style="margin-bottom:20px; animation: fadeUp 0.5s 0.2s ease forwards; opacity:0;">
-          <div class="card-title">STATUS PENYELESAIAN 2025</div>
-          <div style="margin-bottom:12px;">
-            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>Sengketa Pertanahan</span><span style="color:var(--neon)">68%</span></div>
-            <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:68%"></div></div>
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Permohonan</div>
+            <div class="stat-value" id="stat-total">0</div>
+            <div class="stat-meta">Seluruh kategori</div>
           </div>
-          <div style="margin-bottom:12px;">
-            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>Permohonan Pembatalan</span><span style="color:var(--warning)">45%</span></div>
-            <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:45%;background:linear-gradient(90deg,var(--warning),var(--neon));"></div></div>
+          <div class="stat-card">
+            <div class="stat-label">Cacat Administrasi</div>
+            <div class="stat-value" id="stat-cacat">0</div>
+            <div class="stat-meta">Permohonan aktif</div>
           </div>
-          <div style="margin-bottom:12px;">
-            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>Perkara di Pengadilan</span><span style="color:var(--danger)">33%</span></div>
-            <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:33%;background:linear-gradient(90deg,var(--danger),var(--warning));"></div></div>
+          <div class="stat-card">
+            <div class="stat-label">Putusan Pengadilan</div>
+            <div class="stat-value" id="stat-putusan">0</div>
+            <div class="stat-meta">Permohonan aktif</div>
           </div>
-          <div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>Tindak Pidana Pertanahan</span><span style="color:var(--info)">80%</span></div>
-            <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:80%;background:linear-gradient(90deg,var(--info),var(--neon));"></div></div>
+          <div class="stat-card">
+            <div class="stat-label">Selesai (SK Terbit)</div>
+            <div class="stat-value" id="stat-selesai">0</div>
+            <div class="stat-meta">Kasus tuntas</div>
           </div>
         </div>
 
-        <div class="card" style="animation: fadeUp 0.5s 0.3s ease forwards; opacity:0;">
-          <div class="card-title">AKTIVITAS TERKINI (SIMULASI)</div>
-          <div class="activity-list">
-            <div class="activity-item stagger-1" style="opacity:0;">
-              <div class="activity-dot" style="background:var(--neon);"></div>
-              <div class="activity-content">
-                <div class="activity-title">Surat Masuk Diterima — 021/SM/II/2025</div>
-                <div class="activity-meta">Dari: Kantor ATR/BPN Lombok Barat · Perihal: Sengketa HM No.123</div>
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+          <div class="dashboard-main">
+            <!-- Recent Cases -->
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">Permohonan Terkini</span>
+                <button class="card-action" onclick="navigateTo('list-cacat')">Lihat Semua</button>
               </div>
-              <div class="activity-time">09:42</div>
+              <div class="scrollable">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>No. Berkas</th>
+                      <th>Pemohon</th>
+                      <th>Jenis</th>
+                      <th>Tahapan</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recent-cases-tbody">
+                    <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px">Belum ada data permohonan</td></tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
-            <div class="activity-item stagger-2" style="opacity:0;">
-              <div class="activity-dot" style="background:var(--info);"></div>
-              <div class="activity-content">
-                <div class="activity-title">Mediasi Sengketa — Kasus #SNG-047</div>
-                <div class="activity-meta">Pihak pemohon hadir · Jadwal: 21 Feb 2025</div>
+          </div>
+
+          <!-- Calendar Sidebar -->
+          <div style="display:flex;flex-direction:column;gap:20px">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">Kalender</span>
+                <button class="card-action" onclick="navigateTo('kalender')">Atur Kegiatan</button>
               </div>
-              <div class="activity-time">08:30</div>
+              <div class="card-body" style="padding:16px">
+                <div class="calendar-header">
+                  <div class="cal-month-label" id="mini-cal-label"></div>
+                  <div class="cal-nav-btns">
+                    <button class="cal-nav-btn" onclick="miniCalPrev()">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                    <button class="cal-nav-btn" onclick="miniCalNext()">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="cal-days-header">
+                  <div class="cal-day-name">Min</div>
+                  <div class="cal-day-name">Sen</div>
+                  <div class="cal-day-name">Sel</div>
+                  <div class="cal-day-name">Rab</div>
+                  <div class="cal-day-name">Kam</div>
+                  <div class="cal-day-name">Jum</div>
+                  <div class="cal-day-name">Sab</div>
+                </div>
+                <div class="cal-grid" id="mini-cal-grid"></div>
+              </div>
             </div>
-            <div class="activity-item stagger-3" style="opacity:0;">
-              <div class="activity-dot" style="background:var(--warning);"></div>
-              <div class="activity-content">
-                <div class="activity-title">Permohonan Pembatalan Baru — PMB-032</div>
-                <div class="activity-meta">Pemohon: H. Lalu Muhamad Rizky · HM No. 445</div>
+
+            <!-- Upcoming Agenda -->
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">Agenda Mendatang</span>
               </div>
-              <div class="activity-time">Kemarin</div>
+              <div class="card-body" style="padding: 12px 18px">
+                <div id="upcoming-agenda">
+                  <div style="text-align:center;color:var(--text-muted);font-size:12px;padding:16px">Belum ada agenda</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div>
-        <div class="calendar-card" style="animation: slideInRight 0.5s 0.2s ease forwards; opacity:0;">
-          <div class="card-title">KALENDER KEGIATAN</div>
-          <div class="cal-header">
-            <div class="cal-month" id="cal-month-label">FEBRUARI 2025</div>
-            <div class="cal-nav">
-              <button class="cal-nav-btn" onclick="changeMonth(-1)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
-              <button class="cal-nav-btn" onclick="changeMonth(1)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
-            </div>
-          </div>
-          <div class="cal-weekdays">
-            <div class="cal-day-label">Min</div><div class="cal-day-label">Sen</div><div class="cal-day-label">Sel</div><div class="cal-day-label">Rab</div><div class="cal-day-label">Kam</div><div class="cal-day-label">Jum</div><div class="cal-day-label">Sab</div>
-          </div>
-          <div class="cal-grid" id="cal-grid"></div>
-
-          <div class="cal-events">
-            <div style="font-size:11px;color:var(--text-dim);letter-spacing:1px;margin-bottom:8px;font-family:'Josefin Sans',sans-serif;" id="cal-selected-label">— PILIH TANGGAL UNTUK MELIHAT AGENDA —</div>
-            <div id="cal-event-list"></div>
-          </div>
-
-          <div class="cal-legend">
-            <div class="cal-legend-item"><div class="legend-dot" style="background:var(--neon)"></div><span>Hari Ini</span></div>
-            <div class="cal-legend-item"><div class="legend-dot" style="background:#ff3d55"></div><span>Hari Libur Nasional</span></div>
-            <div class="cal-legend-item"><div class="legend-dot" style="background:var(--neon);opacity:0.5;"></div><span>Ada Agenda</span></div>
-          </div>
-
-          <div style="margin-top:12px;display:flex;gap:8px;">
-            <button class="btn btn-ghost" style="flex:1;font-size:11px;" onclick="openCalendarModal()">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> TAMBAH AGENDA
-            </button>
-          </div>
+      <!-- ═══════════════════════════════════════ LIST CACAT ═══ -->
+      <div class="page" id="page-list-cacat">
+        <div class="page-header">
+          <h1>Cacat <em>Administrasi</em></h1>
+          <p>Daftar permohonan pembatalan berdasarkan cacat administrasi</p>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="page" id="page-surat-masuk">
-    <div class="toolbar">
-      <h2>SURAT MASUK</h2>
-      <div class="search-bar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" placeholder="Cari surat masuk..." oninput="filterTable('tbl-masuk', this.value)">
-      </div>
-      <select style="width:auto;padding:8px 14px;" onchange="filterTableStatus('tbl-masuk', this.value)">
-        <option value="">Semua Status</option><option value="Diterima">Diterima</option><option value="Diproses">Diproses</option><option value="Selesai">Selesai</option>
-      </select>
-      <button class="btn btn-export" onclick="exportCSV('masuk')">EXPORT CSV</button>
-      <button class="btn btn-primary" onclick="showAddForm('surat-masuk')">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> TAMBAH
-      </button>
-    </div>
-
-    <div class="card" id="form-surat-masuk" style="display:none; margin-bottom:20px; animation: slideInRight 0.3s ease;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <div class="card-title" style="margin:0">FORM INPUT SURAT MASUK</div>
-        <button class="close-btn" onclick="hideForm('form-surat-masuk')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-      </div>
-      <div class="form-grid">
-        <div class="form-group"><label>Nomor Surat *</label><input type="text" id="sm-nomor" placeholder="Contoh: 021/SM/II/2025" required></div>
-        <div class="form-group"><label>Tanggal Terima *</label><input type="date" id="sm-tanggal" required></div>
-        <div class="form-group"><label>Asal Surat *</label><input type="text" id="sm-asal" placeholder="Instansi pengirim" required></div>
-        <div class="form-group"><label>Perihal *</label><input type="text" id="sm-perihal" placeholder="Perihal surat" required></div>
-        <div class="form-group"><label>Status</label><select id="sm-status"><option value="Diterima">Diterima</option><option value="Diproses">Diproses</option><option value="Selesai">Selesai</option></select></div>
-        <div class="form-group"><label>Disposisi</label><input type="text" id="sm-disposisi" placeholder="Kepada siapa didisposisi"></div>
-      </div>
-      <div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end;">
-        <button class="btn btn-ghost" onclick="hideForm('form-surat-masuk')">BATAL</button>
-        <button class="btn btn-primary" onclick="addSuratMasuk()">SIMPAN</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="table-wrapper">
-        <table id="tbl-masuk">
-          <thead><tr><th>No</th><th>Nomor Surat</th><th>Tgl Terima</th><th>Asal Surat</th><th>Perihal</th><th>Status</th><th>Disposisi</th><th>Aksi</th></tr></thead>
-          <tbody id="tbody-masuk"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <div class="page" id="page-surat-keluar">
-    <div class="toolbar">
-      <h2>SURAT KELUAR</h2>
-      <div class="search-bar"><input type="text" placeholder="Cari surat keluar..." oninput="filterTable('tbl-keluar', this.value)"></div>
-      <button class="btn btn-export" onclick="exportCSV('keluar')">EXPORT CSV</button>
-      <button class="btn btn-primary" onclick="showAddForm('surat-keluar')">TAMBAH</button>
-    </div>
-    <div class="card" id="form-surat-keluar" style="display:none; margin-bottom:20px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <div class="card-title" style="margin:0">FORM INPUT SURAT KELUAR</div>
-        <button class="close-btn" onclick="hideForm('form-surat-keluar')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-      </div>
-      <div class="form-grid">
-        <div class="form-group"><label>Nomor Surat *</label><input type="text" id="sk-nomor" required></div>
-        <div class="form-group"><label>Tanggal Surat *</label><input type="date" id="sk-tanggal" required></div>
-        <div class="form-group"><label>Ditujukan Kepada *</label><input type="text" id="sk-tujuan" required></div>
-        <div class="form-group"><label>Perihal *</label><input type="text" id="sk-perihal" required></div>
-        <div class="form-group"><label>Penandatangan *</label><input type="text" id="sk-ttd" required></div>
-        <div class="form-group"><label>Status</label><select id="sk-status"><option value="Terkirim">Terkirim</option><option value="Draf">Draf</option></select></div>
-      </div>
-      <div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end;">
-        <button class="btn btn-ghost" onclick="hideForm('form-surat-keluar')">BATAL</button>
-        <button class="btn btn-primary" onclick="addSuratKeluar()">SIMPAN</button>
-      </div>
-    </div>
-    <div class="card"><div class="table-wrapper"><table id="tbl-keluar"><thead><tr><th>No</th><th>Nomor Surat</th><th>Tanggal</th><th>Ditujukan Kepada</th><th>Perihal</th><th>Penandatangan</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="tbody-keluar"></tbody></table></div></div>
-  </div>
-
-  <div class="page" id="page-pembatalan">
-    <div class="toolbar">
-      <h2>PERMOHONAN PEMBATALAN</h2>
-      <div class="search-bar"><input type="text" placeholder="Cari permohonan..." oninput="filterTable('tbl-pembatalan', this.value)"></div>
-      <button class="btn btn-export" onclick="exportCSV('pembatalan')">EXPORT CSV</button>
-      <button class="btn btn-primary" onclick="showAddForm('pembatalan')">TAMBAH</button>
-    </div>
-    <div class="card" id="form-pembatalan" style="display:none; margin-bottom:20px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <div class="card-title" style="margin:0">FORM PERMOHONAN PEMBATALAN</div>
-        <button class="close-btn" onclick="hideForm('form-pembatalan')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-      </div>
-      <div class="form-grid">
-        <div class="form-group"><label>Nomor Berkas *</label><input type="text" id="pmb-nomor" required></div>
-        <div class="form-group"><label>Tanggal Permohonan *</label><input type="date" id="pmb-tanggal" required></div>
-        <div class="form-group"><label>Nama Pemohon *</label><input type="text" id="pmb-pemohon" required></div>
-        <div class="form-group"><label>Objek Permohonan *</label><input type="text" id="pmb-objek" required></div>
-        <div class="form-group"><label>Kabupaten / Kota *</label>
-          <select id="pmb-kabkota" onchange="onKabKotaChange()" required>
-            <option value="">-- Pilih Kabupaten/Kota --</option>
-            <optgroup label="KOTA"><option value="Kota Mataram">Kota Mataram</option><option value="Kota Bima">Kota Bima</option></optgroup>
-            <optgroup label="KABUPATEN"><option value="Kabupaten Lombok Barat">Kabupaten Lombok Barat</option><option value="Kabupaten Lombok Tengah">Kabupaten Lombok Tengah</option><option value="Kabupaten Lombok Timur">Kabupaten Lombok Timur</option><option value="Kabupaten Lombok Utara">Kabupaten Lombok Utara</option><option value="Kabupaten Sumbawa">Kabupaten Sumbawa</option><option value="Kabupaten Sumbawa Barat">Kabupaten Sumbawa Barat</option><option value="Kabupaten Dompu">Kabupaten Dompu</option><option value="Kabupaten Bima">Kabupaten Bima</option></optgroup>
+        <div class="search-row">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" placeholder="Cari nomor berkas, pemohon, lokasi..." id="search-cacat" oninput="filterTable('cacat')">
+          </div>
+          <select class="filter-select" id="filter-status-cacat" onchange="filterTable('cacat')">
+            <option value="">Semua Tahapan</option>
+            <option value="0">Usulan Masuk</option>
+            <option value="1">Telaah Staff</option>
+            <option value="2">Penelitian Lapang</option>
+            <option value="3">Gelar Kasus</option>
+            <option value="4">Penerbitan SK</option>
+            <option value="5">Selesai</option>
           </select>
+          <button class="btn btn-primary" onclick="navigateTo('tambah')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Tambah
+          </button>
         </div>
-        <div class="form-group"><label>Kecamatan</label><select id="pmb-kecamatan" onchange="onKecamatanChange()" disabled><option value="">-- Pilih Kecamatan --</option></select></div>
-        <div class="form-group"><label>Desa / Kelurahan</label><select id="pmb-desa" disabled><option value="">-- Pilih Desa/Kelurahan --</option></select></div>
-        <div class="form-group"><label>Alasan Pembatalan</label><select id="pmb-alasan"><option value="Cacat Administrasi">Cacat Administrasi</option><option value="Putusan Pengadilan">Putusan Pengadilan</option><option value="Tumpang Tindih">Tumpang Tindih</option></select></div>
-        <div class="form-group"><label>Status</label><select id="pmb-status"><option value="Baru">Baru</option><option value="Diproses">Diproses</option><option value="Selesai">Selesai</option><option value="Ditolak">Ditolak</option></select></div>
+        <div class="card">
+          <div class="scrollable">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>No. Berkas</th>
+                  <th>Kantor Pertanahan</th>
+                  <th>Pemohon</th>
+                  <th>Objek Tanah</th>
+                  <th>Lokasi</th>
+                  <th>Tgl. Usulan</th>
+                  <th>Tahapan</th>
+                  <th>Progress</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-cacat"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end;">
-        <button class="btn btn-ghost" onclick="hideForm('form-pembatalan')">BATAL</button>
-        <button class="btn btn-primary" onclick="addPembatalan()">SIMPAN</button>
-      </div>
-    </div>
-    <div class="card"><div class="table-wrapper"><table id="tbl-pembatalan"><thead><tr><th>No</th><th>Nomor Berkas</th><th>Tgl Permohonan</th><th>Pemohon</th><th>Objek</th><th>Kabupaten/Kota</th><th>Letak Tanah</th><th>Alasan</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="tbody-pembatalan"></tbody></table></div></div>
-  </div>
 
-  <div class="page" id="page-perkara">
-    <div class="toolbar">
-      <h2>PENANGANAN PERKARA</h2>
-      <div class="search-bar"><input type="text" placeholder="Cari perkara..." oninput="filterTable('tbl-perkara', this.value)"></div>
-      <button class="btn btn-export" onclick="exportCSV('perkara')">EXPORT CSV</button>
-      <button class="btn btn-primary" onclick="showAddForm('perkara')">TAMBAH</button>
-    </div>
-    <div class="card" id="form-perkara" style="display:none; margin-bottom:20px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <div class="card-title" style="margin:0">FORM PENANGANAN PERKARA</div>
-        <button class="close-btn" onclick="hideForm('form-perkara')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <!-- ═══════════════════════════════════════ LIST PUTUSAN ═══ -->
+      <div class="page" id="page-list-putusan">
+        <div class="page-header">
+          <h1>Putusan <em>Pengadilan</em></h1>
+          <p>Daftar permohonan pembatalan berdasarkan putusan pengadilan yang berkekuatan hukum tetap</p>
+        </div>
+        <div class="search-row">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" placeholder="Cari nomor berkas, pemohon, nomor putusan..." id="search-putusan" oninput="filterTable('putusan')">
+          </div>
+          <select class="filter-select" id="filter-status-putusan" onchange="filterTable('putusan')">
+            <option value="">Semua Tahapan</option>
+            <option value="0">Usulan Masuk</option>
+            <option value="1">Telaah Staff</option>
+            <option value="2">Penelitian Lapang</option>
+            <option value="3">Gelar Kasus</option>
+            <option value="4">Penerbitan SK</option>
+            <option value="5">Selesai</option>
+          </select>
+          <button class="btn btn-primary" onclick="navigateTo('tambah','putusan')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Tambah
+          </button>
+        </div>
+        <div class="card">
+          <div class="scrollable">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>No. Berkas</th>
+                  <th>Kantor Pertanahan</th>
+                  <th>Pemohon</th>
+                  <th>No. Putusan</th>
+                  <th>Lokasi</th>
+                  <th>Tgl. Usulan</th>
+                  <th>Tahapan</th>
+                  <th>Progress</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-putusan"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div class="form-grid">
-        <div class="form-group"><label>Nomor Perkara *</label><input type="text" id="prk-nomor" required></div>
-        <div class="form-group"><label>Tanggal Masuk *</label><input type="date" id="prk-tanggal" required></div>
-        <div class="form-group"><label>Penggugat *</label><input type="text" id="prk-penggugat" required></div>
-        <div class="form-group"><label>Tergugat *</label><input type="text" id="prk-tergugat" required></div>
-        <div class="form-group"><label>Nomor Register</label><input type="text" id="prk-register"></div>
-        <div class="form-group"><label>Objek Sengketa</label><input type="text" id="prk-objek"></div>
-        <div class="form-group"><label>Pengadilan</label><input type="text" id="prk-pengadilan"></div>
-        <div class="form-group"><label>Status</label><select id="prk-status"><option value="Aktif">Aktif</option><option value="Banding">Banding</option><option value="Kasasi">Kasasi</option><option value="Inkracht">Inkracht</option><option value="Selesai">Selesai</option></select></div>
-      </div>
-      <div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end;">
-        <button class="btn btn-ghost" onclick="hideForm('form-perkara')">BATAL</button>
-        <button class="btn btn-primary" onclick="addPerkara()">SIMPAN</button>
-      </div>
-    </div>
-    <div class="card"><div class="table-wrapper"><table id="tbl-perkara"><thead><tr><th>No</th><th>Nomor Perkara</th><th>Tgl Masuk</th><th>Penggugat</th><th>Tergugat</th><th>No. Register</th><th>Objek</th><th>Pengadilan</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="tbody-perkara"></tbody></table></div></div>
-  </div>
 
-  <div class="page" id="page-sengketa">
-    <div class="toolbar">
-      <h2>PENANGANAN SENGKETA</h2>
-      <div class="search-bar"><input type="text" placeholder="Cari sengketa..." oninput="filterTable('tbl-sengketa', this.value)"></div>
-      <button class="btn btn-export" onclick="exportCSV('sengketa')">EXPORT CSV</button>
-      <button class="btn btn-primary" onclick="showAddForm('sengketa')">TAMBAH</button>
-    </div>
-    <div class="card" id="form-sengketa" style="display:none; margin-bottom:20px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <div class="card-title" style="margin:0">FORM PENANGANAN SENGKETA</div>
-        <button class="close-btn" onclick="hideForm('form-sengketa')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-      </div>
-      <div class="form-grid">
-        <div class="form-group"><label>Nomor Sengketa *</label><input type="text" id="sng-nomor" required></div>
-        <div class="form-group"><label>Tanggal Masuk *</label><input type="date" id="sng-tanggal" required></div>
-        <div class="form-group"><label>Pemohon *</label><input type="text" id="sng-pemohon" required></div>
-        <div class="form-group"><label>Terlapor *</label><input type="text" id="sng-terlapor" required></div>
-        <div class="form-group"><label>Objek Sengketa</label><input type="text" id="sng-objek"></div>
-        <div class="form-group"><label>Letak Tanah</label><input type="text" id="sng-letak"></div>
-        <div class="form-group"><label>Jenis Sengketa</label><select id="sng-jenis"><option value="Tumpang Tindih Sertipikat">Tumpang Tindih Sertipikat</option><option value="Penguasaan Tanah">Penguasaan Tanah</option><option value="Batas Bidang Tanah">Batas Bidang Tanah</option><option value="Waris">Waris</option><option value="Lainnya">Lainnya</option></select></div>
-        <div class="form-group"><label>Status</label><select id="sng-status"><option value="Mediasi">Mediasi</option><option value="Gelar Kasus">Gelar Kasus</option><option value="Penyelidikan">Penyelidikan</option><option value="Selesai">Selesai</option></select></div>
-      </div>
-      <div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end;">
-        <button class="btn btn-ghost" onclick="hideForm('form-sengketa')">BATAL</button>
-        <button class="btn btn-primary" onclick="addSengketa()">SIMPAN</button>
-      </div>
-    </div>
-    <div class="card"><div class="table-wrapper"><table id="tbl-sengketa"><thead><tr><th>No</th><th>Nomor Sengketa</th><th>Tgl Masuk</th><th>Pemohon</th><th>Terlapor</th><th>Objek</th><th>Letak Tanah</th><th>Jenis</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="tbody-sengketa"></tbody></table></div></div>
-  </div>
+      <!-- ═══════════════════════════════════════ TAMBAH ═══ -->
+      <div class="page" id="page-tambah">
+        <div class="page-header">
+          <h1>Tambah <em>Permohonan</em></h1>
+          <p>Input data permohonan pembatalan baru</p>
+        </div>
+        <div class="card" style="max-width:820px">
+          <div class="card-header">
+            <span class="card-title">Formulir Permohonan Pembatalan</span>
+          </div>
+          <div class="card-body">
+            <div class="tabs" style="margin-bottom:24px">
+              <button class="tab active" onclick="switchFormTab('info')">Informasi Umum</button>
+              <button class="tab" onclick="switchFormTab('detail')">Detail Objek</button>
+              <button class="tab" onclick="switchFormTab('tahapan')">Tahapan Proses</button>
+            </div>
 
-  <div class="page" id="page-tipidana">
-    <div class="toolbar">
-      <h2>TINDAK PIDANA PERTANAHAN</h2>
-      <div class="search-bar"><input type="text" placeholder="Cari kasus..." oninput="filterTable('tbl-tipidana', this.value)"></div>
-      <button class="btn btn-export" onclick="exportCSV('tipidana')">EXPORT CSV</button>
-      <button class="btn btn-primary" onclick="showAddForm('tipidana')">TAMBAH</button>
-    </div>
-    <div class="card" id="form-tipidana" style="display:none; margin-bottom:20px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <div class="card-title" style="margin:0">FORM TINDAK PIDANA PERTANAHAN</div>
-        <button class="close-btn" onclick="hideForm('form-tipidana')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-      </div>
-      <div class="form-grid">
-        <div class="form-group"><label>Nomor Kasus *</label><input type="text" id="tpa-nomor" required></div>
-        <div class="form-group"><label>Tanggal Laporan *</label><input type="date" id="tpa-tanggal" required></div>
-        <div class="form-group"><label>Tersangka *</label><input type="text" id="tpa-tersangka" required></div>
-        <div class="form-group"><label>Jenis Tindak Pidana</label><select id="tpa-jenis"><option value="Pemalsuan Sertipikat">Pemalsuan Sertipikat</option><option value="Penipuan Jual Beli Tanah">Penipuan Jual Beli Tanah</option><option value="Pendudukan Tanah Tanpa Hak">Pendudukan Tanah Tanpa Hak</option><option value="Pemalsuan Dokumen">Pemalsuan Dokumen</option><option value="Lainnya">Lainnya</option></select></div>
-        <div class="form-group"><label>Pasal Yang Dilanggar</label><input type="text" id="tpa-pasal"></div>
-        <div class="form-group"><label>Instansi Penanganan</label><input type="text" id="tpa-instansi"></div>
-        <div class="form-group"><label>Objek / Lokasi</label><input type="text" id="tpa-objek"></div>
-        <div class="form-group"><label>Status Penanganan</label><select id="tpa-status"><option value="Laporan">Laporan</option><option value="Penyelidikan">Penyelidikan</option><option value="Penyidikan">Penyidikan</option><option value="P21">P21</option><option value="Persidangan">Persidangan</option><option value="Selesai">Selesai</option></select></div>
-      </div>
-      <div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end;">
-        <button class="btn btn-ghost" onclick="hideForm('form-tipidana')">BATAL</button>
-        <button class="btn btn-primary" onclick="addTipidana()">SIMPAN</button>
-      </div>
-    </div>
-    <div class="card"><div class="table-wrapper"><table id="tbl-tipidana"><thead><tr><th>No</th><th>Nomor Kasus</th><th>Tgl Laporan</th><th>Tersangka</th><th>Jenis Pidana</th><th>Pasal</th><th>Instansi</th><th>Objek/Lokasi</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="tbody-tipidana"></tbody></table></div></div>
-  </div>
+            <form id="form-permohonan" onsubmit="submitForm(event)">
+              <!-- Tab 1 -->
+              <div id="form-tab-info">
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label>Nomor Berkas *</label>
+                    <input type="text" class="form-control" id="f-nomorberkas" placeholder="Contoh: BPN-NTB/CA/2025/001" required>
+                  </div>
+                  <div class="form-group">
+                    <label>Jenis Dasar Permohonan *</label>
+                    <select class="form-control" id="f-jenis" required>
+                      <option value="">-- Pilih Jenis --</option>
+                      <option value="cacat">Cacat Administrasi</option>
+                      <option value="putusan">Putusan Pengadilan</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Kantor Pertanahan Pengusul *</label>
+                    <select class="form-control" id="f-kantah" required>
+                      <option value="">-- Pilih Kantor Pertanahan --</option>
+                      <option>Kota Mataram</option>
+                      <option>Lombok Barat</option>
+                      <option>Lombok Tengah</option>
+                      <option>Lombok Timur</option>
+                      <option>Lombok Utara</option>
+                      <option>Sumbawa</option>
+                      <option>Sumbawa Barat</option>
+                      <option>Dompu</option>
+                      <option>Bima</option>
+                      <option>Kota Bima</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Tanggal Surat Usulan *</label>
+                    <input type="date" class="form-control" id="f-tglUsulan" required>
+                  </div>
+                  <div class="form-group">
+                    <label>Nama Pemohon *</label>
+                    <input type="text" class="form-control" id="f-pemohon" placeholder="Nama lengkap pemohon" required>
+                  </div>
+                  <div class="form-group">
+                    <label>No. HP / Kontak</label>
+                    <input type="text" class="form-control" id="f-kontak" placeholder="08xxxxxxxxxx">
+                  </div>
+                  <div class="form-group full form-grid" style="grid-template-columns:1fr 1fr">
+                    <div class="form-group" id="f-noputs-group" style="display:none">
+                      <label>Nomor Putusan Pengadilan</label>
+                      <input type="text" class="form-control" id="f-noputs" placeholder="No. Putusan PN/PT/MA">
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-</main>
+              <!-- Tab 2 -->
+              <div id="form-tab-detail" style="display:none">
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label>Jenis Sertifikat *</label>
+                    <select class="form-control" id="f-jenissert">
+                      <option value="">-- Pilih --</option>
+                      <option>Hak Milik</option>
+                      <option>HGB</option>
+                      <option>HGU</option>
+                      <option>Hak Pakai</option>
+                      <option>Hak Pengelolaan</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Nomor Sertifikat *</label>
+                    <input type="text" class="form-control" id="f-nosert" placeholder="Nomor sertifikat hak atas tanah">
+                  </div>
+                  <div class="form-group">
+                    <label>Luas Tanah (m²)</label>
+                    <input type="number" class="form-control" id="f-luas" placeholder="0">
+                  </div>
+                  <div class="form-group">
+                    <label>Kecamatan</label>
+                    <input type="text" class="form-control" id="f-kecamatan" placeholder="Nama kecamatan">
+                  </div>
+                  <div class="form-group full" style="grid-column:1/-1">
+                    <label>Lokasi / Alamat Objek</label>
+                    <textarea class="form-control" id="f-lokasi" placeholder="Alamat lengkap bidang tanah"></textarea>
+                  </div>
+                  <div class="form-group full" style="grid-column:1/-1">
+                    <label>Uraian Singkat Kasus</label>
+                    <textarea class="form-control" id="f-uraian" placeholder="Jelaskan latar belakang dan alasan permohonan..." style="min-height:120px"></textarea>
+                  </div>
+                </div>
+              </div>
 
-<div class="modal-overlay" id="modal-detail">
+              <!-- Tab 3 -->
+              <div id="form-tab-tahapan" style="display:none">
+                <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px">Tentukan tahapan yang sudah selesai dan tanggal penyelesaiannya.</p>
+                <div id="tahapan-form-list"></div>
+              </div>
+
+              <div class="divider"></div>
+              <div style="display:flex;gap:10px;justify-content:flex-end">
+                <button type="button" class="btn btn-secondary" onclick="navigateTo('dashboard')">Batal</button>
+                <button type="button" class="btn btn-secondary" id="btn-prev-tab" style="display:none" onclick="prevFormTab()">← Sebelumnya</button>
+                <button type="button" class="btn btn-primary" id="btn-next-tab" onclick="nextFormTab()">Selanjutnya →</button>
+                <button type="submit" class="btn btn-primary" id="btn-submit" style="display:none">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg>
+                  Simpan Permohonan
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════ DETAIL ═══ -->
+      <div class="page" id="page-detail">
+        <button class="btn btn-ghost btn-sm" onclick="goBackFromDetail()" style="margin-bottom:16px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          Kembali
+        </button>
+        <div id="detail-content"></div>
+      </div>
+
+      <!-- ═══════════════════════════════════════ KALENDER ═══ -->
+      <div class="page" id="page-kalender">
+        <div class="page-header">
+          <h1>Kalender <em>Kegiatan</em></h1>
+          <p>Jadwal kegiatan, agenda kantor, dan hari libur nasional Indonesia 2025</p>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 300px;gap:24px" id="calendar-layout">
+          <div class="card">
+            <div class="card-header">
+              <div style="display:flex;align-items:center;gap:16px">
+                <span class="cal-month-label" id="full-cal-label" style="font-family:'DM Serif Display',serif;font-size:20px"></span>
+                <div class="cal-nav-btns">
+                  <button class="cal-nav-btn" onclick="fullCalPrev()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                  </button>
+                  <button class="cal-nav-btn" onclick="fullCalToday()">Hari Ini</button>
+                  <button class="cal-nav-btn" onclick="fullCalNext()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div style="display:flex;gap:16px;font-size:11px;align-items:center">
+                <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:50%;background:#050505;display:inline-block"></span>Agenda</span>
+                <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:50%;background:#c0392b;display:inline-block"></span>Libur Nasional</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="cal-days-header" style="grid-template-columns:repeat(7,1fr)">
+                <div class="cal-day-name" style="color:#c0392b">Min</div>
+                <div class="cal-day-name">Sen</div>
+                <div class="cal-day-name">Sel</div>
+                <div class="cal-day-name">Rab</div>
+                <div class="cal-day-name">Kam</div>
+                <div class="cal-day-name">Jum</div>
+                <div class="cal-day-name">Sab</div>
+              </div>
+              <div class="cal-grid" id="full-cal-grid" style="gap:4px"></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="card">
+              <div class="card-header"><span class="card-title">Tambah Kegiatan</span></div>
+              <div class="card-body">
+                <div class="form-group" style="margin-bottom:12px">
+                  <label>Tanggal</label>
+                  <input type="date" class="form-control" id="new-event-date">
+                </div>
+                <div class="form-group" style="margin-bottom:12px">
+                  <label>Judul Kegiatan</label>
+                  <input type="text" class="form-control" id="new-event-title" placeholder="Nama kegiatan...">
+                </div>
+                <div class="form-group" style="margin-bottom:16px">
+                  <label>Keterangan (opsional)</label>
+                  <textarea class="form-control" id="new-event-desc" placeholder="Detail kegiatan..." style="min-height:60px"></textarea>
+                </div>
+                <button class="btn btn-primary" style="width:100%" onclick="addCalendarEvent()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Tambah Kegiatan
+                </button>
+              </div>
+            </div>
+            <div class="card" style="flex:1">
+              <div class="card-header"><span class="card-title">Kegiatan Bulan Ini</span></div>
+              <div class="card-body" style="padding:12px 16px;max-height:350px;overflow-y:auto" id="events-list-panel"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════ TAHAPAN ═══ -->
+      <div class="page" id="page-tahapan">
+        <div class="page-header">
+          <h1>Alur <em>Tahapan</em></h1>
+          <p>Prosedur standar penanganan permohonan pembatalan hak atas tanah</p>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Cacat Administrasi</span></div>
+            <div class="card-body">
+              <div class="stepper" id="stepper-alur"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Putusan Pengadilan</span></div>
+            <div class="card-body">
+              <div class="stepper" id="stepper-alur-2"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:20px">
+          <div class="card-header"><span class="card-title">Dasar Hukum &amp; Referensi</span></div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+              <div>
+                <div style="font-weight:600;margin-bottom:10px;font-size:13.5px">Peraturan Terkait</div>
+                <ul style="list-style:none;display:flex;flex-direction:column;gap:8px">
+                  <li style="font-size:13px;color:var(--text-sub);padding:10px 14px;background:var(--surface);border-radius:var(--radius-sm)">📜 PP No. 24 Tahun 1997 tentang Pendaftaran Tanah</li>
+                  <li style="font-size:13px;color:var(--text-sub);padding:10px 14px;background:var(--surface);border-radius:var(--radius-sm)">📜 Permen ATR/BPN No. 21 Tahun 2020 tentang Penanganan dan Penyelesaian Kasus Pertanahan</li>
+                  <li style="font-size:13px;color:var(--text-sub);padding:10px 14px;background:var(--surface);border-radius:var(--radius-sm)">📜 Permen ATR/BPN No. 11 Tahun 2016 tentang Penyelesaian Kasus Pertanahan</li>
+                </ul>
+              </div>
+              <div>
+                <div style="font-weight:600;margin-bottom:10px;font-size:13.5px">Ketentuan Waktu Penyelesaian</div>
+                <ul style="list-style:none;display:flex;flex-direction:column;gap:8px">
+                  <li style="font-size:13px;color:var(--text-sub);padding:10px 14px;background:var(--surface);border-radius:var(--radius-sm)">⏱ Telaah Staff: 5 hari kerja</li>
+                  <li style="font-size:13px;color:var(--text-sub);padding:10px 14px;background:var(--surface);border-radius:var(--radius-sm)">⏱ Penelitian Lapang: 10 hari kerja</li>
+                  <li style="font-size:13px;color:var(--text-sub);padding:10px 14px;background:var(--surface);border-radius:var(--radius-sm)">⏱ Gelar Kasus: 3 hari kerja</li>
+                  <li style="font-size:13px;color:var(--text-sub);padding:10px 14px;background:var(--surface);border-radius:var(--radius-sm)">⏱ Penerbitan SK: 7 hari kerja</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ─── MODAL AGENDA ─── -->
+<div class="modal-overlay" id="modal-agenda">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title" id="modal-detail-title">DETAIL DATA</div>
-      <button class="close-btn" onclick="closeModal('modal-detail')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <div class="modal-title" id="modal-agenda-title">Kegiatan — 1 Januari 2025</div>
+      <button class="modal-close" onclick="closeModal('modal-agenda')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
-    <div id="modal-detail-body"></div>
-    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-detail')">TUTUP</button></div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="modal-calendar">
-  <div class="modal" style="max-width:480px;">
-    <div class="modal-header">
-      <div class="modal-title">TAMBAH AGENDA KALENDER</div>
-      <button class="close-btn" onclick="closeModal('modal-calendar')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-    </div>
-    <div class="form-grid" style="grid-template-columns:1fr;">
-      <div class="form-group"><label>Tanggal</label><input type="date" id="cal-date"></div>
-      <div class="form-group"><label>Judul Agenda</label><input type="text" id="cal-title" placeholder="Contoh: Sidang Mediasi Kasus #SNG-047"></div>
-      <div class="form-group"><label>Keterangan</label><textarea id="cal-desc" placeholder="Keterangan tambahan..." rows="3"></textarea></div>
-      <div class="form-group"><label>Jenis Kegiatan</label>
-        <select id="cal-type">
-          <option value="Mediasi">Mediasi Sengketa</option><option value="Sidang">Sidang Perkara</option>
-          <option value="Rapat">Rapat Internal</option><option value="Kunjungan">Kunjungan Lapangan</option>
-          <option value="Pelatihan">Pelatihan/Bimtek</option><option value="Lainnya">Lainnya</option>
-        </select>
-      </div>
-    </div>
+    <div class="modal-body" id="modal-agenda-body"></div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-calendar')">BATAL</button>
-      <button class="btn btn-primary" onclick="saveCalendarEvent()">SIMPAN AGENDA</button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-agenda')">Tutup</button>
     </div>
   </div>
 </div>
 
-<div id="toast">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-  <span id="toast-msg">Data berhasil disimpan</span>
+<!-- ─── MODAL EDIT TAHAPAN ─── -->
+<div class="modal-overlay" id="modal-tahapan">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Update Tahapan</div>
+      <button class="modal-close" onclick="closeModal('modal-tahapan')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modal-tahapan-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-tahapan')">Batal</button>
+      <button class="btn btn-primary" onclick="saveTahapanUpdate()">Simpan</button>
+    </div>
+  </div>
 </div>
+
+<!-- ─── TOAST ─── -->
+<div id="toast-container"></div>
 
 <script>
-  // ==============================
-// FITUR TEMA (LIGHT/DARK MODE)
-// ==============================
-function toggleTheme() {
-  const body = document.body;
-  const currentTheme = body.getAttribute('data-theme');
-  const themeIcon = document.getElementById('theme-icon');
-  
-  if (currentTheme === 'light') {
-    body.removeAttribute('data-theme');
-    localStorage.setItem('sikanda_theme', 'dark');
-    themeIcon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'; // Sun icon
-  } else {
-    body.setAttribute('data-theme', 'light');
-    localStorage.setItem('sikanda_theme', 'light');
-    themeIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>'; // Moon icon
-  }
-}
+// ══════════════════════════════════════════════════════════
+// DATA STORE
+// ══════════════════════════════════════════════════════════
+let cases = JSON.parse(localStorage.getItem('sipentas-cases') || '[]');
+let calendarEvents = JSON.parse(localStorage.getItem('sipentas-events') || '[]');
 
-// Cek tema saat halaman dimuat
-if (localStorage.getItem('sikanda_theme') === 'light') {
-  document.body.setAttribute('data-theme', 'light');
-  document.getElementById('theme-icon').innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
-}
-// ==============================
-// 1. SISTEM LOGIN & AUTENTIKASI
-// ==============================
-function checkLogin() {
-  const isLogged = sessionStorage.getItem('sikanda_logged');
-  if(isLogged === 'true') { document.getElementById('login-overlay').style.display = 'none'; }
-}
-function login() {
-  const pwd = document.getElementById('login-pwd').value;
-  if(pwd === 'admin') {
-    sessionStorage.setItem('sikanda_logged', 'true');
-    document.getElementById('login-overlay').style.opacity = '0';
-    setTimeout(() => document.getElementById('login-overlay').style.display = 'none', 500);
-  } else {
-    document.getElementById('login-error').style.opacity = '1';
-  }
-}
-function verifyLogin() { login(); }
-function logout() { sessionStorage.removeItem('sikanda_logged'); location.reload(); }
+const TAHAPAN_LABELS = [
+  'Surat Usulan dari Kantah',
+  'Telaah Staff',
+  'Penelitian Lapang',
+  'Gelar Kasus',
+  'Penerbitan SK Pembatalan',
+  'Laporan Penyelesaian Kasus'
+];
 
-// ==============================
-// 2. DATA WILAYAH NTB (Untuk Dropdown Pembatalan)
-// ==============================
-const NTB_DATA = {
-  'Kota Mataram': { 'Ampenan': ['Ampenan Selatan','Ampenan Tengah','Ampenan Utara','Banjar','Dayan Peken','Kebon Sari','Pejarakan Karya','Pejeruk','Taman Sari'], 'Cakranegara': ['Cakranegara Barat','Cakranegara Selatan','Cakranegara Selatan Baru','Cakranegara Timur','Cakranegara Utara','Cilinaya','Mayura','Sapta Marga','Sayang-Sayang','Sweta'], 'Mataram': ['Dasan Agung','Dasan Agung Baru','Gomong','Kekalik Jaya','Pagutan','Pagutan Barat','Pagutan Timur','Pagesangan','Pagesangan Barat','Pagesangan Timur','Pejanggik','Punia','Sekarbela'], 'Sandubaya': ['Abian Tubuh Baru','Babakan','Bertais','Dasan Cermen','Karang Pule','Mandalika','Selagalas','Turida'], 'Sekarbela': ['Jempong Baru','Karang Pule','Kekalik Jaya','Perampuan','Tanjung Karang','Tanjung Karang Permai'], 'Selaparang': ['Dasan Agung','Gomong','Karang Baru','Monjok','Monjok Barat','Monjok Timur','Rembiga','Tempe'] },
-  'Kota Bima': { 'Asakota': ['Jatibaru','Jatibaru Timur','Kolo','Melayu','Penana'], 'Mpunda': ['Dara','Lewirato','Manggemaci','Monggonao','Penatoi','Penaraga','Pene','Sadia','Sambinae'], 'Raba': ['Boro','Kendo','Kumbe','Lampe','Ntobo','Rabangodu Selatan','Rabangodu Utara','Rabadompu Barat','Rabadompu Timur','Rontu'], 'Rasanae Barat': ['Dodu','Fluid','Lelamase','Nae','Panggi','Paruga','Sarae','Tanjung'], 'Rasanae Timur': ['Oi Fo\'o','Rite','Nitu','Kodo','Kumbe','Dodu'] },
-  'Kabupaten Lombok Barat': { 'Batu Layar': ['Batu Layar','Batu Layar Barat','Gerung Selatan','Lembah Sari','Meninting','Sandik','Senggigi','Suka Makmur'], 'Gerung': ['Babussalam','Beleke','Dasan Tapen','Gerung Selatan','Gerung Utara','Giri Sasak','Kebon Ayu','Mesanggok','Ngur Lembang','Suka Makmur','Tempos','Taman Ayu'], 'Gunung Sari': ['Gunung Sari','Jeringo','Kekait','Krama Jaya','Mekarsari','Midang','Penimbung','Perampuan','Sigerongan','Taman Sari','Tamansari','Sesela'], 'Kediri': ['Aik Ampat','Dasan Tapen','Gelogor','Kediri','Kediri Selatan','Kuripan','Kuripan Selatan','Kuripan Utara','Lelede','Montong Are','Rumak'], 'Labuapi': ['Bajur','Bengkel','Kuranji','Kuranji Dalang','Labuapi','Perempuan','Telaga Waru','Terong Tawah','Merembu'], 'Lembar': ['Batu Putih','Jembatan Kembar','Jembatan Kembar Timur','Lembar','Lembar Selatan','Mareje','Sekotong Tengah','Pelangan'], 'Lingsar': ['Batu Mekar','Dasan Geria','Gegerung','Karang Baru','Langko','Lingsar','Sigerongan','Wanasaba Lauk','Karang Bayan'], 'Narmada': ['Badrain','Batu Mekar','Berembeng','Dasan Tereng','Gegelang','Golong','Lembuak','Lembung Reak','Mekar Sari','Narmada','Nyiur Lembang','Pakuan','Peresak','Selat','Sesaot','Suranadi','Sembung','Lebah Sempage'], 'Sekotong': ['Batu Putih','Buwun Mas','Gili Gede Indah','Kedaro','Pelangan','Sekotong Barat','Sekotong Tengah','Taman Baru','Telaga Lebur'] },
-  'Kabupaten Lombok Tengah': { 'Batukliang': ['Aik Darek','Beber','Bunkate','Ganti','Karang Sidemen','Mantang','Mas-Mas','Montong Gamang','Pringgarata','Sepakek','Selebung'], 'Janapria': ['Durian','Janapria','Kidang','Mujur','Serage','Sukarara','Sukarara Timur','Tanak Rarang'], 'Jonggat': ['Aik Mual','Batu Tulis','Ganti','Gemel','Gonjak','Karang Daye','Labulia','Lelong','Lekor','Nyerot','Pandan Indah','Puyung','Sukarara','Ubung'], 'Kopang': ['Beraim','Dasan Baru','Dasan Lekong','Kopang','Kopang Rembiga','Montong Gamang','Orong Gerisak','Perian','Semparu','Woja'], 'Praya': ['Gerunung','Jontlak','Kelurahan Praya','Leneng','Mertak Tombok','Montong Terep','Semayan','Tiwugalih','Aik Mual','Kerembong'], 'Pujut': ['Kuta','Mertak','Pengembur','Pujut','Rambitan','Sade','Sengkol','Sukadana','Tumpak'] },
-  'Kabupaten Lombok Timur': { 'Aikmel': ['Aikmel','Aikmel Barat','Aikmel Utara','Aikmel Timur','Danger','Jerowaru','Kembang Kerang','Kembang Kerang Daya','Lenek','Lenek Baru','Lenek Daya','Lenek Lauk','Suela'], 'Sikur': ['Aik Dewa','Aik Prapa','Bagek Payung','Bagek Payung Barat','Bagek Payung Timur','Dasan Lekong','Kota Raja','Montong Baan','Montong Baan Selatan','Montong Baan Timur','Sikur','Sikur Barat','Sikur Selatan'], 'Selong': ['Denggen','Denggen Timur','Gelanggang','Kelurahan Rakam','Kelurahan Selong','Kelurahan Sekarteja','Kembang Sari','Kesik','Lendang Re','Majidi','Pancor','Paokmotong','Rakam'] },
-  'Kabupaten Lombok Utara': { 'Bayan': ['Akar-Akar','Anyar','Bayan','Loloan','Senaru','Sambik Elen','Sukadana'], 'Gangga': ['Bentek','Genggelang','Gondang','Kayangan','Rempek','Sambik Bangkol'], 'Tanjung': ['Jenggala','Medana','Sigar Penjalin','Sokong','Sugian','Tanjung','Teniga'] },
-  'Kabupaten Sumbawa': { 'Alas': ['Alas','Alas Barat','Kalimango','Labuhan Sumbawa','Luar','Mapin Kebak','Mapin Rea','Pulau Kaung','Selang','Sepaukur','Tepal'], 'Sumbawa': ['Brang Biji','Bugis','Kelurahan Brang Biji','Kelurahan Lempeh','Kelurahan Pekat','Kelurahan Samapuin','Kelurahan Uma Sima','Kelurahan Brang Bara'] },
-  'Kabupaten Sumbawa Barat': { 'Taliwang': ['Batu Putih','Bugis','Dalam','Dst','Karang Baru','Lalar','Lamulung','Menala','Seloto','Sermong','Tamekan','Telaga Bertong','Tongo','Torotangga'] },
-  'Kabupaten Dompu': { 'Dompu': ['Bada','Bara','Bali I','Bali II','Dorotangga','Kandai I','Kandai II','Karijawa','Manggelewa','Montabaru','Monta Baru','Wawonduru'] },
-  'Kabupaten Bima': { 'Woha': ['Belo','Kalampa','Kowo','Nisa','Roka','Samili','Talabiu','Tente','Wadukopa','Woha'] }
+const STATUS_MAP = {
+  0: { label: 'Usulan Masuk', cls: 'status-0' },
+  1: { label: 'Telaah Staff', cls: 'status-1' },
+  2: { label: 'Penelitian Lapang', cls: 'status-2' },
+  3: { label: 'Gelar Kasus', cls: 'status-3' },
+  4: { label: 'Penerbitan SK', cls: 'status-4' },
+  5: { label: 'Selesai', cls: 'status-5' },
 };
 
-function onKabKotaChange() {
-  const kabkota = document.getElementById('pmb-kabkota').value;
-  const kecEl = document.getElementById('pmb-kecamatan');
-  const desaEl = document.getElementById('pmb-desa');
-  kecEl.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
-  desaEl.innerHTML = '<option value="">-- Pilih Desa/Kelurahan --</option>';
-  desaEl.disabled = true;
-  if (!kabkota || !NTB_DATA[kabkota]) { kecEl.disabled = true; return; }
-  kecEl.disabled = false;
-  Object.keys(NTB_DATA[kabkota]).sort().forEach(kec => {
-    const opt = document.createElement('option'); opt.value = kec; opt.textContent = kec; kecEl.appendChild(opt);
-  });
-}
+// Indonesian National Holidays 2025
+const HOLIDAYS_2025 = {
+  '2025-01-01': 'Tahun Baru Masehi',
+  '2025-01-27': 'Isra Mi\'raj Nabi Muhammad SAW',
+  '2025-01-29': 'Tahun Baru Imlek 2576',
+  '2025-03-29': 'Hari Suci Nyepi',
+  '2025-03-30': 'Cuti Bersama Nyepi',
+  '2025-04-18': 'Wafat Yesus Kristus',
+  '2025-04-20': 'Kebangkitan Yesus Kristus',
+  '2025-03-31': 'Idul Fitri 1446 H',
+  '2025-04-01': 'Idul Fitri 1446 H',
+  '2025-04-28': 'Cuti Bersama Waisak',
+  '2025-05-01': 'Hari Buruh Internasional',
+  '2025-05-12': 'Hari Raya Waisak 2569',
+  '2025-05-29': 'Kenaikan Yesus Kristus',
+  '2025-06-01': 'Hari Lahir Pancasila',
+  '2025-06-06': 'Idul Adha 1446 H',
+  '2025-06-27': 'Tahun Baru Islam 1447 H',
+  '2025-08-17': 'Hari Kemerdekaan RI',
+  '2025-09-05': 'Maulid Nabi Muhammad SAW',
+  '2025-12-25': 'Hari Raya Natal',
+  '2025-12-26': 'Cuti Bersama Natal',
+  // 2026
+  '2026-01-01': 'Tahun Baru Masehi',
+  '2026-02-17': 'Tahun Baru Imlek 2577',
+  '2026-03-16': 'Isra Mi\'raj Nabi Muhammad SAW',
+  '2026-03-20': 'Hari Suci Nyepi',
+  '2026-03-22': 'Idul Fitri 1447 H (Perkiraan)',
+  '2026-03-23': 'Idul Fitri 1447 H (Perkiraan)',
+  '2026-04-03': 'Wafat Yesus Kristus',
+  '2026-05-01': 'Hari Buruh Internasional',
+  '2026-05-14': 'Kenaikan Yesus Kristus',
+  '2026-05-27': 'Isra Mi\'raj (Perkiraan)',
+  '2026-06-01': 'Hari Lahir Pancasila',
+  '2026-06-02': 'Hari Raya Waisak',
+  '2026-08-17': 'Hari Kemerdekaan RI',
+  '2026-12-25': 'Hari Raya Natal',
+};
 
-function onKecamatanChange() {
-  const kabkota = document.getElementById('pmb-kabkota').value, kecamatan = document.getElementById('pmb-kecamatan').value;
-  const desaEl = document.getElementById('pmb-desa');
-  desaEl.innerHTML = '<option value="">-- Pilih Desa/Kelurahan --</option>';
-  if (!kabkota || !kecamatan || !NTB_DATA[kabkota][kecamatan]) { desaEl.disabled = true; return; }
-  desaEl.disabled = false;
-  NTB_DATA[kabkota][kecamatan].sort().forEach(d => {
-    const opt = document.createElement('option'); opt.value = d; opt.textContent = d; desaEl.appendChild(opt);
-  });
-}
+// ══════════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════════
+let currentPage = 'dashboard';
+let prevPage = 'dashboard';
+const crumbMap = {
+  'dashboard': 'Beranda / <span>Dashboard</span>',
+  'list-cacat': 'Permohonan / <span>Cacat Administrasi</span>',
+  'list-putusan': 'Permohonan / <span>Putusan Pengadilan</span>',
+  'tambah': 'Permohonan / <span>Tambah Baru</span>',
+  'detail': 'Permohonan / <span>Detail Kasus</span>',
+  'kalender': 'Informasi / <span>Kalender Kegiatan</span>',
+  'tahapan': 'Informasi / <span>Alur Tahapan</span>',
+};
 
-// ==============================
-// 3. DATABASE (LOCAL STORAGE PERSISTENCE)
-// ==============================
-let DB = JSON.parse(localStorage.getItem('sikanda_db'));
-if (!DB) {
-  DB = {
-    suratMasuk: [
-      { id:1, nomor:'021/SM/II/2025', tanggal:'2025-02-21', asal:'Kantor ATR/BPN Lombok Barat', perihal:'Sengketa HM No.123', status:'Diproses', disposisi:'Kabid PPSEN' },
-      { id:2, nomor:'018/SM/II/2025', tanggal:'2025-02-18', asal:'Pengadilan Negeri Mataram', perihal:'Panggilan Sidang Perkara No. 45/Pdt', status:'Diterima', disposisi:'Kasubid Sengketa' }
-    ],
-    suratKeluar: [
-      { id:1, nomor:'015/SK/II/2025', tanggal:'2025-02-20', tujuan:'Kantor ATR/BPN Sumbawa', perihal:'Balasan Sengketa Pertanahan', ttd:'Kepala Kanwil BPN NTB', status:'Terkirim' }
-    ],
-    pembatalan: [
-      { id:1, nomor:'PMB-032', tanggal:'2025-02-19', pemohon:'H. Lalu Muhamad Rizky', objek:'HM No. 445', kabkota:'Kota Mataram', letak:'Desa Pagutan, Kec. Mataram', alasan:'Cacat Administrasi', status:'Baru' }
-    ],
-    perkara: [
-      { id:1, nomor:'PKR-009', tanggal:'2025-02-05', penggugat:'PT Graha Lombok', tergugat:'Pemerintah Kota Mataram', register:'45/Pdt.G/2025', objek:'HGB No. 12', pengadilan:'PN Mataram', status:'Aktif' }
-    ],
-    sengketa: [
-      { id:1, nomor:'SNG-047', tanggal:'2025-02-20', pemohon:'Hj. Fatimah Zuhri', terlapor:'H. Mustafa', objek:'HM No. 891', letak:'Desa Labu Api', jenis:'Tumpang Tindih Sertipikat', status:'Mediasi' }
-    ],
-    tipidana: [
-      { id:1, nomor:'TPA-011', tanggal:'2025-02-15', tersangka:'Bambang Purwanto', jenis:'Pemalsuan Sertipikat', pasal:'Pasal 263 KUHP', instansi:'Polda NTB', objek:'HM No. 556', status:'Penyidikan' }
-    ],
-    calendarEvents: {
-      '2025-02-21': [{ title:'Mediasi SNG-047', desc:'Mediasi sengketa HM No. 891', type:'Mediasi' }],
-      '2025-02-25': [{ title:'Sidang PKR-009', desc:'Persidangan PN Mataram perkara 45/Pdt.G', type:'Sidang' }],
-      '2025-02-28': [{ title:'Rapat Koordinasi', desc:'Rapat internal bidang PPSEN', type:'Rapat' }]
+function navigateTo(page, param) {
+  prevPage = currentPage;
+  currentPage = page;
+
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById('page-' + page);
+  if (el) el.classList.add('active');
+
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + page + "'")) {
+      n.classList.add('active');
     }
-  };
-  saveDB();
-}
+  });
 
-function saveDB() {
-  localStorage.setItem('sikanda_db', JSON.stringify(DB));
+  document.getElementById('page-crumb').innerHTML = crumbMap[page] || '<span>' + page + '</span>';
+
+  if (page === 'list-cacat') renderTable('cacat');
+  if (page === 'list-putusan') renderTable('putusan');
+  if (page === 'dashboard') { renderDashboard(); renderMiniCal(); }
+  if (page === 'tambah') { resetForm(param); }
+  if (page === 'kalender') { renderFullCal(); renderEventsList(); }
+  if (page === 'tahapan') renderAlur();
   updateStats();
 }
 
-// ==============================
-// 4. NAVIGATION & UI
-// ==============================
-const pageConfig = {
-  'dashboard': { title: 'DASHBOARD', breadcrumb: 'Beranda / Dashboard' },
-  'surat-masuk': { title: 'SURAT MASUK', breadcrumb: 'Beranda / Surat / Surat Masuk' },
-  'surat-keluar': { title: 'SURAT KELUAR', breadcrumb: 'Beranda / Surat / Surat Keluar' },
-  'pembatalan': { title: 'PERMOHONAN PEMBATALAN', breadcrumb: 'Beranda / Pembatalan' },
-  'perkara': { title: 'PENANGANAN PERKARA', breadcrumb: 'Beranda / Perkara & Sengketa / Perkara' },
-  'sengketa': { title: 'PENANGANAN SENGKETA', breadcrumb: 'Beranda / Perkara & Sengketa / Sengketa' },
-  'tipidana': { title: 'TINDAK PIDANA PERTANAHAN', breadcrumb: 'Beranda / Pidana / Tipidana' },
-};
-const navHistory = [];
-let currentPage = 'dashboard';
+// ══════════════════════════════════════════════════════════
+// STATS & DASHBOARD
+// ══════════════════════════════════════════════════════════
+function updateStats() {
+  const total = cases.length;
+  const cacat = cases.filter(c => c.jenis === 'cacat').length;
+  const putusan = cases.filter(c => c.jenis === 'putusan').length;
+  const selesai = cases.filter(c => c.currentStep >= 5).length;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-cacat').textContent = cacat;
+  document.getElementById('stat-putusan').textContent = putusan;
+  document.getElementById('stat-selesai').textContent = selesai;
+  document.getElementById('badge-cacat').textContent = cacat;
+  document.getElementById('badge-putusan').textContent = putusan;
+}
 
-function navigateTo(pageId, navEl, pushHistory = true) {
-  if (pushHistory && currentPage && currentPage !== pageId) navHistory.push(currentPage);
-  currentPage = pageId;
+function renderDashboard() {
+  const tbody = document.getElementById('recent-cases-tbody');
+  const recent = [...cases].sort((a,b) => new Date(b.tglUsulan) - new Date(a.tglUsulan)).slice(0,8);
+  if (!recent.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px">Belum ada data permohonan</td></tr>';
+    return;
+  }
+  tbody.innerHTML = recent.map(c => `
+    <tr onclick="openDetail('${c.id}')">
+      <td><code style="font-size:12px;background:var(--surface);padding:2px 7px;border-radius:4px">${c.nomorberkas}</code></td>
+      <td style="font-size:12px">${c.pemohon}</td>
+      <td><span class="badge ${c.jenis === 'cacat' ? 'badge-admin' : 'badge-court'}">
+        <span class="badge-dot" style="background:${c.jenis==='cacat'?'var(--gray-dark)':'var(--white)'}"></span>
+        ${c.jenis === 'cacat' ? 'Cacat Adm.' : 'Putusan PN'}
+      </span></td>
+      <td style="font-size:12px">${c.kantah}</td>
+      <td><span class="status-badge ${STATUS_MAP[c.currentStep]?.cls || 'status-0'}">${STATUS_MAP[c.currentStep]?.label || '-'}</span></td>
+    </tr>
+  `).join('');
+}
 
-  const backBtn = document.getElementById('back-btn');
-  if (pageId === 'dashboard' || navHistory.length === 0) backBtn.classList.remove('visible'); else backBtn.classList.add('visible');
+// ══════════════════════════════════════════════════════════
+// TABLE RENDER
+// ══════════════════════════════════════════════════════════
+function renderTable(type) {
+  const tbody = document.getElementById('tbody-' + type);
+  const search = (document.getElementById('search-' + type)?.value || '').toLowerCase();
+  const filterStatus = document.getElementById('filter-status-' + type)?.value;
+
+  let filtered = cases.filter(c => c.jenis === type);
+  if (search) filtered = filtered.filter(c =>
+    c.nomorberkas.toLowerCase().includes(search) ||
+    c.pemohon.toLowerCase().includes(search) ||
+    (c.lokasi||'').toLowerCase().includes(search) ||
+    (c.noputs||'').toLowerCase().includes(search)
+  );
+  if (filterStatus !== '' && filterStatus !== undefined) {
+    filtered = filtered.filter(c => String(c.currentStep) === String(filterStatus));
+  }
+
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:40px">Tidak ada data</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filtered.map(c => {
+    const progress = Math.round(((c.currentStep) / 5) * 100);
+    const steps = Array.from({length:5}, (_,i) => `<div class="pipe-step ${i < c.currentStep ? 'done' : i === c.currentStep ? 'active' : ''}"></div>`).join('');
+    const extraCol = type === 'putusan'
+      ? `<td style="font-size:12px">${c.noputs||'-'}</td>`
+      : `<td style="font-size:12px">${c.nosert||'-'}</td>`;
+    return `
+      <tr onclick="openDetail('${c.id}')">
+        <td><code style="font-size:12px;background:var(--surface);padding:2px 7px;border-radius:4px">${c.nomorberkas}</code></td>
+        <td style="font-size:12px">${c.kantah}</td>
+        <td style="font-size:12px">${c.pemohon}</td>
+        ${extraCol}
+        <td style="font-size:12px">${c.kecamatan||c.lokasi||'-'}</td>
+        <td style="font-size:12px">${fmtDate(c.tglUsulan)}</td>
+        <td><span class="status-badge ${STATUS_MAP[c.currentStep]?.cls}">${STATUS_MAP[c.currentStep]?.label}</span></td>
+        <td style="min-width:80px"><div style="display:flex;flex-direction:column;gap:3px"><div class="pipeline">${steps}</div><span style="font-size:10px;color:var(--text-muted)">${progress}%</span></div></td>
+        <td onclick="event.stopPropagation()">
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-secondary btn-sm" onclick="openDetail('${c.id}')">Detail</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteCase('${c.id}')">Hapus</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filterTable(type) { renderTable(type); }
+
+// ══════════════════════════════════════════════════════════
+// DETAIL VIEW
+// ══════════════════════════════════════════════════════════
+function openDetail(id) {
+  const c = cases.find(x => x.id === id);
+  if (!c) return;
+  prevPage = currentPage;
+  currentPage = 'detail';
+
+  const steps = TAHAPAN_LABELS.map((label, i) => {
+    let cls = i < c.currentStep ? 'done' : i === c.currentStep ? 'active' : 'pending';
+    let date = c.tahapan?.[i]?.date ? `<div class="step-date">${fmtDate(c.tahapan[i].date)}</div>` : '';
+    let note = c.tahapan?.[i]?.note ? `<div class="step-note">${c.tahapan[i].note}</div>` : '';
+    return `<div class="step-item">
+      <div class="step-num ${cls}">${i+1}</div>
+      <div class="step-content">
+        <div class="step-title">${label}</div>
+        ${date}${note}
+      </div>
+      ${i === c.currentStep ? `<button class="btn btn-secondary btn-sm" style="margin-left:auto;flex-shrink:0" onclick="openUpdateTahapan('${id}',${i})">Update</button>` : ''}
+    </div>`;
+  }).join('');
+
+  document.getElementById('detail-content').innerHTML = `
+    <div class="detail-header">
+      <div class="detail-case-id">ID BERKAS</div>
+      <div class="detail-title">${c.nomorberkas}</div>
+      <div class="detail-metas">
+        <div class="detail-meta-item"><strong>Pemohon:</strong>${c.pemohon}</div>
+        <div class="detail-meta-item"><strong>Jenis:</strong>${c.jenis === 'cacat' ? 'Cacat Administrasi' : 'Putusan Pengadilan'}</div>
+        <div class="detail-meta-item"><strong>Kantah:</strong>${c.kantah}</div>
+        <div class="detail-meta-item"><strong>Tgl. Usulan:</strong>${fmtDate(c.tglUsulan)}</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 360px;gap:20px">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Riwayat Tahapan</span></div>
+        <div class="card-body">
+          <div class="stepper">${steps}</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Informasi Kasus</span></div>
+          <div class="card-body">
+            <div class="info-grid">
+              <div class="info-item"><label>Jenis Sertifikat</label><span>${c.jenissert||'-'}</span></div>
+              <div class="info-item"><label>No. Sertifikat</label><span>${c.nosert||'-'}</span></div>
+              <div class="info-item"><label>Luas Tanah</label><span>${c.luas ? c.luas + ' m²' : '-'}</span></div>
+              <div class="info-item"><label>Kecamatan</label><span>${c.kecamatan||'-'}</span></div>
+              ${c.jenis === 'putusan' ? `<div class="info-item" style="grid-column:1/-1"><label>No. Putusan</label><span>${c.noputs||'-'}</span></div>` : ''}
+              <div class="info-item" style="grid-column:1/-1"><label>Lokasi</label><span>${c.lokasi||'-'}</span></div>
+            </div>
+          </div>
+        </div>
+        ${c.uraian ? `<div class="card"><div class="card-header"><span class="card-title">Uraian Kasus</span></div><div class="card-body"><p style="font-size:13px;line-height:1.7;color:var(--text-sub)">${c.uraian}</p></div></div>` : ''}
+        <div class="card">
+          <div class="card-header"><span class="card-title">Status Saat Ini</span></div>
+          <div class="card-body">
+            <span class="status-badge ${STATUS_MAP[c.currentStep]?.cls}" style="font-size:13px;padding:6px 14px">${STATUS_MAP[c.currentStep]?.label}</span>
+            <div style="margin-top:12px">
+              <div class="progress-bar"><div class="progress-fill" style="width:${Math.round((c.currentStep/5)*100)}%"></div></div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:4px">${Math.round((c.currentStep/5)*100)}% selesai</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
 
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + pageId).classList.add('active');
-
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  if (navEl) navEl.classList.add('active');
-  else document.querySelectorAll('.nav-item').forEach(item => { if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(`'${pageId}'`)) item.classList.add('active'); });
-
-  const cfg = pageConfig[pageId];
-  if (cfg) { document.getElementById('page-title').textContent = cfg.title; document.getElementById('breadcrumb').textContent = cfg.breadcrumb; }
-
-  if (pageId !== 'dashboard') renderTable(pageId.replace('surat-', ''));
+  document.getElementById('page-detail').classList.add('active');
+  document.getElementById('page-crumb').innerHTML = crumbMap['detail'];
 }
-function navigateToWithNav(pageId) {
-  const navItems = document.querySelectorAll('.nav-item');
-  let found = null;
-  navItems.forEach(item => { if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(`'${pageId}'`)) found = item; });
-  navigateTo(pageId, found);
+
+function goBackFromDetail() {
+  navigateTo(prevPage === 'detail' ? 'dashboard' : prevPage);
 }
-function goBack() { if (navHistory.length === 0) return; navigateTo(navHistory.pop(), null, false); }
-function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
 
-function updateClock() {
-  const now = new Date();
-  document.getElementById('clock').textContent = now.toLocaleTimeString('id-ID');
+// ══════════════════════════════════════════════════════════
+// FORM
+// ══════════════════════════════════════════════════════════
+let currentFormTab = 'info';
+const formTabs = ['info', 'detail', 'tahapan'];
+
+function resetForm(preselect) {
+  document.getElementById('form-permohonan').reset();
+  if (preselect) document.getElementById('f-jenis').value = preselect;
+  currentFormTab = 'info';
+  showFormTab('info');
+  renderTahapanForm();
+  togglePutsanField();
+  document.getElementById('f-jenis').addEventListener('change', togglePutsanField);
 }
-setInterval(updateClock, 1000); updateClock();
 
-// ==============================
-// 5. CALENDAR & HOLIDAYS
-// ==============================
-let calCurrent = new Date(); calCurrent.setDate(1);
-let calSelected = null;
-const MONTHS = ['JANUARI','FEBRUARI','MARET','APRIL','MEI','JUNI','JULI','AGUSTUS','SEPTEMBER','OKTOBER','NOVEMBER','DESEMBER'];
+function togglePutsanField() {
+  const jenis = document.getElementById('f-jenis').value;
+  document.getElementById('f-noputs-group').style.display = jenis === 'putusan' ? '' : 'none';
+}
 
-const HOLIDAYS = {
-  '2025-01-01': 'Tahun Baru Masehi', '2025-01-27': 'Isra Mi\'raj', '2025-01-29': 'Tahun Baru Imlek', 
-  '2025-03-29': 'Hari Raya Nyepi', '2025-03-31': 'Idul Fitri 1446 H', '2025-05-01': 'Hari Buruh', 
-  '2025-05-12': 'Hari Raya Waisak', '2025-05-29': 'Kenaikan Isa Al Masih', '2025-06-01': 'Hari Lahir Pancasila', 
-  '2025-06-06': 'Idul Adha 1446 H', '2025-06-27': 'Tahun Baru Islam', '2025-08-17': 'HUT RI', 
-  '2025-09-05': 'Maulid Nabi', '2025-12-25': 'Hari Raya Natal'
-};
-function getHolidayName(dateStr) { return HOLIDAYS[dateStr] || null; }
+function switchFormTab(tab) {
+  showFormTab(tab);
+  currentFormTab = tab;
+}
 
-function renderCalendar() {
-  const year = calCurrent.getFullYear(), month = calCurrent.getMonth();
-  document.getElementById('cal-month-label').textContent = `${MONTHS[month]} ${year}`;
-  const grid = document.getElementById('cal-grid'); grid.innerHTML = '';
-  
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const daysInPrev = new Date(year, month, 0).getDate();
+function showFormTab(tab) {
+  formTabs.forEach(t => {
+    document.getElementById('form-tab-' + t).style.display = t === tab ? '' : 'none';
+  });
+  document.querySelectorAll('.tabs .tab').forEach((btn, i) => {
+    btn.classList.toggle('active', formTabs[i] === tab);
+  });
+  const idx = formTabs.indexOf(tab);
+  document.getElementById('btn-prev-tab').style.display = idx === 0 ? 'none' : '';
+  document.getElementById('btn-next-tab').style.display = idx === formTabs.length - 1 ? 'none' : '';
+  document.getElementById('btn-submit').style.display = idx === formTabs.length - 1 ? '' : 'none';
+  currentFormTab = tab;
+}
+
+function nextFormTab() {
+  const idx = formTabs.indexOf(currentFormTab);
+  if (idx < formTabs.length - 1) showFormTab(formTabs[idx + 1]);
+}
+function prevFormTab() {
+  const idx = formTabs.indexOf(currentFormTab);
+  if (idx > 0) showFormTab(formTabs[idx - 1]);
+}
+
+function renderTahapanForm() {
+  const el = document.getElementById('tahapan-form-list');
+  el.innerHTML = TAHAPAN_LABELS.map((label, i) => `
+    <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div class="step-num done" style="width:26px;height:26px;font-size:11px">${i+1}</div>
+        <div style="font-size:13px;font-weight:500">${label}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label>Tanggal</label>
+          <input type="date" class="form-control form-control-sm" id="th-date-${i}" style="font-size:12px;padding:7px 10px">
+        </div>
+        <div class="form-group">
+          <label>Catatan</label>
+          <input type="text" class="form-control form-control-sm" id="th-note-${i}" placeholder="Catatan opsional" style="font-size:12px;padding:7px 10px">
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function submitForm(e) {
+  e.preventDefault();
+  const jenis = document.getElementById('f-jenis').value;
+  if (!jenis) { showToast('Pilih jenis permohonan!', 'error'); return; }
+
+  const tahapan = TAHAPAN_LABELS.map((_, i) => ({
+    date: document.getElementById('th-date-' + i)?.value || '',
+    note: document.getElementById('th-note-' + i)?.value || '',
+  }));
+  const currentStep = tahapan.reduce((acc, t, i) => t.date ? i + 1 : acc, 0);
+
+  const newCase = {
+    id: 'c' + Date.now(),
+    nomorberkas: document.getElementById('f-nomorberkas').value,
+    jenis,
+    kantah: document.getElementById('f-kantah').value,
+    tglUsulan: document.getElementById('f-tglUsulan').value,
+    pemohon: document.getElementById('f-pemohon').value,
+    kontak: document.getElementById('f-kontak').value,
+    noputs: document.getElementById('f-noputs').value,
+    jenissert: document.getElementById('f-jenissert').value,
+    nosert: document.getElementById('f-nosert').value,
+    luas: document.getElementById('f-luas').value,
+    kecamatan: document.getElementById('f-kecamatan').value,
+    lokasi: document.getElementById('f-lokasi').value,
+    uraian: document.getElementById('f-uraian').value,
+    tahapan,
+    currentStep,
+    createdAt: new Date().toISOString(),
+  };
+
+  cases.push(newCase);
+  saveData();
+  updateStats();
+  showToast('Permohonan berhasil disimpan!', 'success');
+  navigateTo(jenis === 'cacat' ? 'list-cacat' : 'list-putusan');
+}
+
+// ══════════════════════════════════════════════════════════
+// UPDATE TAHAPAN (from detail)
+// ══════════════════════════════════════════════════════════
+let updatingCaseId = '';
+let updatingStepIdx = 0;
+
+function openUpdateTahapan(id, stepIdx) {
+  updatingCaseId = id;
+  updatingStepIdx = stepIdx;
+  const c = cases.find(x => x.id === id);
+  const label = TAHAPAN_LABELS[stepIdx];
+  document.getElementById('modal-tahapan-body').innerHTML = `
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Tahapan: <strong style="color:var(--text)">${label}</strong></p>
+    <div class="form-group" style="margin-bottom:12px">
+      <label>Tanggal Penyelesaian *</label>
+      <input type="date" class="form-control" id="upd-date" value="${c.tahapan?.[stepIdx]?.date || ''}">
+    </div>
+    <div class="form-group">
+      <label>Catatan</label>
+      <textarea class="form-control" id="upd-note" placeholder="Catatan proses...">${c.tahapan?.[stepIdx]?.note || ''}</textarea>
+    </div>
+  `;
+  openModal('modal-tahapan');
+}
+
+function saveTahapanUpdate() {
+  const date = document.getElementById('upd-date').value;
+  const note = document.getElementById('upd-note').value;
+  if (!date) { showToast('Masukkan tanggal!', 'error'); return; }
+  const c = cases.find(x => x.id === updatingCaseId);
+  if (!c) return;
+  if (!c.tahapan) c.tahapan = [];
+  c.tahapan[updatingStepIdx] = { date, note };
+  c.currentStep = c.tahapan.reduce((acc, t, i) => t?.date ? i + 1 : acc, 0);
+  saveData();
+  closeModal('modal-tahapan');
+  showToast('Tahapan berhasil diupdate!', 'success');
+  openDetail(updatingCaseId);
+}
+
+// ══════════════════════════════════════════════════════════
+// DELETE CASE
+// ══════════════════════════════════════════════════════════
+function deleteCase(id) {
+  if (!confirm('Hapus data permohonan ini?')) return;
+  cases = cases.filter(c => c.id !== id);
+  saveData();
+  updateStats();
+  renderTable(currentPage === 'list-cacat' ? 'cacat' : 'putusan');
+  showToast('Data berhasil dihapus');
+}
+
+// ══════════════════════════════════════════════════════════
+// CALENDAR
+// ══════════════════════════════════════════════════════════
+const MONTHS = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
+let miniCalDate = new Date();
+let fullCalDate = new Date();
+
+function dateKey(y, m, d) {
+  return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
+
+function getEventsForDate(key) {
+  return calendarEvents.filter(e => e.date === key);
+}
+
+function renderMiniCal() {
+  const d = miniCalDate;
+  const y = d.getFullYear(), m = d.getMonth();
+  document.getElementById('mini-cal-label').textContent = `${MONTHS[m]} ${y}`;
+
+  const first = new Date(y, m, 1).getDay();
+  const days = new Date(y, m + 1, 0).getDate();
   const today = new Date();
 
-  for (let i = 0; i < firstDay; i++) {
-    const d = document.createElement('div'); d.className = 'cal-day other-month';
-    d.innerHTML = `<span class="cal-day-inner">${daysInPrev - firstDay + 1 + i}</span>`; grid.appendChild(d);
-  }
+  let html = '';
+  let cells = first + days;
+  let total = Math.ceil(cells / 7) * 7;
 
-  for (let d = 1; d <= daysInMonth; d++) {
-    const el = document.createElement('div'); el.className = 'cal-day';
-    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === d;
-    const holidayName = getHolidayName(dateStr);
-    
-    if (isToday) el.classList.add('today');
-    if (holidayName) { el.classList.add('holiday'); el.setAttribute('data-holiday', holidayName); } 
-    else if (new Date(year, month, d).getDay() === 0) { el.classList.add('is-sunday'); }
-    
-    if (DB.calendarEvents[dateStr] && DB.calendarEvents[dateStr].length > 0) el.classList.add('has-event');
-    if (calSelected === dateStr) { el.style.outline = '2px solid var(--neon)'; el.style.outlineOffset = '-2px'; el.style.borderRadius = '8px'; }
+  for (let i = 0; i < total; i++) {
+    const dayNum = i - first + 1;
+    const isOther = dayNum < 1 || dayNum > days;
+    const actualDate = new Date(y, m, dayNum);
+    const key = dateKey(y, m, dayNum);
+    const isToday = !isOther && actualDate.toDateString() === today.toDateString();
+    const holiday = HOLIDAYS_2025[key];
+    const events = getEventsForDate(key);
 
-    el.innerHTML = `<span class="cal-day-inner">${d}</span>`;
-    el.onclick = () => selectCalDate(dateStr, d);
-    grid.appendChild(el);
-  }
+    let cls = 'cal-cell';
+    if (isOther) cls += ' other-month';
+    else if (isToday) cls += ' today';
+    else if (holiday) cls += ' holiday';
+    if (!isOther && events.length) cls += ' has-event';
 
-  const remaining = (firstDay + daysInMonth) % 7 === 0 ? 0 : 7 - ((firstDay + daysInMonth) % 7);
-  for (let i = 1; i <= remaining; i++) {
-    const d = document.createElement('div'); d.className = 'cal-day other-month';
-    d.innerHTML = `<span class="cal-day-inner">${i}</span>`; grid.appendChild(d);
+    const tooltip = holiday ? `<div class="cal-tooltip">${holiday}</div>` : 
+                    (events.length ? `<div class="cal-tooltip">${events.length} kegiatan</div>` : '');
+    html += `<div class="${cls}" onclick="${!isOther ? `openDayModal('${key}')` : ''}">${isOther ? '' : dayNum}${tooltip}</div>`;
   }
+  document.getElementById('mini-cal-grid').innerHTML = html;
 }
 
-function selectCalDate(dateStr, dayNum) {
-  calSelected = dateStr; renderCalendar();
-  const label = document.getElementById('cal-selected-label');
-  const listEl = document.getElementById('cal-event-list');
-  label.textContent = `AGENDA ${dayNum} ${MONTHS[calCurrent.getMonth()]} ${calCurrent.getFullYear()}`;
-  listEl.innerHTML = '';
+function miniCalPrev() { miniCalDate = new Date(miniCalDate.getFullYear(), miniCalDate.getMonth() - 1, 1); renderMiniCal(); }
+function miniCalNext() { miniCalDate = new Date(miniCalDate.getFullYear(), miniCalDate.getMonth() + 1, 1); renderMiniCal(); }
 
-  const holidayName = getHolidayName(dateStr);
-  if (holidayName) {
-    listEl.innerHTML += `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;margin-bottom:6px;background:rgba(255,61,85,0.08);border:1px solid rgba(255,61,85,0.25);"><div style="width:8px;height:8px;border-radius:50%;background:#ff3d55;flex-shrink:0;"></div><div><div style="font-weight:700;color:#ff6b6b;font-size:12px;">🇮🇩 Hari Libur Nasional</div><div style="font-size:11px;color:rgba(255,107,107,0.7);margin-top:1px;">${holidayName}</div></div></div>`;
+function renderFullCal() {
+  const d = fullCalDate;
+  const y = d.getFullYear(), m = d.getMonth();
+  document.getElementById('full-cal-label').textContent = `${MONTHS[m]} ${y}`;
+
+  const first = new Date(y, m, 1).getDay();
+  const days = new Date(y, m + 1, 0).getDate();
+  const today = new Date();
+
+  let html = '';
+  let total = Math.ceil((first + days) / 7) * 7;
+
+  for (let i = 0; i < total; i++) {
+    const dayNum = i - first + 1;
+    const isOther = dayNum < 1 || dayNum > days;
+    const key = dateKey(y, m, dayNum);
+    const isToday = !isOther && new Date(y, m, dayNum).toDateString() === today.toDateString();
+    const holiday = HOLIDAYS_2025[key];
+    const events = !isOther ? getEventsForDate(key) : [];
+    const isSun = (i % 7 === 0);
+
+    let bg = isOther ? 'opacity:0.3;' : '';
+    let color = isSun || holiday ? 'color:#c0392b;' : '';
+    let todayStyle = isToday ? 'background:var(--black);color:white;border-radius:6px;' : '';
+
+    html += `<div class="cal-cell" style="${bg}${todayStyle}min-height:64px;align-items:flex-start;padding:6px;border:1px solid var(--border);border-radius:4px;flex-direction:column;gap:3px" onclick="${!isOther ? `openDayModal('${key}')` : ''}">
+      <div style="${color}${isToday ? 'color:white;' : ''}font-size:12px;font-weight:${isToday||holiday?'700':'400'}">${isOther ? '' : dayNum}</div>
+      ${holiday && !isOther ? `<div style="font-size:9px;color:#c0392b;line-height:1.2;overflow:hidden;max-height:26px">${holiday.slice(0,20)}${holiday.length>20?'...':''}</div>` : ''}
+      ${events.slice(0,2).map(e => `<div style="font-size:9px;background:var(--black);color:white;padding:1px 5px;border-radius:3px;line-height:1.4;overflow:hidden;max-width:100%">${e.title.slice(0,14)}</div>`).join('')}
+      ${events.length > 2 ? `<div style="font-size:9px;color:var(--text-muted)">+${events.length-2} lainnya</div>` : ''}
+    </div>`;
   }
+  document.getElementById('full-cal-grid').innerHTML = html;
+  renderEventsList();
+}
 
-  const events = DB.calendarEvents[dateStr] || [];
-  if (events.length === 0 && !holidayName) { listEl.innerHTML = '<div style="color:var(--text-dim);font-size:12px;padding:8px 0;">Belum ada agenda untuk tanggal ini.</div>'; return; }
+function fullCalPrev() { fullCalDate = new Date(fullCalDate.getFullYear(), fullCalDate.getMonth() - 1, 1); renderFullCal(); }
+function fullCalNext() { fullCalDate = new Date(fullCalDate.getFullYear(), fullCalDate.getMonth() + 1, 1); renderFullCal(); }
+function fullCalToday() { fullCalDate = new Date(); renderFullCal(); }
 
-  events.forEach((ev, idx) => {
-    const item = document.createElement('div'); item.className = 'cal-event-item';
-    item.innerHTML = `<div class="cal-event-dot"></div><div class="cal-event-text"><div style="font-weight:600;color:var(--text-bright);">${ev.title}</div><div class="cal-event-date">${ev.type} · ${ev.desc}</div></div><button class="icon-btn delete" onclick="deleteCalEvent('${dateStr}', ${idx})" title="Hapus"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
-    listEl.appendChild(item);
+function addCalendarEvent() {
+  const date = document.getElementById('new-event-date').value;
+  const title = document.getElementById('new-event-title').value.trim();
+  const desc = document.getElementById('new-event-desc').value.trim();
+  if (!date || !title) { showToast('Isi tanggal dan judul kegiatan!', 'error'); return; }
+  calendarEvents.push({ id: 'ev' + Date.now(), date, title, desc });
+  saveData();
+  document.getElementById('new-event-title').value = '';
+  document.getElementById('new-event-desc').value = '';
+  renderFullCal();
+  renderMiniCal();
+  renderUpcomingAgenda();
+  showToast('Kegiatan berhasil ditambahkan!', 'success');
+}
+
+function renderEventsList() {
+  const y = fullCalDate.getFullYear(), m = fullCalDate.getMonth();
+  const monthKey = `${y}-${String(m+1).padStart(2,'0')}`;
+  const monthEvents = calendarEvents
+    .filter(e => e.date.startsWith(monthKey))
+    .sort((a,b) => a.date.localeCompare(b.date));
+
+  // Also add holidays
+  const monthHolidays = Object.entries(HOLIDAYS_2025)
+    .filter(([k]) => k.startsWith(monthKey))
+    .sort((a,b) => a[0].localeCompare(b[0]));
+
+  const el = document.getElementById('events-list-panel');
+  if (!monthEvents.length && !monthHolidays.length) {
+    el.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:12px;padding:20px">Tidak ada kegiatan bulan ini</div>';
+    return;
+  }
+  let html = '';
+  monthHolidays.forEach(([key, name]) => {
+    const d = parseInt(key.split('-')[2]);
+    html += `<div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="width:32px;height:32px;background:#FFF5F5;border:1px solid #FFD0CC;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#c0392b;flex-shrink:0">${d}</div>
+      <div><div style="font-size:12px;font-weight:500;color:#c0392b">${name}</div><div style="font-size:10px;color:var(--text-muted)">Hari Libur Nasional</div></div>
+    </div>`;
   });
-}
-
-function deleteCalEvent(dateStr, idx) {
-  DB.calendarEvents[dateStr].splice(idx, 1);
-  if (DB.calendarEvents[dateStr].length === 0) delete DB.calendarEvents[dateStr];
-  saveDB(); renderCalendar(); selectCalDate(dateStr, parseInt(dateStr.split('-')[2])); showToast('Agenda dihapus');
-}
-function changeMonth(dir) {
-  calCurrent.setMonth(calCurrent.getMonth() + dir); calSelected = null;
-  document.getElementById('cal-selected-label').textContent = '— PILIH TANGGAL UNTUK MELIHAT AGENDA —';
-  document.getElementById('cal-event-list').innerHTML = ''; renderCalendar();
-}
-function openCalendarModal() {
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('cal-date').value = calSelected || today;
-  document.getElementById('cal-title').value = ''; document.getElementById('cal-desc').value = '';
-  openModal('modal-calendar');
-}
-function saveCalendarEvent() {
-  const date = document.getElementById('cal-date').value, title = document.getElementById('cal-title').value.trim(), desc = document.getElementById('cal-desc').value.trim(), type = document.getElementById('cal-type').value;
-  if (!date || !title) { showToast('Tanggal dan judul agenda harus diisi!', true); return; }
-  if (!DB.calendarEvents[date]) DB.calendarEvents[date] = [];
-  DB.calendarEvents[date].push({ title, desc, type });
-  saveDB(); const parts = date.split('-'); calCurrent = new Date(parseInt(parts[0]), parseInt(parts[1])-1, 1); calSelected = date;
-  renderCalendar(); selectCalDate(date, parseInt(parts[2])); closeModal('modal-calendar'); showToast('Agenda berhasil ditambahkan!');
-}
-
-// ==============================
-// 6. TABLES, FORMS & CRUD
-// ==============================
-function getBadgeClass(status) {
-  const map = { 'Diterima':'badge-blue', 'Diproses':'badge-yellow', 'Selesai':'badge-green', 'Ditolak':'badge-red', 'Terkirim':'badge-green', 'Draf':'badge-yellow', 'Baru':'badge-blue', 'Mediasi':'badge-yellow', 'Gelar Kasus':'badge-blue', 'Penyelidikan':'badge-yellow', 'Aktif':'badge-blue', 'Banding':'badge-yellow', 'Kasasi':'badge-yellow', 'Inkracht':'badge-green', 'Penyidikan':'badge-yellow', 'Persidangan':'badge-yellow', 'P21':'badge-green', 'Laporan':'badge-blue' };
-  return map[status] || 'badge-blue';
-}
-
-function renderTable(type) {
-  const configs = {
-    masuk: { data: DB.suratMasuk, tbody: 'tbody-masuk', cols: ['nomor','tanggal','asal','perihal','status','disposisi'] },
-    keluar: { data: DB.suratKeluar, tbody: 'tbody-keluar', cols: ['nomor','tanggal','tujuan','perihal','ttd','status'] },
-    pembatalan: { data: DB.pembatalan, tbody: 'tbody-pembatalan', cols: ['nomor','tanggal','pemohon','objek','kabkota','letak','alasan','status'] },
-    perkara: { data: DB.perkara, tbody: 'tbody-perkara', cols: ['nomor','tanggal','penggugat','tergugat','register','objek','pengadilan','status'] },
-    sengketa: { data: DB.sengketa, tbody: 'tbody-sengketa', cols: ['nomor','tanggal','pemohon','terlapor','objek','letak','jenis','status'] },
-    tipidana: { data: DB.tipidana, tbody: 'tbody-tipidana', cols: ['nomor','tanggal','tersangka','jenis','pasal','instansi','objek','status'] },
-  };
-  const cfg = configs[type]; if (!cfg) return;
-  const tbody = document.getElementById(cfg.tbody); tbody.innerHTML = '';
-  
-  cfg.data.forEach((row, i) => {
-    let cells = `<td>${i+1}</td>`;
-    cfg.cols.forEach(col => {
-      if (col === 'status') cells += `<td><span class="badge ${getBadgeClass(row[col])}">${row[col]}</span></td>`;
-      else { const val = row[col] || '-'; cells += `<td title="${val}">${val.length > 25 ? val.substring(0,24)+'…' : val}</td>`; }
-    });
-    cells += `<td>
-      <div class="action-btns">
-        <button class="icon-btn view" title="Lihat" onclick="viewDetail('${type}',${row.id})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-        <button class="icon-btn delete" title="Hapus" onclick="deleteRecord('${type}',${row.id})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
+  monthEvents.forEach(e => {
+    const d = parseInt(e.date.split('-')[2]);
+    html += `<div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="width:32px;height:32px;background:var(--surface);border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--text);flex-shrink:0">${d}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.title}</div>
+        ${e.desc ? `<div style="font-size:10px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.desc}</div>` : ''}
       </div>
-    </td>`;
-    const tr = document.createElement('tr'); tr.innerHTML = cells; tbody.appendChild(tr);
+      <button onclick="deleteEvent('${e.id}')" style="border:none;background:none;cursor:pointer;color:var(--text-muted);padding:4px" title="Hapus">×</button>
+    </div>`;
   });
+  el.innerHTML = html;
 }
 
-function filterTable(tableId, query) {
-  const rows = document.querySelectorAll(`#${tableId} tbody tr`);
-  rows.forEach(row => row.style.display = row.textContent.toLowerCase().includes(query.toLowerCase()) ? '' : 'none');
-}
-function filterTableStatus(tableId, status) {
-  const rows = document.querySelectorAll(`#${tableId} tbody tr`);
-  rows.forEach(row => {
-    if (!status) { row.style.display = ''; return; }
-    let show = false;
-    row.querySelectorAll('.badge').forEach(b => { if (b.textContent === status) show = true; });
-    row.style.display = show ? '' : 'none';
-  });
+function deleteEvent(id) {
+  calendarEvents = calendarEvents.filter(e => e.id !== id);
+  saveData();
+  renderFullCal();
+  renderMiniCal();
+  renderUpcomingAgenda();
 }
 
-function showAddForm(id) { document.getElementById('form-'+id).style.display = 'block'; }
-function hideForm(id) { document.getElementById(id).style.display = 'none'; }
+function renderUpcomingAgenda() {
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0, 10);
+  const upcoming = calendarEvents
+    .filter(e => e.date >= todayStr)
+    .sort((a,b) => a.date.localeCompare(b.date))
+    .slice(0, 4);
+
+  const el = document.getElementById('upcoming-agenda');
+  if (!upcoming.length) {
+    el.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:12px;padding:16px">Belum ada agenda mendatang</div>';
+    return;
+  }
+  el.innerHTML = upcoming.map(e => {
+    const [y, m, d] = e.date.split('-');
+    return `<div class="agenda-item">
+      <div class="agenda-date-badge">${parseInt(d)}<small>${MONTHS_SHORT[parseInt(m)-1]}</small></div>
+      <div class="agenda-info">
+        <div class="agenda-title">${e.title}</div>
+        <div class="agenda-meta">${e.desc || 'Kegiatan kantor'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+// DAY MODAL
+// ══════════════════════════════════════════════════════════
+function openDayModal(key) {
+  const [y, m, d] = key.split('-');
+  const holiday = HOLIDAYS_2025[key];
+  const events = getEventsForDate(key);
+  const label = `${parseInt(d)} ${MONTHS[parseInt(m)-1]} ${y}`;
+  document.getElementById('modal-agenda-title').textContent = `Kegiatan — ${label}`;
+  let html = '';
+  if (holiday) html += `<div style="background:#FFF5F5;border:1px solid #FFD0CC;border-radius:8px;padding:12px 16px;margin-bottom:14px;color:#c0392b;font-weight:500;font-size:13px">🎌 ${holiday}</div>`;
+  if (!events.length && !holiday) { html += '<p style="font-size:13px;color:var(--text-muted)">Tidak ada kegiatan pada hari ini.</p>'; }
+  events.forEach(e => {
+    html += `<div style="border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:10px">
+      <div style="font-size:14px;font-weight:500;margin-bottom:4px">${e.title}</div>
+      ${e.desc ? `<div style="font-size:12px;color:var(--text-muted)">${e.desc}</div>` : ''}
+      <button onclick="deleteEvent('${e.id}');closeModal('modal-agenda')" style="margin-top:8px;font-size:11px;color:#c0392b;background:none;border:none;cursor:pointer;padding:0">Hapus Kegiatan</button>
+    </div>`;
+  });
+  html += `<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+    <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Tambah Kegiatan</div>
+    <input type="text" class="form-control" id="quick-event-title" placeholder="Judul kegiatan..." style="margin-bottom:8px">
+    <button class="btn btn-primary" style="width:100%;font-size:13px" onclick="quickAddEvent('${key}')">Tambah</button>
+  </div>`;
+  document.getElementById('modal-agenda-body').innerHTML = html;
+  openModal('modal-agenda');
+}
+
+function quickAddEvent(key) {
+  const title = document.getElementById('quick-event-title').value.trim();
+  if (!title) return;
+  calendarEvents.push({ id: 'ev' + Date.now(), date: key, title, desc: '' });
+  saveData();
+  renderMiniCal();
+  if (currentPage === 'kalender') renderFullCal();
+  renderUpcomingAgenda();
+  closeModal('modal-agenda');
+  showToast('Kegiatan ditambahkan!', 'success');
+}
+
+// ══════════════════════════════════════════════════════════
+// ALUR TAHAPAN
+// ══════════════════════════════════════════════════════════
+function renderAlur() {
+  const steps1 = TAHAPAN_LABELS.map((label, i) => `
+    <div class="step-item">
+      <div class="step-num done">${i+1}</div>
+      <div class="step-content">
+        <div class="step-title">${label}</div>
+        <div class="step-date" style="font-size:12px;color:var(--text-muted)">${getStepDesc(i)}</div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('stepper-alur').innerHTML = steps1;
+  document.getElementById('stepper-alur-2').innerHTML = steps1;
+}
+
+function getStepDesc(i) {
+  const descs = [
+    'Kantor Pertanahan mengusulkan pembatalan disertai berkas pendukung',
+    'Analisis kelengkapan berkas dan dasar hukum oleh staff bidang sengketa',
+    'Kunjungan lapang untuk verifikasi fisik bidang tanah objek sengketa',
+    'Pembahasan internal lintas seksi/bidang untuk penentuan solusi',
+    'Penerbitan Keputusan Kepala Kanwil BPN tentang Pembatalan Hak',
+    'Penyusunan laporan akhir penyelesaian kasus dan pengarsipan'
+  ];
+  return descs[i] || '';
+}
+
+// ══════════════════════════════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════════════════════════════
+function saveData() {
+  localStorage.setItem('sipentas-cases', JSON.stringify(cases));
+  localStorage.setItem('sipentas-events', JSON.stringify(calendarEvents));
+}
+
+function fmtDate(str) {
+  if (!str) return '-';
+  const d = new Date(str);
+  if (isNaN(d)) return str;
+  return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-function viewDetail(type, id) {
-  const mapData = { masuk: DB.suratMasuk, keluar: DB.suratKeluar, pembatalan: DB.pembatalan, perkara: DB.perkara, sengketa: DB.sengketa, tipidana: DB.tipidana };
-  const row = mapData[type]?.find(r => r.id === id); if (!row) return;
-  const titles = { masuk: 'DETAIL SURAT MASUK', keluar: 'DETAIL SURAT KELUAR', pembatalan: 'DETAIL PERMOHONAN PEMBATALAN', perkara: 'DETAIL PENANGANAN PERKARA', sengketa: 'DETAIL PENANGANAN SENGKETA', tipidana: 'DETAIL TINDAK PIDANA PERTANAHAN' };
-  
-  document.getElementById('modal-detail-title').textContent = titles[type];
-  document.getElementById('modal-detail-body').innerHTML = Object.entries(row).filter(([k]) => k !== 'id').map(([k, v]) => {
-    const label = k.charAt(0).toUpperCase() + k.slice(1);
-    return `<div class="info-row"><span class="key">${label.replace(/([A-Z])/g, ' $1').trim()}</span><span class="val">${k === 'status' ? `<span class="badge ${getBadgeClass(v)}">${v}</span>` : v}</span></div>`;
-  }).join('');
-  openModal('modal-detail');
+function showToast(msg, type = '') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'toast' + (type ? ' ' + type : '');
+  toast.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;flex-shrink:0">
+      ${type === 'error' ? '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>' : '<circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/>'}
+    </svg>
+    ${msg}
+  `;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
 }
 
-function deleteRecord(type, id) {
-  const map = { masuk: 'suratMasuk', keluar: 'suratKeluar', pembatalan: 'pembatalan', perkara: 'perkara', sengketa: 'sengketa', tipidana: 'tipidana' };
-  DB[map[type]] = DB[map[type]].filter(r => r.id !== id);
-  saveDB(); renderTable(type); showToast('Data berhasil dihapus!');
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+});
+
+// ══════════════════════════════════════════════════════════
+// SAMPLE DATA
+// ══════════════════════════════════════════════════════════
+function initSampleData() {
+  if (cases.length === 0) {
+    cases = [
+      {
+        id: 'c001', nomorberkas: 'BPN-NTB/CA/2025/001', jenis: 'cacat',
+        kantah: 'Kota Mataram', tglUsulan: '2025-02-10', pemohon: 'H. Ahmad Fauzi',
+        kontak: '081234567890', jenissert: 'Hak Milik', nosert: 'HM.12345/Mataram',
+        luas: '250', kecamatan: 'Sekarbela', lokasi: 'Jl. Panji Tilar No. 5, Sekarbela, Mataram',
+        uraian: 'Sertifikat diterbitkan atas nama pihak ketiga tanpa sepengetahuan pemilik sebelumnya. Terdapat kesalahan prosedur dalam proses penerbitan.',
+        tahapan: [
+          {date:'2025-02-10', note:'Berkas lengkap diterima'},
+          {date:'2025-02-17', note:'Telaah selesai, berkas valid'},
+          {date:'2025-03-05', note:'Penelitian lapang dilakukan bersama Kantah Mataram'},
+          {date:'2025-03-15', note:'Gelar kasus internal'},
+          {date:'', note:''}, {date:'', note:''}
+        ], currentStep: 4
+      },
+      {
+        id: 'c002', nomorberkas: 'BPN-NTB/PP/2025/002', jenis: 'putusan',
+        kantah: 'Lombok Tengah', tglUsulan: '2025-03-01', pemohon: 'PT Maju Sejahtera',
+        kontak: '08119876543', jenissert: 'HGB', nosert: 'HGB.456/Lombok Tengah',
+        noputs: '12/Pdt.G/2024/PN.PRM', luas: '1200', kecamatan: 'Praya',
+        lokasi: 'Kawasan Industri Praya, Lombok Tengah',
+        uraian: 'Putusan PN Praya No. 12/Pdt.G/2024 menyatakan sertifikat HGB tidak sah dan memerintahkan pembatalan.',
+        tahapan: [
+          {date:'2025-03-01', note:'Surat usulan dan putusan inkracht diterima'},
+          {date:'2025-03-10', note:'Telaah dokumen putusan pengadilan'},
+          {date:'', note:''}, {date:'', note:''}, {date:'', note:''}, {date:'', note:''}
+        ], currentStep: 2
+      },
+      {
+        id: 'c003', nomorberkas: 'BPN-NTB/CA/2025/003', jenis: 'cacat',
+        kantah: 'Sumbawa', tglUsulan: '2025-01-15', pemohon: 'Yayasan Pendidikan Al-Hikmah',
+        kontak: '082198765432', jenissert: 'Hak Pakai', nosert: 'HP.78/Sumbawa',
+        luas: '3500', kecamatan: 'Sumbawa Besar', lokasi: 'Jl. Diponegoro No. 12, Sumbawa Besar',
+        uraian: 'Terdapat tumpang tindih dengan tanah wakaf yang sudah terdaftar sebelumnya.',
+        tahapan: [
+          {date:'2025-01-15', note:''},{date:'2025-01-22', note:''},{date:'2025-02-05', note:''},{date:'2025-02-20', note:''},{date:'2025-03-01', note:'SK Pembatalan No. 25/2025 diterbitkan'},{date:'2025-03-10', note:'Laporan penyelesaian selesai disusun'}
+        ], currentStep: 6
+      },
+    ];
+    saveData();
+  }
 }
 
-function getNextId(arr) { return arr.length ? Math.max(...arr.map(r => r.id)) + 1 : 1; }
-
-function addSuratMasuk() {
-  const nomor = document.getElementById('sm-nomor').value.trim(), tanggal = document.getElementById('sm-tanggal').value, asal = document.getElementById('sm-asal').value.trim(), perihal = document.getElementById('sm-perihal').value.trim(), status = document.getElementById('sm-status').value, disposisi = document.getElementById('sm-disposisi').value.trim();
-  if (!nomor || !tanggal || !asal || !perihal) { showToast('Lengkapi semua field yang wajib diisi!', true); return; }
-  DB.suratMasuk.unshift({ id: getNextId(DB.suratMasuk), nomor, tanggal, asal, perihal, status, disposisi });
-  saveDB(); renderTable('masuk'); hideForm('form-surat-masuk'); showToast('Surat masuk disimpan!');
-  ['sm-nomor','sm-tanggal','sm-asal','sm-perihal','sm-disposisi'].forEach(id => document.getElementById(id).value = '');
-}
-function addSuratKeluar() {
-  const nomor = document.getElementById('sk-nomor').value.trim(), tanggal = document.getElementById('sk-tanggal').value, tujuan = document.getElementById('sk-tujuan').value.trim(), perihal = document.getElementById('sk-perihal').value.trim(), ttd = document.getElementById('sk-ttd').value.trim(), status = document.getElementById('sk-status').value;
-  if (!nomor || !tanggal || !tujuan || !perihal) { showToast('Lengkapi semua field yang wajib diisi!', true); return; }
-  DB.suratKeluar.unshift({ id: getNextId(DB.suratKeluar), nomor, tanggal, tujuan, perihal, ttd, status });
-  saveDB(); renderTable('keluar'); hideForm('form-surat-keluar'); showToast('Surat keluar disimpan!');
-  ['sk-nomor','sk-tanggal','sk-tujuan','sk-perihal','sk-ttd'].forEach(id => document.getElementById(id).value = '');
-}
-function addPembatalan() {
-  const nomor = document.getElementById('pmb-nomor').value.trim(), tanggal = document.getElementById('pmb-tanggal').value, pemohon = document.getElementById('pmb-pemohon').value.trim(), objek = document.getElementById('pmb-objek').value.trim(), kabkota = document.getElementById('pmb-kabkota').value, kecamatan = document.getElementById('pmb-kecamatan').value, desa = document.getElementById('pmb-desa').value, alasan = document.getElementById('pmb-alasan').value, status = document.getElementById('pmb-status').value;
-  if (!nomor || !tanggal || !pemohon || !kabkota) { showToast('Lengkapi semua field yang wajib diisi!', true); return; }
-  const letak = [desa, kecamatan ? 'Kec. ' + kecamatan : ''].filter(Boolean).join(', ');
-  DB.pembatalan.unshift({ id: getNextId(DB.pembatalan), nomor, tanggal, pemohon, objek, kabkota, letak, alasan, status });
-  saveDB(); renderTable('pembatalan'); hideForm('form-pembatalan'); showToast('Permohonan disimpan!');
-  ['pmb-nomor','pmb-tanggal','pmb-pemohon','pmb-objek'].forEach(id => document.getElementById(id).value = '');
-}
-function addPerkara() {
-  const nomor = document.getElementById('prk-nomor').value.trim(), tanggal = document.getElementById('prk-tanggal').value, penggugat = document.getElementById('prk-penggugat').value.trim(), tergugat = document.getElementById('prk-tergugat').value.trim(), register = document.getElementById('prk-register').value.trim(), objek = document.getElementById('prk-objek').value.trim(), pengadilan = document.getElementById('prk-pengadilan').value.trim(), status = document.getElementById('prk-status').value;
-  if (!nomor || !tanggal || !penggugat) { showToast('Lengkapi semua field yang wajib diisi!', true); return; }
-  DB.perkara.unshift({ id: getNextId(DB.perkara), nomor, tanggal, penggugat, tergugat, register, objek, pengadilan, status });
-  saveDB(); renderTable('perkara'); hideForm('form-perkara'); showToast('Data perkara disimpan!');
-  ['prk-nomor','prk-tanggal','prk-penggugat','prk-tergugat','prk-register','prk-objek','prk-pengadilan'].forEach(id => document.getElementById(id).value = '');
-}
-function addSengketa() {
-  const nomor = document.getElementById('sng-nomor').value.trim(), tanggal = document.getElementById('sng-tanggal').value, pemohon = document.getElementById('sng-pemohon').value.trim(), terlapor = document.getElementById('sng-terlapor').value.trim(), objek = document.getElementById('sng-objek').value.trim(), letak = document.getElementById('sng-letak').value.trim(), jenis = document.getElementById('sng-jenis').value, status = document.getElementById('sng-status').value;
-  if (!nomor || !tanggal || !pemohon) { showToast('Lengkapi semua field yang wajib diisi!', true); return; }
-  DB.sengketa.unshift({ id: getNextId(DB.sengketa), nomor, tanggal, pemohon, terlapor, objek, letak, jenis, status });
-  saveDB(); renderTable('sengketa'); hideForm('form-sengketa'); showToast('Data sengketa disimpan!');
-  ['sng-nomor','sng-tanggal','sng-pemohon','sng-terlapor','sng-objek','sng-letak'].forEach(id => document.getElementById(id).value = '');
-}
-function addTipidana() {
-  const nomor = document.getElementById('tpa-nomor').value.trim(), tanggal = document.getElementById('tpa-tanggal').value, tersangka = document.getElementById('tpa-tersangka').value.trim(), jenis = document.getElementById('tpa-jenis').value, pasal = document.getElementById('tpa-pasal').value.trim(), instansi = document.getElementById('tpa-instansi').value.trim(), objek = document.getElementById('tpa-objek').value.trim(), status = document.getElementById('tpa-status').value;
-  if (!nomor || !tanggal || !tersangka) { showToast('Lengkapi semua field yang wajib diisi!', true); return; }
-  DB.tipidana.unshift({ id: getNextId(DB.tipidana), nomor, tanggal, tersangka, jenis, pasal, instansi, objek, status });
-  saveDB(); renderTable('tipidana'); hideForm('form-tipidana'); showToast('Data pidana disimpan!');
-  ['tpa-nomor','tpa-tanggal','tpa-tersangka','tpa-pasal','tpa-instansi','tpa-objek'].forEach(id => document.getElementById(id).value = '');
-}
-
-// ==============================
-// 7. EXPORT CSV & STATS
-// ==============================
-function exportCSV(type) {
-  const map = { masuk:'suratMasuk', keluar:'suratKeluar', pembatalan:'pembatalan', perkara:'perkara', sengketa:'sengketa', tipidana:'tipidana' };
-  const data = DB[map[type]];
-  if(data.length === 0) { showToast('Data kosong', true); return; }
-  
-  const headers = Object.keys(data[0]).filter(k => k !== 'id');
-  let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n";
-  data.forEach(row => { csvContent += headers.map(h => `"${row[h] || ''}"`).join(",") + "\n"; });
-  
-  const encodedUri = encodeURI(csvContent);
-  const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", `SIKANDA_${type}_${new Date().toISOString().split('T')[0]}.csv`);
-  document.body.appendChild(link); link.click(); document.body.removeChild(link);
-  showToast('Berhasil diekspor ke CSV!');
-}
-
-function updateStats() {
-  document.getElementById('stat-masuk').textContent = DB.suratMasuk.length;
-  document.getElementById('stat-keluar').textContent = DB.suratKeluar.length;
-  document.getElementById('stat-pembatalan').textContent = DB.pembatalan.length;
-  document.getElementById('stat-perkara').textContent = DB.perkara.length;
-  document.getElementById('stat-sengketa').textContent = DB.sengketa.length;
-  document.getElementById('stat-tipidana').textContent = DB.tipidana.length;
-  
-  document.getElementById('badge-masuk').textContent = DB.suratMasuk.filter(s => s.status === 'Diterima' || s.status === 'Diproses').length;
-  document.getElementById('badge-keluar').textContent = DB.suratKeluar.filter(s => s.status === 'Draf').length;
-}
-
-let toastTimer;
-function showToast(msg, isError = false) {
-  const toast = document.getElementById('toast'); document.getElementById('toast-msg').textContent = msg;
-  toast.style.borderColor = isError ? 'var(--danger)' : 'var(--neon)'; toast.style.color = isError ? 'var(--danger)' : 'var(--neon)';
-  toast.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
-}
-
-// Init Function
-checkLogin();
-renderCalendar();
+// ══════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════
+initSampleData();
 updateStats();
+renderDashboard();
+renderMiniCal();
+renderUpcomingAgenda();
+renderAlur();
 </script>
 </body>
-</html> 
+</html>
