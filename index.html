@@ -130,7 +130,6 @@
   .scrollable { overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch; display: block; }
   .data-table { width: 100%; border-collapse: collapse; }
   .data-table th { text-align: left; padding: 10px 14px; font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
-  /* TD menggunakan nowrap agar tabel memaksa scroll horizontal jika layarnya kecil */
   .data-table td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: middle; white-space: nowrap; }
   .data-table tr { transition: background 0.15s; cursor: pointer; } .data-table tr:hover td { background: var(--surface); }
   
@@ -308,9 +307,9 @@
       <div class="nav-item" onclick="navigateTo('list-cacat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Cacat Administrasi <span class="nav-badge" id="badge-cacat">0</span></div>
       <div class="nav-item" onclick="navigateTo('list-putusan')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg> Putusan Pengadilan <span class="nav-badge" id="badge-putusan">0</span></div>
       <div class="nav-item" onclick="navigateTo('tambah')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg> Tambah Permohonan</div>
+      
       <div class="nav-section-label" style="margin-top:8px">Informasi</div>
       <div class="nav-item" onclick="navigateTo('kalender')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Kalender Kegiatan</div>
-      <div class="nav-item" onclick="navigateTo('tahapan')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Alur Tahapan</div>
       
       <div class="nav-section-label" style="margin-top:8px">Sistem</div>
       <div class="nav-item" onclick="navigateTo('pengaturan')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Pengaturan</div>
@@ -384,7 +383,6 @@
               <div class="card-header"><span class="card-title">Kalender</span><button class="card-action" onclick="navigateTo('kalender')">Atur</button></div>
               <div class="card-body" style="padding:16px"><div class="calendar-header"><div class="cal-month-label" id="mini-cal-label"></div><div class="cal-nav-btns"><button class="cal-nav-btn" onclick="miniCalPrev()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button><button class="cal-nav-btn" onclick="miniCalNext()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button></div></div><div class="cal-days-header"><div class="cal-day-name">Min</div><div class="cal-day-name">Sen</div><div class="cal-day-name">Sel</div><div class="cal-day-name">Rab</div><div class="cal-day-name">Kam</div><div class="cal-day-name">Jum</div><div class="cal-day-name">Sab</div></div><div class="cal-grid" id="mini-cal-grid"></div></div>
             </div>
-            <div class="card"><div class="card-header"><span class="card-title">Agenda Mendatang</span></div><div class="card-body" style="padding: 12px 18px"><div id="upcoming-agenda"></div></div></div>
           </div>
         </div>
       </div>
@@ -495,8 +493,59 @@
         <div id="detail-content"></div>
       </div>
 
-      <div class="page" id="page-kalender"><div class="page-header"><h1>Kalender <em>Kegiatan</em></h1></div><div style="display:grid;grid-template-columns:1fr 300px;gap:24px" id="calendar-layout"><div class="card"><div class="card-header"><div style="display:flex;align-items:center;gap:16px"><span class="cal-month-label" id="full-cal-label" style="font-family:'DM Serif Display',serif;font-size:20px"></span><div class="cal-nav-btns"><button class="cal-nav-btn" onclick="fullCalPrev()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button><button class="cal-nav-btn" onclick="fullCalToday()">Hari Ini</button><button class="cal-nav-btn" onclick="fullCalNext()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button></div></div><div style="display:flex;gap:16px;font-size:11px;align-items:center"><span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:50%;background:#050505;display:inline-block"></span>Agenda</span><span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:50%;background:#c0392b;display:inline-block"></span>Libur Nasional</span></div></div><div class="card-body"><div class="cal-days-header" style="grid-template-columns:repeat(7,1fr)"><div class="cal-day-name" style="color:#c0392b">Min</div><div class="cal-day-name">Sen</div><div class="cal-day-name">Sel</div><div class="cal-day-name">Rab</div><div class="cal-day-name">Kam</div><div class="cal-day-name">Jum</div><div class="cal-day-name">Sab</div></div><div class="cal-grid" id="full-cal-grid" style="gap:4px"></div></div></div><div style="display:flex;flex-direction:column;gap:16px"><div class="card"><div class="card-header"><span class="card-title">Tambah Kegiatan</span></div><div class="card-body"><div class="form-group" style="margin-bottom:12px"><label for="new-event-date">Tanggal</label><input type="date" class="form-control" id="new-event-date"></div><div class="form-group" style="margin-bottom:12px"><label for="new-event-title">Judul Kegiatan</label><input type="text" class="form-control" id="new-event-title"></div><div class="form-group" style="margin-bottom:16px"><label for="new-event-desc">Keterangan (opsional)</label><textarea class="form-control" id="new-event-desc" style="min-height:60px"></textarea></div><button class="btn btn-primary" style="width:100%" onclick="addCalendarEvent()">Tambah Kegiatan</button></div></div><div class="card" style="flex:1"><div class="card-header"><span class="card-title">Kegiatan Bulan Ini</span></div><div class="card-body" style="padding:12px 16px;max-height:350px;overflow-y:auto" id="events-list-panel"></div></div></div></div></div>
-      <div class="page" id="page-tahapan"><div class="page-header"><h1>Alur <em>Tahapan</em></h1></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:20px"><div class="card"><div class="card-header"><span class="card-title">Cacat Administrasi</span></div><div class="card-body"><div class="stepper" id="stepper-alur"></div></div></div><div class="card"><div class="card-header"><span class="card-title">Putusan Pengadilan</span></div><div class="card-body"><div class="stepper" id="stepper-alur-2"></div></div></div></div></div>
+      <div class="page" id="page-kalender">
+        <div class="page-header"><h1>Kalender <em>Kegiatan</em></h1></div>
+        <div style="display:grid;grid-template-columns:1fr 300px;gap:24px" id="calendar-layout">
+          <div class="card">
+            <div class="card-header">
+              <div style="display:flex;align-items:center;gap:16px">
+                <span class="cal-month-label" id="full-cal-label" style="font-family:'DM Serif Display',serif;font-size:20px"></span>
+                <div class="cal-nav-btns">
+                  <button class="cal-nav-btn" onclick="fullCalPrev()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+                  <button class="cal-nav-btn" onclick="fullCalToday()">Hari Ini</button>
+                  <button class="cal-nav-btn" onclick="fullCalNext()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+                </div>
+              </div>
+              <div style="display:flex;gap:16px;font-size:11px;align-items:center">
+                <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:50%;background:#050505;display:inline-block"></span>Agenda</span>
+                <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:50%;background:#c0392b;display:inline-block"></span>Libur Nasional</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="cal-days-header" style="grid-template-columns:repeat(7,1fr)">
+                <div class="cal-day-name" style="color:#c0392b">Min</div><div class="cal-day-name">Sen</div><div class="cal-day-name">Sel</div><div class="cal-day-name">Rab</div><div class="cal-day-name">Kam</div><div class="cal-day-name">Jum</div><div class="cal-day-name">Sab</div>
+              </div>
+              <div class="cal-grid" id="full-cal-grid" style="gap:4px"></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="card">
+              <div class="card-header"><span class="card-title">Tambah Kegiatan</span></div>
+              <div class="card-body">
+                <div class="form-group" style="margin-bottom:12px">
+                  <label for="new-event-date">Tanggal</label>
+                  <input type="date" class="form-control" id="new-event-date">
+                </div>
+                <div class="form-group" style="margin-bottom:12px">
+                  <label for="new-event-title">Judul Kegiatan</label>
+                  <input type="text" class="form-control" id="new-event-title">
+                </div>
+                <div class="form-group" style="margin-bottom:12px">
+                  <label for="new-event-berkas">Berkas Terkait</label>
+                  <select class="form-control" id="new-event-berkas">
+                    <option value="">-- Pilih Berkas (Opsional) --</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin-bottom:16px">
+                  <label for="new-event-desc">Keterangan (opsional)</label>
+                  <textarea class="form-control" id="new-event-desc" style="min-height:60px"></textarea>
+                </div>
+                <button class="btn btn-primary" style="width:100%" onclick="addCalendarEvent()">Tambah Kegiatan</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div class="page" id="page-pengaturan">
         <div class="page-header">
@@ -973,7 +1022,15 @@ function saveData() {
 // 6. NAVIGASI, DASHBOARD & RENDER TABEL
 // ══════════════════════════════════════════════════════════
 let currentPage = 'dashboard'; let prevPage = 'dashboard';
-const crumbMap = { 'dashboard': 'Beranda / <span>Dashboard</span>', 'list-cacat': 'Permohonan / <span>Cacat Administrasi</span>', 'list-putusan': 'Permohonan / <span>Putusan Pengadilan</span>', 'tambah': 'Permohonan / <span>Tambah Baru</span>', 'detail': 'Permohonan / <span>Detail Kasus</span>', 'kalender': 'Informasi / <span>Kalender Kegiatan</span>', 'tahapan': 'Informasi / <span>Alur Tahapan</span>', 'pengaturan': 'Sistem / <span>Pengaturan Akun</span>' };
+const crumbMap = { 
+  'dashboard': 'Beranda / <span>Dashboard</span>', 
+  'list-cacat': 'Permohonan / <span>Cacat Administrasi</span>', 
+  'list-putusan': 'Permohonan / <span>Putusan Pengadilan</span>', 
+  'tambah': 'Permohonan / <span>Tambah Baru</span>', 
+  'detail': 'Permohonan / <span>Detail Kasus</span>', 
+  'kalender': 'Informasi / <span>Kalender Kegiatan</span>', 
+  'pengaturan': 'Sistem / <span>Pengaturan Akun</span>' 
+};
 
 function navigateTo(page, param) {
   prevPage = currentPage; currentPage = page;
@@ -983,7 +1040,6 @@ function navigateTo(page, param) {
   document.querySelectorAll('.nav-item').forEach(n => { n.classList.remove('active'); if (n.getAttribute('onclick')?.includes("'" + page + "'")) n.classList.add('active'); });
   document.getElementById('page-crumb').innerHTML = crumbMap[page] || `<span>${page}</span>`;
   
-  // Kosongkan global search bar saat berpindah halaman
   const globalSearch = document.getElementById('global-search');
   if (globalSearch) globalSearch.value = '';
 
@@ -991,8 +1047,15 @@ function navigateTo(page, param) {
   if (page === 'list-putusan') renderTable('putusan');
   if (page === 'dashboard') { renderDashboard(); renderMiniCal(); } 
   if (page === 'tambah') { resetForm(param); initWilayah(); } 
-  if (page === 'kalender') { renderFullCal(); renderEventsList(); } 
-  if (page === 'tahapan') renderAlur();
+  if (page === 'kalender') { 
+    renderFullCal(); 
+    // Populasikan dropdown berkas di halaman kalender dengan kasus aktif
+    const sel = document.getElementById('new-event-berkas');
+    if(sel) {
+      sel.innerHTML = '<option value="">-- Pilih Berkas (Opsional) --</option>' + 
+        cases.filter(c => !c.isClosed).map(c => `<option value="${c.id}">${escapeHTML(c.nomorberkas)} - ${escapeHTML(c.pemohon)}</option>`).join('');
+    }
+  } 
   
   updateStats();
 }
@@ -1002,7 +1065,6 @@ function updateStats() {
   document.getElementById('stat-cacat').textContent = cases.filter(c => c.jenis === 'cacat').length;
   document.getElementById('stat-putusan').textContent = cases.filter(c => c.jenis === 'putusan').length;
   
-  // Menghitung status >= 5 ATAU status yang sudah ditutup (isClosed)
   document.getElementById('stat-selesai').textContent = cases.filter(c => c.currentStep >= 5 || c.isClosed).length;
   document.getElementById('badge-cacat').textContent = cases.filter(c => c.jenis === 'cacat').length;
   document.getElementById('badge-putusan').textContent = cases.filter(c => c.jenis === 'putusan').length;
@@ -1112,7 +1174,7 @@ async function saveTutupBerkas() {
     c.isClosed = true;
     c.closeReason = alasan;
     c.closeDoc = { file: fileData, name: file.name };
-    c.reopenReason = ''; // Kosongkan riwayat buka jika ditutup lagi
+    c.reopenReason = ''; 
     saveData();
     updateStats();
     closeModal('modal-tutup');
@@ -1169,9 +1231,7 @@ function resetForm(preselect) {
   togglePutsanField(); 
   document.getElementById('f-jenis').addEventListener('change', togglePutsanField); 
   
-  // Reload Kab dari database
   initWilayah();
-  // Kosongkan dan matikan dropdown wilayah selain kabupaten
   document.getElementById('f-kecamatan').innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
   document.getElementById('f-kecamatan').disabled = true;
   document.getElementById('f-desa').innerHTML = '<option value="">-- Pilih Desa/Kelurahan --</option>';
@@ -1188,7 +1248,6 @@ async function submitForm(e) {
   const jenis = document.getElementById('f-jenis').value; 
   if (!jenis) { showToast('Pilih jenis permohonan!', 'error'); return; } 
 
-  // Membaca Dokumen Usulan
   const fileUsulanInput = document.getElementById('f-dokumenusulan');
   let dokumenUsulanData = { file: null, name: '' };
   if (fileUsulanInput.files.length > 0) {
@@ -1199,7 +1258,6 @@ async function submitForm(e) {
     catch(err) { showToast('Gagal membaca Dokumen Usulan', 'error'); return; }
   }
   
-  // Membaca Buku Tanah
   const fileBTInput = document.getElementById('f-dokumenbt');
   let dokumenbtData = { file: null, name: '' };
   if (fileBTInput.files.length > 0) {
@@ -1210,7 +1268,6 @@ async function submitForm(e) {
     catch(err) { showToast('Gagal membaca Buku Tanah', 'error'); return; }
   }
 
-  // Tahapan Kosong (Mulai dari tahap 0)
   const initialTahapan = TAHAPAN_LABELS.map(() => ({ date: '', note: '', file: null, fileName: '' }));
 
   cases.push({ 
@@ -1326,7 +1383,6 @@ function openDetail(id) {
     let checkIcon = isCompleted ? `<svg viewBox="0 0 24 24" width="16" height="16" stroke="#1B5E20" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-left:8px"><polyline points="20 6 9 17 4 12"></polyline></svg>` : '';
     
     let actionBtn = '';
-    // Mengunci tombol UPDATE jika isClosed = true
     if (!c.isClosed && i === c.currentStep) {
       actionBtn = `<button class="btn btn-primary btn-sm" style="margin-left:auto;flex-shrink:0" onclick="openUpdateTahapan('${id}',${i})">Update</button>`;
     } else if (isCompleted) {
@@ -1339,12 +1395,10 @@ function openDetail(id) {
   let btnUnduhUsulan = c.dokumenUsulan?.file ? `<a href="${c.dokumenUsulan.file}" download="${c.dokumenUsulan.name}" class="btn btn-secondary btn-sm" style="font-size:11px; padding:6px 12px; text-decoration:none;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg> Unduh Dokumen Usulan</a>` : '';
   let btnUnduhBT = c.dokumenbt?.file ? `<a href="${c.dokumenbt.file}" download="${c.dokumenbt.name}" class="btn btn-secondary btn-sm" style="font-size:11px; padding:6px 12px; text-decoration:none;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg> Unduh Buku Tanah</a>` : '';
 
-  // TOMBOL ADMIN (TUTUP / BUKA BERKAS)
   let adminActions = c.isClosed 
     ? `<button class="btn btn-secondary btn-sm" style="border-color:var(--border);" onclick="promptBukaBerkas('${id}')">Buka Kembali Berkas</button>`
     : `<button class="btn btn-danger btn-sm" onclick="promptTutupBerkas('${id}')">Tutup Berkas (Selesai)</button>`;
 
-  // BANNER JIKA BERKAS DITUTUP
   let closedBanner = c.isClosed ? `
     <div style="background:#FFF5F5; border:1px solid #FFD0CC; color:#C0392B; padding:16px; border-radius:8px; margin-bottom:20px;">
         <div style="font-weight:700; font-size:14px; margin-bottom:6px;">🔒 BERKAS DITUTUP / TERKUNCI</div>
@@ -1352,7 +1406,6 @@ function openDetail(id) {
         <a href="${c.closeDoc?.file}" download="${c.closeDoc?.name}" class="btn btn-danger btn-sm" style="font-size:11px; padding:6px 12px; text-decoration:none;">Unduh Dokumen Penutupan</a>
     </div>` : '';
 
-  // BANNER JIKA BERKAS DIBUKA KEMBALI
   let reopenBanner = (!c.isClosed && c.reopenReason) ? `
     <div style="background:#E3F2FD; border:1px solid #BBDEFB; color:#1565C0; padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:12px;">
       <strong>Catatan Admin:</strong> Berkas ini telah dibuka kembali. Alasan: ${escapeHTML(c.reopenReason)}
@@ -1433,7 +1486,6 @@ function viewTahapan(id, stepIdx) {
   const statusBadge = `<span style="display:inline-flex; align-items:center; gap:6px; background:#1B5E20; color:white; padding:5px 14px; border-radius:20px; font-size:12px; font-weight:600; box-shadow: 0 2px 8px rgba(27,94,32,0.2);"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Tuntas</span>`;
   document.getElementById('modal-view-tahapan-body').innerHTML = `<div style="margin-bottom:20px;"><div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Nama Tahapan</div><div style="font-size:18px; font-weight:600;">${label}</div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;"><div><div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Tanggal Penyelesaian</div><div style="font-size:15px; font-weight:500;">${fmtDate(t.date)}</div></div><div><div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Status Validasi</div>${statusBadge}</div></div><div style="margin-bottom:24px;"><div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Catatan / Keterangan Petugas</div><div style="font-size:13.5px; line-height:1.6; background:var(--surface); padding:12px 16px; border-radius:var(--radius-sm); color:var(--text-sub);">${escapeHTML(t.note) || '<em>(Tidak ada catatan)</em>'}</div></div><div><div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Bukti Dokumen</div>${fileHtml}</div>`;
   
-  // Sembunyikan tombol edit jika berkas sudah ditutup
   const btnEdit = document.getElementById('btn-edit-tahapan');
   if (c.isClosed) {
     btnEdit.style.display = 'none';
@@ -1441,12 +1493,11 @@ function viewTahapan(id, stepIdx) {
     btnEdit.style.display = 'inline-block';
     btnEdit.onclick = function() { closeModal('modal-view-tahapan'); openUpdateTahapan(id, stepIdx); };
   }
-  
   openModal('modal-view-tahapan');
 }
 
 // ══════════════════════════════════════════════════════════
-// 10. KALENDER & ALUR TAHAPAN
+// 10. KALENDER
 // ══════════════════════════════════════════════════════════
 const MONTHS = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']; 
 let miniCalDate = new Date(); let fullCalDate = new Date();
@@ -1455,16 +1506,98 @@ function getEventsForDate(key) { return calendarEvents.filter(e => e.date === ke
 function renderMiniCal() { const d = miniCalDate; const y = d.getFullYear(), m = d.getMonth(); document.getElementById('mini-cal-label').textContent = `${MONTHS[m]} ${y}`; const first = new Date(y, m, 1).getDay(); const days = new Date(y, m + 1, 0).getDate(); const today = new Date(); let html = ''; let total = Math.ceil((first + days) / 7) * 7; for (let i = 0; i < total; i++) { const dayNum = i - first + 1; const isOther = dayNum < 1 || dayNum > days; const key = dateKey(y, m, dayNum); const holiday = HOLIDAYS_2025[key]; const events = getEventsForDate(key); let cls = 'cal-cell' + (isOther ? ' other-month' : '') + (!isOther && new Date(y, m, dayNum).toDateString() === today.toDateString() ? ' today' : '') + (holiday ? ' holiday' : '') + (!isOther && events.length ? ' has-event' : ''); html += `<div class="${cls}" onclick="${!isOther ? `openDayModal('${key}')` : ''}">${isOther ? '' : dayNum}${holiday ? `<div class="cal-tooltip">${holiday}</div>` : ''}</div>`; } document.getElementById('mini-cal-grid').innerHTML = html; }
 function miniCalPrev() { miniCalDate = new Date(miniCalDate.getFullYear(), miniCalDate.getMonth() - 1, 1); renderMiniCal(); } 
 function miniCalNext() { miniCalDate = new Date(miniCalDate.getFullYear(), miniCalDate.getMonth() + 1, 1); renderMiniCal(); }
-function renderFullCal() { const d = fullCalDate; const y = d.getFullYear(), m = d.getMonth(); document.getElementById('full-cal-label').textContent = `${MONTHS[m]} ${y}`; const first = new Date(y, m, 1).getDay(); const days = new Date(y, m + 1, 0).getDate(); const today = new Date(); let html = ''; let total = Math.ceil((first + days) / 7) * 7; for (let i = 0; i < total; i++) { const dayNum = i - first + 1; const isOther = dayNum < 1 || dayNum > days; const key = dateKey(y, m, dayNum); const holiday = HOLIDAYS_2025[key]; const events = !isOther ? getEventsForDate(key) : []; const isToday = !isOther && new Date(y, m, dayNum).toDateString() === today.toDateString(); html += `<div class="cal-cell" style="${isOther ? 'opacity:0.3;' : ''}${isToday ? 'background:var(--black);color:white;border-radius:6px;' : ''}min-height:64px;align-items:flex-start;padding:6px;border:1px solid var(--border);border-radius:4px;flex-direction:column;gap:3px" onclick="${!isOther ? `openDayModal('${key}')` : ''}"><div style="${(i % 7 === 0 || holiday) ? 'color:#c0392b;' : ''}${isToday ? 'color:white;' : ''}font-size:12px;font-weight:${isToday||holiday?'700':'400'}">${isOther ? '' : dayNum}</div>${holiday && !isOther ? `<div style="font-size:9px;color:#c0392b;">${holiday.slice(0,20)}</div>` : ''}${events.slice(0,2).map(e => `<div style="font-size:9px;background:var(--black);color:white;padding:1px 5px;border-radius:3px;overflow:hidden">${escapeHTML(e.title).slice(0,14)}</div>`).join('')}</div>`; } document.getElementById('full-cal-grid').innerHTML = html; renderEventsList(); }
+
+function renderFullCal() { 
+  const d = fullCalDate; const y = d.getFullYear(), m = d.getMonth(); 
+  document.getElementById('full-cal-label').textContent = `${MONTHS[m]} ${y}`; 
+  const first = new Date(y, m, 1).getDay(); const days = new Date(y, m + 1, 0).getDate(); 
+  const today = new Date(); let html = ''; let total = Math.ceil((first + days) / 7) * 7; 
+  for (let i = 0; i < total; i++) { 
+    const dayNum = i - first + 1; const isOther = dayNum < 1 || dayNum > days; 
+    const key = dateKey(y, m, dayNum); const holiday = HOLIDAYS_2025[key]; 
+    const events = !isOther ? getEventsForDate(key) : []; 
+    const isToday = !isOther && new Date(y, m, dayNum).toDateString() === today.toDateString(); 
+    html += `<div class="cal-cell" style="${isOther ? 'opacity:0.3;' : ''}${isToday ? 'background:var(--black);color:white;border-radius:6px;' : ''}min-height:64px;align-items:flex-start;padding:6px;border:1px solid var(--border);border-radius:4px;flex-direction:column;gap:3px" onclick="${!isOther ? `openDayModal('${key}')` : ''}"><div style="${(i % 7 === 0 || holiday) ? 'color:#c0392b;' : ''}${isToday ? 'color:white;' : ''}font-size:12px;font-weight:${isToday||holiday?'700':'400'}">${isOther ? '' : dayNum}</div>${holiday && !isOther ? `<div style="font-size:9px;color:#c0392b;">${holiday.slice(0,20)}</div>` : ''}${events.slice(0,2).map(e => `<div style="font-size:9px;background:var(--black);color:white;padding:1px 5px;border-radius:3px;overflow:hidden">${escapeHTML(e.title).slice(0,14)}</div>`).join('')}</div>`; 
+  } 
+  document.getElementById('full-cal-grid').innerHTML = html; 
+}
+
 function fullCalPrev() { fullCalDate = new Date(fullCalDate.getFullYear(), fullCalDate.getMonth() - 1, 1); renderFullCal(); } 
 function fullCalNext() { fullCalDate = new Date(fullCalDate.getFullYear(), fullCalDate.getMonth() + 1, 1); renderFullCal(); } 
 function fullCalToday() { fullCalDate = new Date(); renderFullCal(); }
-function openDayModal(key) { const [y, m, d] = key.split('-'); const holiday = HOLIDAYS_2025[key]; const events = getEventsForDate(key); document.getElementById('modal-agenda-title').textContent = `Kegiatan — ${parseInt(d)} ${MONTHS[parseInt(m)-1]} ${y}`; let html = holiday ? `<div style="background:#FFF5F5;border:1px solid #FFD0CC;border-radius:8px;padding:12px 16px;margin-bottom:14px;color:#c0392b;font-weight:500;font-size:13px">🎌 ${holiday}</div>` : ''; events.forEach(e => { html += `<div style="border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:10px"><div style="font-size:14px;font-weight:500;">${escapeHTML(e.title)}</div><button onclick="deleteEvent('${e.id}');closeModal('modal-agenda')" style="margin-top:8px;font-size:11px;color:#c0392b;background:none;border:none;cursor:pointer;padding:0">Hapus Kegiatan</button></div>`; }); html += `<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)"><input type="text" class="form-control" id="quick-event-title" placeholder="Judul..." style="margin-bottom:8px"><button class="btn btn-primary" style="width:100%;font-size:13px" onclick="quickAddEvent('${key}')">Tambah</button></div>`; document.getElementById('modal-agenda-body').innerHTML = html; openModal('modal-agenda'); }
-function addCalendarEvent() { const d = document.getElementById('new-event-date').value, t = document.getElementById('new-event-title').value; if(d&&t) { calendarEvents.push({id:'ev'+Date.now(), date:d, title:t}); saveData(); renderFullCal(); renderMiniCal(); showToast('Tersimpan!','success'); } } 
-function quickAddEvent(key) { const t = document.getElementById('quick-event-title').value; if(t) { calendarEvents.push({id:'ev'+Date.now(), date:key, title:t}); saveData(); renderFullCal(); renderMiniCal(); closeModal('modal-agenda'); showToast('Tersimpan!','success'); } } 
-function deleteEvent(id) { calendarEvents = calendarEvents.filter(e => e.id !== id); saveData(); renderFullCal(); renderMiniCal(); } 
-function renderEventsList() { document.getElementById('events-list-panel').innerHTML = '<p style="font-size:12px;color:#999;text-align:center">Daftar agenda disederhanakan di tampilan ini.</p>'; }
-function renderAlur() { const steps1 = TAHAPAN_LABELS.map((label, i) => `<div class="step-item"><div class="step-num done">${i+1}</div><div class="step-content"><div class="step-title">${label}</div></div></div>`).join(''); document.getElementById('stepper-alur').innerHTML = steps1; document.getElementById('stepper-alur-2').innerHTML = steps1; }
+
+function openDayModal(key) { 
+  const [y, m, d] = key.split('-'); 
+  const holiday = HOLIDAYS_2025[key]; 
+  const events = getEventsForDate(key); 
+  document.getElementById('modal-agenda-title').textContent = `Kegiatan — ${parseInt(d)} ${MONTHS[parseInt(m)-1]} ${y}`; 
+  
+  let html = holiday ? `<div style="background:#FFF5F5;border:1px solid #FFD0CC;border-radius:8px;padding:12px 16px;margin-bottom:14px;color:#c0392b;font-weight:500;font-size:13px">🎌 ${holiday}</div>` : ''; 
+  
+  events.forEach(e => { 
+    let berkasHtml = '';
+    if (e.berkasId) {
+      const b = cases.find(x => x.id === e.berkasId);
+      if (b) berkasHtml = `<div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">Berkas Terkait: <strong style="color:var(--text)">${escapeHTML(b.nomorberkas)}</strong></div>`;
+    }
+    html += `<div style="border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:10px">
+        <div style="font-size:14px;font-weight:500;">${escapeHTML(e.title)}</div>
+        ${berkasHtml}
+        <button onclick="deleteEvent('${e.id}');closeModal('modal-agenda')" style="margin-top:8px;font-size:11px;color:#c0392b;background:none;border:none;cursor:pointer;padding:0">Hapus Kegiatan</button>
+      </div>`; 
+  }); 
+  
+  let activeCasesOptions = cases.filter(c => !c.isClosed).map(c => `<option value="${c.id}">${escapeHTML(c.nomorberkas)} - ${escapeHTML(c.pemohon)}</option>`).join('');
+
+  html += `<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+    <input type="text" class="form-control" id="quick-event-title" placeholder="Judul Kegiatan..." style="margin-bottom:8px">
+    <select class="form-control" id="quick-event-berkas" style="margin-bottom:12px; font-size:13px;">
+      <option value="">-- Pilih Berkas Terkait (Opsional) --</option>
+      ${activeCasesOptions}
+    </select>
+    <button class="btn btn-primary" style="width:100%;font-size:13px" onclick="quickAddEvent('${key}')">Tambah</button>
+  </div>`; 
+  
+  document.getElementById('modal-agenda-body').innerHTML = html; 
+  openModal('modal-agenda'); 
+}
+
+function addCalendarEvent() { 
+  const d = document.getElementById('new-event-date').value;
+  const t = document.getElementById('new-event-title').value;
+  const b = document.getElementById('new-event-berkas').value;
+  const desc = document.getElementById('new-event-desc').value;
+  if(d && t) { 
+    calendarEvents.push({id:'ev'+Date.now(), date:d, title:t, desc:desc, berkasId:b}); 
+    saveData(); 
+    renderFullCal(); 
+    renderMiniCal(); 
+    showToast('Tersimpan!','success'); 
+    document.getElementById('new-event-title').value = '';
+    document.getElementById('new-event-desc').value = '';
+    document.getElementById('new-event-berkas').value = '';
+  } 
+} 
+
+function quickAddEvent(key) { 
+  const t = document.getElementById('quick-event-title').value; 
+  const b = document.getElementById('quick-event-berkas').value;
+  if(t) { 
+    calendarEvents.push({id:'ev'+Date.now(), date:key, title:t, berkasId: b}); 
+    saveData(); 
+    renderFullCal(); 
+    renderMiniCal(); 
+    closeModal('modal-agenda'); 
+    showToast('Tersimpan!','success'); 
+  } 
+} 
+
+function deleteEvent(id) { 
+  calendarEvents = calendarEvents.filter(e => e.id !== id); 
+  saveData(); 
+  renderFullCal(); 
+  renderMiniCal(); 
+} 
 
 // ══════════════════════════════════════════════════════════
 // 11. INISIALISASI APLIKASI
@@ -1478,7 +1611,6 @@ initWilayah();
 updateStats();      
 renderDashboard();  
 renderMiniCal();    
-renderAlur();       
 
 checkLogin();
 
