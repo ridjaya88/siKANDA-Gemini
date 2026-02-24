@@ -706,6 +706,18 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-pdf-viewer">
+  <div class="modal" style="width: 95%; max-width: 1000px; height: 90vh; display: flex; flex-direction: column;">
+    <div class="modal-header">
+      <div class="modal-title" id="pdf-viewer-title" style="font-size:16px; font-family:'DM Sans', sans-serif; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:80%;">Pratinjau Dokumen</div>
+      <button class="modal-close" onclick="closeModal('modal-pdf-viewer')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" style="flex: 1; padding: 0; background:#E8E8E8;">
+      <iframe id="pdf-iframe" style="width: 100%; height: 100%; border: none;"></iframe>
+    </div>
+  </div>
+</div>
+
 <div id="toast-container"></div>
 
 <script>
@@ -852,7 +864,6 @@ const rawNTB = {
   }
 };
 
-// Merubah string kompresi menjadi Objek JS rapi untuk dropdown
 const ntbData = {};
 for (const kab in rawNTB) {
   ntbData[kab] = {};
@@ -861,7 +872,6 @@ for (const kab in rawNTB) {
   }
 }
 
-// Fungsi Inisialisasi Kota/Kabupaten
 function initWilayah() {
   const kabSelect = document.getElementById('f-kabupaten');
   if(!kabSelect) return;
@@ -909,7 +919,7 @@ function handleKecamatanChange() {
 }
 
 // ══════════════════════════════════════════════════════════
-// 2. OTENTIKASI & LOGIKA LOGIN / LOGOUT
+// 2. OTENTIKASI & PENGATURAN
 // ══════════════════════════════════════════════════════════
 function checkLogin() {
   const isLoggedIn = localStorage.getItem('sipentas-logged-in');
@@ -926,7 +936,6 @@ function handleLogin(e) {
   e.preventDefault();
   const user = document.getElementById('l-username').value;
   const pass = document.getElementById('l-password').value;
-  
   if (user === 'admin' && pass === 'admin123') {
     localStorage.setItem('sipentas-logged-in', 'true');
     showToast('Login berhasil! Selamat datang.', 'success');
@@ -937,15 +946,8 @@ function handleLogin(e) {
   }
 }
 
-function toggleUserMenu(e) {
-  e.stopPropagation();
-  document.getElementById('user-dropdown').classList.toggle('show');
-}
-
-window.addEventListener('click', function(e) {
-  const dropdown = document.getElementById('user-dropdown');
-  if(dropdown && dropdown.classList.contains('show')) dropdown.classList.remove('show');
-});
+function toggleUserMenu(e) { e.stopPropagation(); document.getElementById('user-dropdown').classList.toggle('show'); }
+window.addEventListener('click', function(e) { const d = document.getElementById('user-dropdown'); if(d && d.classList.contains('show')) d.classList.remove('show'); });
 
 function logout() {
   if(confirm('Apakah Anda yakin ingin keluar dari sistem?')) {
@@ -967,9 +969,6 @@ function togglePassword() {
   }
 }
 
-// ══════════════════════════════════════════════════════════
-// 3. FITUR PENGATURAN PROFIL
-// ══════════════════════════════════════════════════════════
 async function handleAvatarUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -979,19 +978,18 @@ async function handleAvatarUpload(event) {
     document.getElementById('profile-preview-img').src = base64Image;
     document.getElementById('profile-preview-img').style.display = 'block';
     document.getElementById('profile-preview-initials').style.display = 'none';
-    
     document.getElementById('topbar-avatar-img').src = base64Image;
     document.getElementById('topbar-avatar-img').style.display = 'block';
     document.getElementById('topbar-avatar-initials').style.display = 'none';
-
     showToast('Foto profil berhasil diperbarui!', 'success');
   } catch (error) { showToast('Gagal memuat gambar.', 'error'); }
 }
+
 function handleSimpanProfil(e) { e.preventDefault(); const namaBaru = document.getElementById('p-nama').value; if(namaBaru) document.getElementById('topbar-user-name').textContent = namaBaru; showToast('Data diri berhasil disimpan!', 'success'); }
 function handleUbahSandi(e) { e.preventDefault(); const baru = document.getElementById('s-new-pass').value; const konfirm = document.getElementById('s-confirm-pass').value; if (baru !== konfirm) { showToast('Konfirmasi sandi tidak cocok!', 'error'); return; } showToast('Kata sandi berhasil diperbarui!', 'success'); e.target.reset(); }
 
 // ══════════════════════════════════════════════════════════
-// 4. UTILITAS UMUM
+// 3. UTILITAS UMUM & VIEWER PDF (BARU)
 // ══════════════════════════════════════════════════════════
 function escapeHTML(str) { if (typeof str !== 'string') return str; return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)); }
 function formatNumber(num) { if (!num) return '0'; return new Intl.NumberFormat('id-ID').format(num); }
@@ -999,12 +997,60 @@ function readFileAsBase64(file) { return new Promise((resolve, reject) => { cons
 function toggleSidebar() { const sidebar = document.querySelector('.sidebar'); const overlay = document.querySelector('.sidebar-overlay'); if (sidebar) sidebar.classList.toggle('open'); if (overlay) overlay.classList.toggle('active'); }
 function fmtDate(str) { if (!str) return '-'; const d = new Date(str); return isNaN(d) ? str : `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`; }
 function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// Modifikasi fungsi closeModal agar membersihkan memori iframe PDF
+function closeModal(id) { 
+  document.getElementById(id).classList.remove('open'); 
+  if(id === 'modal-pdf-viewer') {
+    setTimeout(() => { document.getElementById('pdf-iframe').src = ''; }, 300);
+  }
+}
 function showToast(msg, type = '') { const c = document.getElementById('toast-container'), t = document.createElement('div'); t.className = 'toast ' + type; t.innerHTML = msg; c.appendChild(t); setTimeout(() => t.remove(), 3000); }
-document.querySelectorAll('.modal-overlay').forEach(ov => { ov.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); }); });
+document.querySelectorAll('.modal-overlay').forEach(ov => { ov.addEventListener('click', function(e) { if (e.target === this) closeModal(this.id); }); });
+
+// --- LOGIKA PRATINJAU DOKUMEN (PDF VIEWER) ---
+function previewPDF(base64Data, fileName) {
+  if (!base64Data) return;
+  try {
+    const base64Arr = base64Data.split(',');
+    if(base64Arr.length < 2) { showToast('Format dokumen tidak valid', 'error'); return; }
+    
+    // Ubah Base64 jadi Blob agar tidak memberatkan browser
+    const byteCharacters = atob(base64Arr[1]);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], {type: 'application/pdf'});
+    const blobUrl = URL.createObjectURL(blob);
+
+    document.getElementById('pdf-viewer-title').textContent = fileName;
+    document.getElementById('pdf-iframe').src = blobUrl;
+    
+    openModal('modal-pdf-viewer');
+  } catch(e) {
+    showToast('Gagal memuat dokumen untuk pratinjau', 'error');
+  }
+}
+
+function viewDocument(caseId, docType) {
+  const c = cases.find(x => x.id === caseId);
+  if (!c) return;
+  if (docType === 'usulan' && c.dokumenUsulan?.file) previewPDF(c.dokumenUsulan.file, c.dokumenUsulan.name);
+  else if (docType === 'bt' && c.dokumenbt?.file) previewPDF(c.dokumenbt.file, c.dokumenbt.name);
+  else if (docType === 'tutup' && c.closeDoc?.file) previewPDF(c.closeDoc.file, c.closeDoc.name);
+}
+
+function viewTahapanDocument(caseId, stepIdx) {
+  const c = cases.find(x => x.id === caseId);
+  if (!c) return;
+  const t = c.tahapan[stepIdx];
+  if (t && t.file) previewPDF(t.file, t.fileName);
+}
 
 // ══════════════════════════════════════════════════════════
-// 5. DATABASE PENYIMPANAN
+// 4. DATABASE & NAVIGATION
 // ══════════════════════════════════════════════════════════
 let cases = JSON.parse(localStorage.getItem('sipentas-cases') || '[]');
 let calendarEvents = JSON.parse(localStorage.getItem('sipentas-events') || '[]');
@@ -1018,19 +1064,8 @@ function saveData() {
   localStorage.setItem('sipentas-events', JSON.stringify(calendarEvents)); 
 }
 
-// ══════════════════════════════════════════════════════════
-// 6. NAVIGASI, DASHBOARD & RENDER TABEL
-// ══════════════════════════════════════════════════════════
 let currentPage = 'dashboard'; let prevPage = 'dashboard';
-const crumbMap = { 
-  'dashboard': 'Beranda / <span>Dashboard</span>', 
-  'list-cacat': 'Permohonan / <span>Cacat Administrasi</span>', 
-  'list-putusan': 'Permohonan / <span>Putusan Pengadilan</span>', 
-  'tambah': 'Permohonan / <span>Tambah Baru</span>', 
-  'detail': 'Permohonan / <span>Detail Kasus</span>', 
-  'kalender': 'Informasi / <span>Kalender Kegiatan</span>', 
-  'pengaturan': 'Sistem / <span>Pengaturan Akun</span>' 
-};
+const crumbMap = { 'dashboard': 'Beranda / <span>Dashboard</span>', 'list-cacat': 'Permohonan / <span>Cacat Administrasi</span>', 'list-putusan': 'Permohonan / <span>Putusan Pengadilan</span>', 'tambah': 'Permohonan / <span>Tambah Baru</span>', 'detail': 'Permohonan / <span>Detail Kasus</span>', 'kalender': 'Informasi / <span>Kalender Kegiatan</span>', 'pengaturan': 'Sistem / <span>Pengaturan Akun</span>' };
 
 function navigateTo(page, param) {
   prevPage = currentPage; currentPage = page;
@@ -1049,14 +1084,9 @@ function navigateTo(page, param) {
   if (page === 'tambah') { resetForm(param); initWilayah(); } 
   if (page === 'kalender') { 
     renderFullCal(); 
-    // Populasikan dropdown berkas di halaman kalender dengan kasus aktif
     const sel = document.getElementById('new-event-berkas');
-    if(sel) {
-      sel.innerHTML = '<option value="">-- Pilih Berkas (Opsional) --</option>' + 
-        cases.filter(c => !c.isClosed).map(c => `<option value="${c.id}">${escapeHTML(c.nomorberkas)} - ${escapeHTML(c.pemohon)}</option>`).join('');
-    }
+    if(sel) sel.innerHTML = '<option value="">-- Pilih Berkas (Opsional) --</option>' + cases.filter(c => !c.isClosed).map(c => `<option value="${c.id}">${escapeHTML(c.nomorberkas)} - ${escapeHTML(c.pemohon)}</option>`).join('');
   } 
-  
   updateStats();
 }
 
@@ -1064,7 +1094,6 @@ function updateStats() {
   document.getElementById('stat-total').textContent = cases.length;
   document.getElementById('stat-cacat').textContent = cases.filter(c => c.jenis === 'cacat').length;
   document.getElementById('stat-putusan').textContent = cases.filter(c => c.jenis === 'putusan').length;
-  
   document.getElementById('stat-selesai').textContent = cases.filter(c => c.currentStep >= 5 || c.isClosed).length;
   document.getElementById('badge-cacat').textContent = cases.filter(c => c.jenis === 'cacat').length;
   document.getElementById('badge-putusan').textContent = cases.filter(c => c.jenis === 'putusan').length;
@@ -1079,14 +1108,7 @@ function renderDashboard() {
     let statusBadgeHtml = c.isClosed 
       ? `<span class="status-badge" style="background:#FFF5F5; color:#C0392B; border:1px solid #FFD0CC;">🔒 Ditutup</span>`
       : `<span class="status-badge ${STATUS_MAP[c.currentStep]?.cls || 'status-0'}">${STATUS_MAP[c.currentStep]?.label || '-'}</span>`;
-    
-    return `<tr onclick="openDetail('${c.id}')">
-      <td><code style="font-size:12px;background:var(--surface);padding:2px 7px;border-radius:4px">${escapeHTML(c.nomorberkas)}</code></td>
-      <td style="font-size:12px">${escapeHTML(c.pemohon)}</td>
-      <td><span class="badge ${c.jenis === 'cacat' ? 'badge-admin' : 'badge-court'}"><span class="badge-dot" style="background:${c.jenis==='cacat'?'var(--gray-dark)':'var(--white)'}"></span> ${c.jenis === 'cacat' ? 'Cacat Adm.' : 'Putusan PN'}</span></td>
-      <td style="font-size:12px">${escapeHTML(c.kantah)}</td>
-      <td>${statusBadgeHtml}</td>
-    </tr>`;
+    return `<tr onclick="openDetail('${c.id}')"><td><code style="font-size:12px;background:var(--surface);padding:2px 7px;border-radius:4px">${escapeHTML(c.nomorberkas)}</code></td><td style="font-size:12px">${escapeHTML(c.pemohon)}</td><td><span class="badge ${c.jenis === 'cacat' ? 'badge-admin' : 'badge-court'}"><span class="badge-dot" style="background:${c.jenis==='cacat'?'var(--gray-dark)':'var(--white)'}"></span> ${c.jenis === 'cacat' ? 'Cacat Adm.' : 'Putusan PN'}</span></td><td style="font-size:12px">${escapeHTML(c.kantah)}</td><td>${statusBadgeHtml}</td></tr>`;
   }).join('');
 }
 
@@ -1096,53 +1118,25 @@ function renderTable(type) {
   const filterStatus = document.getElementById('filter-status-' + type)?.value;
   
   let filtered = cases.filter(c => c.jenis === type);
-  if (search) {
-    filtered = filtered.filter(c => c.nomorberkas.toLowerCase().includes(search) || c.pemohon.toLowerCase().includes(search) || (c.desa||'').toLowerCase().includes(search) || (c.noputs||'').toLowerCase().includes(search));
-  }
-  if (filterStatus !== '' && filterStatus !== undefined) {
-    filtered = filtered.filter(c => String(c.currentStep) === String(filterStatus));
-  }
+  if (search) filtered = filtered.filter(c => c.nomorberkas.toLowerCase().includes(search) || c.pemohon.toLowerCase().includes(search) || (c.desa||'').toLowerCase().includes(search) || (c.noputs||'').toLowerCase().includes(search));
+  if (filterStatus !== '' && filterStatus !== undefined) filtered = filtered.filter(c => String(c.currentStep) === String(filterStatus));
 
   if (!filtered.length) { tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:40px">Tidak ada data</td></tr>`; return; }
   
   tbody.innerHTML = filtered.map(c => {
     let progress = c.isClosed ? 100 : Math.round(((c.currentStep) / 5) * 100); 
     let steps = Array.from({length:5}, (_,i) => `<div class="pipe-step ${c.isClosed || i < c.currentStep ? 'done' : (!c.isClosed && i === c.currentStep ? 'active' : '')}" ${c.isClosed ? 'style="background:#C0392B"' : ''}></div>`).join('');
-    
     const extraCol = type === 'putusan' ? `<td style="font-size:12px">${escapeHTML(c.noputs||'-')}</td>` : `<td style="font-size:12px">${escapeHTML(c.nosert||'-')}</td>`;
     const domisili = [c.desa, c.kecamatan].filter(Boolean).join(', ');
+    let statusBadgeHtml = c.isClosed ? `<span class="status-badge" style="background:#FFF5F5; color:#C0392B; border:1px solid #FFD0CC;">🔒 Ditutup</span>` : `<span class="status-badge ${STATUS_MAP[c.currentStep]?.cls}">${STATUS_MAP[c.currentStep]?.label}</span>`;
 
-    let statusBadgeHtml = c.isClosed 
-      ? `<span class="status-badge" style="background:#FFF5F5; color:#C0392B; border:1px solid #FFD0CC;">🔒 Ditutup</span>`
-      : `<span class="status-badge ${STATUS_MAP[c.currentStep]?.cls}">${STATUS_MAP[c.currentStep]?.label}</span>`;
-
-    return `<tr onclick="openDetail('${c.id}')">
-      <td><code style="font-size:12px;background:var(--surface);padding:2px 7px;border-radius:4px">${escapeHTML(c.nomorberkas)}</code></td>
-      <td style="font-size:12px">${escapeHTML(c.kantah)}</td>
-      <td style="font-size:12px">${escapeHTML(c.pemohon)}</td>
-      ${extraCol}
-      <td style="font-size:12px">${escapeHTML(domisili||'-')}</td>
-      <td style="font-size:12px">${fmtDate(c.tglUsulan)}</td>
-      <td>${statusBadgeHtml}</td>
-      <td style="min-width:80px">
-        <div style="display:flex;flex-direction:column;gap:3px">
-          <div class="pipeline">${steps}</div>
-          <span style="font-size:10px;color:var(--text-muted)">${progress}%</span>
-        </div>
-      </td>
-      <td onclick="event.stopPropagation()">
-        <div style="display:flex;gap:6px">
-          <button class="btn btn-secondary btn-sm" onclick="openDetail('${c.id}')">Detail</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteCase('${c.id}')">Hapus</button>
-        </div>
-      </td>
-    </tr>`;
+    return `<tr onclick="openDetail('${c.id}')"><td><code style="font-size:12px;background:var(--surface);padding:2px 7px;border-radius:4px">${escapeHTML(c.nomorberkas)}</code></td><td style="font-size:12px">${escapeHTML(c.kantah)}</td><td style="font-size:12px">${escapeHTML(c.pemohon)}</td>${extraCol}<td style="font-size:12px">${escapeHTML(domisili||'-')}</td><td style="font-size:12px">${fmtDate(c.tglUsulan)}</td><td>${statusBadgeHtml}</td><td style="min-width:80px"><div style="display:flex;flex-direction:column;gap:3px"><div class="pipeline">${steps}</div><span style="font-size:10px;color:var(--text-muted)">${progress}%</span></div></td><td onclick="event.stopPropagation()"><div style="display:flex;gap:6px"><button class="btn btn-secondary btn-sm" onclick="openDetail('${c.id}')">Detail</button><button class="btn btn-danger btn-sm" onclick="deleteCase('${c.id}')">Hapus</button></div></td></tr>`;
   }).join('');
 }
 function filterTable(type) { renderTable(type); }
 
 // ══════════════════════════════════════════════════════════
-// 7. LOGIKA TUTUP DAN BUKA BERKAS
+// 5. LOGIKA TUTUP DAN BUKA BERKAS
 // ══════════════════════════════════════════════════════════
 let activeCaseForAction = null;
 
@@ -1156,61 +1150,36 @@ function promptTutupBerkas(id) {
 async function saveTutupBerkas() {
   const alasan = document.getElementById('tutup-alasan').value;
   const fileInput = document.getElementById('tutup-file');
-  
-  if (!alasan || fileInput.files.length === 0) {
-    showToast('Alasan dan dokumen penutupan wajib diisi!', 'error'); return;
-  }
-  
+  if (!alasan || fileInput.files.length === 0) { showToast('Alasan dan dokumen penutupan wajib diisi!', 'error'); return; }
   const file = fileInput.files[0];
   if (file.type !== 'application/pdf') { showToast('Dokumen harus PDF!', 'error'); return; }
   if (file.size > 2 * 1024 * 1024) { showToast('Maksimal file 2MB!', 'error'); return; }
 
   let fileData = null;
-  try { fileData = await readFileAsBase64(file); } 
-  catch (e) { showToast('Gagal membaca dokumen.', 'error'); return; }
+  try { fileData = await readFileAsBase64(file); } catch (e) { showToast('Gagal membaca dokumen.', 'error'); return; }
 
   const c = cases.find(x => x.id === activeCaseForAction);
   if (c) {
-    c.isClosed = true;
-    c.closeReason = alasan;
-    c.closeDoc = { file: fileData, name: file.name };
-    c.reopenReason = ''; 
-    saveData();
-    updateStats();
-    closeModal('modal-tutup');
-    showToast('Berkas berhasil ditutup dan dikunci.', 'success');
-    openDetail(c.id);
+    c.isClosed = true; c.closeReason = alasan; c.closeDoc = { file: fileData, name: file.name }; c.reopenReason = ''; 
+    saveData(); updateStats(); closeModal('modal-tutup'); showToast('Berkas berhasil ditutup.', 'success'); openDetail(c.id);
   }
 }
 
-function promptBukaBerkas(id) {
-  activeCaseForAction = id;
-  document.getElementById('buka-alasan').value = '';
-  openModal('modal-buka');
-}
+function promptBukaBerkas(id) { activeCaseForAction = id; document.getElementById('buka-alasan').value = ''; openModal('modal-buka'); }
 
 function saveBukaBerkas() {
   const alasan = document.getElementById('buka-alasan').value;
   if (!alasan) { showToast('Alasan wajib diisi!', 'error'); return; }
-
   const c = cases.find(x => x.id === activeCaseForAction);
   if (c) {
-    c.isClosed = false;
-    c.reopenReason = alasan;
-    saveData();
-    updateStats();
-    closeModal('modal-buka');
-    showToast('Berkas berhasil dibuka kembali.', 'success');
-    openDetail(c.id);
+    c.isClosed = false; c.reopenReason = alasan; saveData(); updateStats(); closeModal('modal-buka'); showToast('Berkas berhasil dibuka.', 'success'); openDetail(c.id);
   }
 }
 
 // ══════════════════════════════════════════════════════════
-// 8. FORM TAMBAH KASUS & UPDATE TAHAPAN
+// 6. FORM TAMBAH KASUS & UPDATE TAHAPAN
 // ══════════════════════════════════════════════════════════
-let currentFormTab = 'info'; 
-const formTabs = ['info', 'detail']; 
-
+let currentFormTab = 'info'; const formTabs = ['info', 'detail']; 
 function switchFormTab(tab) { showFormTab(tab); }
 function showFormTab(tab) { 
   formTabs.forEach(t => { document.getElementById('form-tab-' + t).style.display = t === tab ? '' : 'none'; }); 
@@ -1227,146 +1196,76 @@ function prevFormTab() { const idx = formTabs.indexOf(currentFormTab); if (idx >
 function resetForm(preselect) { 
   document.getElementById('form-permohonan').reset(); 
   if (preselect) document.getElementById('f-jenis').value = preselect; 
-  showFormTab('info'); 
-  togglePutsanField(); 
+  showFormTab('info'); togglePutsanField(); 
   document.getElementById('f-jenis').addEventListener('change', togglePutsanField); 
-  
   initWilayah();
-  document.getElementById('f-kecamatan').innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
-  document.getElementById('f-kecamatan').disabled = true;
-  document.getElementById('f-desa').innerHTML = '<option value="">-- Pilih Desa/Kelurahan --</option>';
-  document.getElementById('f-desa').disabled = true;
+  document.getElementById('f-kecamatan').innerHTML = '<option value="">-- Pilih Kecamatan --</option>'; document.getElementById('f-kecamatan').disabled = true;
+  document.getElementById('f-desa').innerHTML = '<option value="">-- Pilih Desa/Kelurahan --</option>'; document.getElementById('f-desa').disabled = true;
 }
-
-function togglePutsanField() {
-  const type = document.getElementById('f-jenis').value;
-  document.getElementById('f-noputs-group').style.display = type === 'putusan' ? 'block' : 'none';
-}
+function togglePutsanField() { document.getElementById('f-noputs-group').style.display = document.getElementById('f-jenis').value === 'putusan' ? 'block' : 'none'; }
 
 async function submitForm(e) { 
-  e.preventDefault(); 
-  const jenis = document.getElementById('f-jenis').value; 
+  e.preventDefault(); const jenis = document.getElementById('f-jenis').value; 
   if (!jenis) { showToast('Pilih jenis permohonan!', 'error'); return; } 
 
-  const fileUsulanInput = document.getElementById('f-dokumenusulan');
-  let dokumenUsulanData = { file: null, name: '' };
+  const fileUsulanInput = document.getElementById('f-dokumenusulan'); let dokumenUsulanData = { file: null, name: '' };
   if (fileUsulanInput.files.length > 0) {
     const file = fileUsulanInput.files[0];
     if (file.type !== 'application/pdf') { showToast('Dokumen Usulan harus PDF!', 'error'); return; }
     if (file.size > 2 * 1024 * 1024) { showToast('Dokumen Usulan maks 2MB!', 'error'); return; }
-    try { dokumenUsulanData.file = await readFileAsBase64(file); dokumenUsulanData.name = file.name; } 
-    catch(err) { showToast('Gagal membaca Dokumen Usulan', 'error'); return; }
+    try { dokumenUsulanData.file = await readFileAsBase64(file); dokumenUsulanData.name = file.name; } catch(err) { showToast('Gagal membaca Dokumen Usulan', 'error'); return; }
   }
   
-  const fileBTInput = document.getElementById('f-dokumenbt');
-  let dokumenbtData = { file: null, name: '' };
+  const fileBTInput = document.getElementById('f-dokumenbt'); let dokumenbtData = { file: null, name: '' };
   if (fileBTInput.files.length > 0) {
     const file = fileBTInput.files[0];
     if (file.type !== 'application/pdf') { showToast('Buku Tanah harus PDF!', 'error'); return; }
     if (file.size > 2 * 1024 * 1024) { showToast('Buku Tanah maks 2MB!', 'error'); return; }
-    try { dokumenbtData.file = await readFileAsBase64(file); dokumenbtData.name = file.name; } 
-    catch(err) { showToast('Gagal membaca Buku Tanah', 'error'); return; }
+    try { dokumenbtData.file = await readFileAsBase64(file); dokumenbtData.name = file.name; } catch(err) { showToast('Gagal membaca Buku Tanah', 'error'); return; }
   }
 
   const initialTahapan = TAHAPAN_LABELS.map(() => ({ date: '', note: '', file: null, fileName: '' }));
 
   cases.push({ 
-    id: 'c' + Date.now(), 
-    nomorberkas: document.getElementById('f-nomorberkas').value, 
-    jenis, kantah: document.getElementById('f-kantah').value, 
-    tglUsulan: document.getElementById('f-tglUsulan').value, 
-    pemohon: document.getElementById('f-pemohon').value, 
-    kontak: document.getElementById('f-kontak').value, 
-    pj: document.getElementById('f-pj').value, 
-    noputs: document.getElementById('f-noputs').value, 
-    dokumenUsulan: dokumenUsulanData,
-    pemeganghak: document.getElementById('f-pemeganghak').value,
-    jenissert: document.getElementById('f-jenissert').value, 
-    nosert: document.getElementById('f-nosert').value, 
-    luas: document.getElementById('f-luas').value, 
-    kabupaten: document.getElementById('f-kabupaten').value,
-    kecamatan: document.getElementById('f-kecamatan').value,
-    desa: document.getElementById('f-desa').value,
-    dokumenbt: dokumenbtData,
-    uraian: document.getElementById('f-uraian').value, 
-    tahapan: initialTahapan, 
-    currentStep: 0, 
-    createdAt: new Date().toISOString() 
+    id: 'c' + Date.now(), nomorberkas: document.getElementById('f-nomorberkas').value, jenis, kantah: document.getElementById('f-kantah').value, 
+    tglUsulan: document.getElementById('f-tglUsulan').value, pemohon: document.getElementById('f-pemohon').value, kontak: document.getElementById('f-kontak').value, pj: document.getElementById('f-pj').value, 
+    noputs: document.getElementById('f-noputs').value, dokumenUsulan: dokumenUsulanData, pemeganghak: document.getElementById('f-pemeganghak').value, jenissert: document.getElementById('f-jenissert').value, nosert: document.getElementById('f-nosert').value, 
+    luas: document.getElementById('f-luas').value, kabupaten: document.getElementById('f-kabupaten').value, kecamatan: document.getElementById('f-kecamatan').value, desa: document.getElementById('f-desa').value,
+    dokumenbt: dokumenbtData, uraian: document.getElementById('f-uraian').value, tahapan: initialTahapan, currentStep: 0, createdAt: new Date().toISOString() 
   }); 
 
-  saveData(); updateStats(); showToast('Permohonan berhasil disimpan!', 'success'); 
-  navigateTo(jenis === 'cacat' ? 'list-cacat' : 'list-putusan'); 
+  saveData(); updateStats(); showToast('Permohonan berhasil disimpan!', 'success'); navigateTo(jenis === 'cacat' ? 'list-cacat' : 'list-putusan'); 
 }
 
 let updatingCaseId = ''; let updatingStepIdx = 0;
 function openUpdateTahapan(id, stepIdx) { 
   updatingCaseId = id; updatingStepIdx = stepIdx; 
-  const c = cases.find(x => x.id === id); 
-  const label = TAHAPAN_LABELS[stepIdx]; 
+  const c = cases.find(x => x.id === id); const label = TAHAPAN_LABELS[stepIdx]; 
   const existingFileLabel = c.tahapan?.[stepIdx]?.fileName ? `<div style="font-size:11px;color:#1B5E20;margin-top:4px;font-weight:600;">Terunggah: ${escapeHTML(c.tahapan[stepIdx].fileName)}</div>` : ''; 
-  
-  document.getElementById('modal-tahapan-body').innerHTML = `
-    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Tahapan: <strong style="color:var(--text)">${label}</strong></p>
-    <div class="form-group" style="margin-bottom:12px">
-      <label for="upd-date">Tanggal Penyelesaian *</label>
-      <input type="date" class="form-control" id="upd-date" value="${c.tahapan?.[stepIdx]?.date || ''}">
-    </div>
-    <div class="form-group" style="margin-bottom:12px">
-      <label for="upd-note">Catatan</label>
-      <textarea class="form-control" id="upd-note" placeholder="Catatan proses...">${escapeHTML(c.tahapan?.[stepIdx]?.note || '')}</textarea>
-    </div>
-    <div class="form-group">
-      <label for="upd-file">Unggah Dokumen PDF (Maks 2MB)</label>
-      <input type="file" class="form-control" id="upd-file" accept="application/pdf" style="padding: 7px 14px; font-size: 12px;">${existingFileLabel}
-    </div>`; 
+  document.getElementById('modal-tahapan-body').innerHTML = `<p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Tahapan: <strong style="color:var(--text)">${label}</strong></p><div class="form-group" style="margin-bottom:12px"><label for="upd-date">Tanggal Penyelesaian *</label><input type="date" class="form-control" id="upd-date" value="${c.tahapan?.[stepIdx]?.date || ''}"></div><div class="form-group" style="margin-bottom:12px"><label for="upd-note">Catatan</label><textarea class="form-control" id="upd-note" placeholder="Catatan proses...">${escapeHTML(c.tahapan?.[stepIdx]?.note || '')}</textarea></div><div class="form-group"><label for="upd-file">Unggah Dokumen PDF (Maks 2MB)</label><input type="file" class="form-control" id="upd-file" accept="application/pdf" style="padding: 7px 14px; font-size: 12px;">${existingFileLabel}</div>`; 
   openModal('modal-tahapan'); 
 }
 
 async function saveTahapanUpdate() { 
-  const date = document.getElementById('upd-date').value; 
-  const note = document.getElementById('upd-note').value; 
-  const fileInput = document.getElementById('upd-file'); 
-  
+  const date = document.getElementById('upd-date').value; const note = document.getElementById('upd-note').value; const fileInput = document.getElementById('upd-file'); 
   if (!date) { showToast('Masukkan tanggal!', 'error'); return; } 
-  const c = cases.find(x => x.id === updatingCaseId); 
-  if (!c) return; 
-  if (!c.tahapan) c.tahapan = []; 
-  
-  let fileData = c.tahapan[updatingStepIdx]?.file || null; 
-  let fileName = c.tahapan[updatingStepIdx]?.fileName || ''; 
-  
+  const c = cases.find(x => x.id === updatingCaseId); if (!c) return; if (!c.tahapan) c.tahapan = []; 
+  let fileData = c.tahapan[updatingStepIdx]?.file || null; let fileName = c.tahapan[updatingStepIdx]?.fileName || ''; 
   if (fileInput.files.length > 0) { 
-    const file = fileInput.files[0]; 
-    if (file.type !== 'application/pdf') { showToast('Hanya file PDF!', 'error'); return; } 
-    if (file.size > 2 * 1024 * 1024) { showToast('Ukuran maksimal 2MB!', 'error'); return; } 
-    try { 
-      fileData = await readFileAsBase64(file); 
-      fileName = file.name; 
-    } catch(e) { 
-      showToast('Gagal membaca file', 'error'); return; 
-    } 
+    const file = fileInput.files[0]; if (file.type !== 'application/pdf') { showToast('Hanya file PDF!', 'error'); return; } if (file.size > 2 * 1024 * 1024) { showToast('Ukuran maksimal 2MB!', 'error'); return; } 
+    try { fileData = await readFileAsBase64(file); fileName = file.name; } catch(e) { showToast('Gagal membaca file', 'error'); return; } 
   } 
-  
-  c.tahapan[updatingStepIdx] = { date, note, file: fileData, fileName }; 
-  c.currentStep = c.tahapan.reduce((acc, t, i) => t?.date ? i + 1 : acc, 0); 
-  
-  saveData(); 
-  closeModal('modal-tahapan'); 
-  showToast('Tahapan diperbarui!', 'success'); 
-  openDetail(updatingCaseId); 
+  c.tahapan[updatingStepIdx] = { date, note, file: fileData, fileName }; c.currentStep = c.tahapan.reduce((acc, t, i) => t?.date ? i + 1 : acc, 0); 
+  saveData(); closeModal('modal-tahapan'); showToast('Tahapan diperbarui!', 'success'); openDetail(updatingCaseId); 
 }
 
 function deleteCase(id) { 
   if (!confirm('Hapus data permohonan ini?')) return; 
-  cases = cases.filter(c => c.id !== id); 
-  saveData(); 
-  updateStats(); 
-  renderTable(currentPage === 'list-cacat' ? 'cacat' : 'putusan'); 
-  showToast('Data dihapus'); 
+  cases = cases.filter(c => c.id !== id); saveData(); updateStats(); renderTable(currentPage === 'list-cacat' ? 'cacat' : 'putusan'); showToast('Data dihapus'); 
 }
 
 // ══════════════════════════════════════════════════════════
-// 9. TAMPILAN DETAIL KASUS & MODAL
+// 7. TAMPILAN DETAIL KASUS & MODAL
 // ══════════════════════════════════════════════════════════
 function openDetail(id) {
   const c = cases.find(x => x.id === id); if (!c) return; prevPage = currentPage; currentPage = 'detail';
@@ -1374,12 +1273,8 @@ function openDetail(id) {
   const steps = TAHAPAN_LABELS.map((label, i) => {
     let isCompleted = !!c.tahapan?.[i]?.date;
     let cls = isCompleted ? 'success' : (i === c.currentStep && !c.isClosed ? 'active' : 'pending');
-
-    let dateStr = c.tahapan?.[i]?.date ? fmtDate(c.tahapan[i].date) : '';
-    let dateHtml = dateStr ? `<div class="step-date">${dateStr}</div>` : '';
-    let noteStr = c.tahapan?.[i]?.note || '';
-    let shortNote = noteStr.length > 55 ? noteStr.substring(0, 55) + '...' : noteStr;
-    let noteHtml = noteStr ? `<div class="step-note">${escapeHTML(shortNote)}</div>` : '';
+    let dateStr = c.tahapan?.[i]?.date ? fmtDate(c.tahapan[i].date) : ''; let dateHtml = dateStr ? `<div class="step-date">${dateStr}</div>` : '';
+    let noteStr = c.tahapan?.[i]?.note || ''; let shortNote = noteStr.length > 55 ? noteStr.substring(0, 55) + '...' : noteStr; let noteHtml = noteStr ? `<div class="step-note">${escapeHTML(shortNote)}</div>` : '';
     let checkIcon = isCompleted ? `<svg viewBox="0 0 24 24" width="16" height="16" stroke="#1B5E20" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-left:8px"><polyline points="20 6 9 17 4 12"></polyline></svg>` : '';
     
     let actionBtn = '';
@@ -1392,24 +1287,31 @@ function openDetail(id) {
     return `<div class="step-item"><div class="step-num ${cls}">${i+1}</div><div class="step-content"><div class="step-title">${label} ${checkIcon}</div>${dateHtml}${noteHtml}</div>${actionBtn}</div>`;
   }).join('');
 
-  let btnUnduhUsulan = c.dokumenUsulan?.file ? `<a href="${c.dokumenUsulan.file}" download="${c.dokumenUsulan.name}" class="btn btn-secondary btn-sm" style="font-size:11px; padding:6px 12px; text-decoration:none;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg> Unduh Dokumen Usulan</a>` : '';
-  let btnUnduhBT = c.dokumenbt?.file ? `<a href="${c.dokumenbt.file}" download="${c.dokumenbt.name}" class="btn btn-secondary btn-sm" style="font-size:11px; padding:6px 12px; text-decoration:none;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg> Unduh Buku Tanah</a>` : '';
+  let btnsUsulan = c.dokumenUsulan?.file ? `
+    <button class="btn btn-primary btn-sm" style="font-size:11px; padding:6px 12px;" onclick="viewDocument('${id}', 'usulan')">📄 Lihat Usulan</button>
+    <a href="${c.dokumenUsulan.file}" download="${c.dokumenUsulan.name}" class="btn btn-secondary btn-sm" style="font-size:11px; padding:6px 12px; text-decoration:none;">Unduh</a>
+  ` : '';
 
-  let adminActions = c.isClosed 
-    ? `<button class="btn btn-secondary btn-sm" style="border-color:var(--border);" onclick="promptBukaBerkas('${id}')">Buka Kembali Berkas</button>`
-    : `<button class="btn btn-danger btn-sm" onclick="promptTutupBerkas('${id}')">Tutup Berkas (Selesai)</button>`;
+  let btnsBT = c.dokumenbt?.file ? `
+    <div style="display:flex; gap:6px; margin-top:16px;">
+      <button class="btn btn-primary btn-sm" style="font-size:11px; padding:6px 12px;" onclick="viewDocument('${id}', 'bt')">📄 Lihat Buku Tanah</button>
+      <a href="${c.dokumenbt.file}" download="${c.dokumenbt.name}" class="btn btn-secondary btn-sm" style="font-size:11px; padding:6px 12px; text-decoration:none;">Unduh</a>
+    </div>
+  ` : '';
+
+  let adminActions = c.isClosed ? `<button class="btn btn-secondary btn-sm" style="border-color:var(--border);" onclick="promptBukaBerkas('${id}')">Buka Kembali Berkas</button>` : `<button class="btn btn-danger btn-sm" onclick="promptTutupBerkas('${id}')">Tutup Berkas (Selesai)</button>`;
 
   let closedBanner = c.isClosed ? `
     <div style="background:#FFF5F5; border:1px solid #FFD0CC; color:#C0392B; padding:16px; border-radius:8px; margin-bottom:20px;">
         <div style="font-weight:700; font-size:14px; margin-bottom:6px;">🔒 BERKAS DITUTUP / TERKUNCI</div>
         <div style="font-size:13px; margin-bottom:12px;"><strong>Alasan:</strong> ${escapeHTML(c.closeReason)}</div>
-        <a href="${c.closeDoc?.file}" download="${c.closeDoc?.name}" class="btn btn-danger btn-sm" style="font-size:11px; padding:6px 12px; text-decoration:none;">Unduh Dokumen Penutupan</a>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-danger btn-sm" style="font-size:11px; padding:6px 12px;" onclick="viewDocument('${id}', 'tutup')">📄 Lihat Dokumen Penutupan</button>
+          <a href="${c.closeDoc?.file}" download="${c.closeDoc?.name}" class="btn btn-secondary btn-sm" style="font-size:11px; padding:6px 12px; text-decoration:none; border-color:#FFD0CC; color:#C0392B;">Unduh</a>
+        </div>
     </div>` : '';
 
-  let reopenBanner = (!c.isClosed && c.reopenReason) ? `
-    <div style="background:#E3F2FD; border:1px solid #BBDEFB; color:#1565C0; padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:12px;">
-      <strong>Catatan Admin:</strong> Berkas ini telah dibuka kembali. Alasan: ${escapeHTML(c.reopenReason)}
-    </div>` : '';
+  let reopenBanner = (!c.isClosed && c.reopenReason) ? `<div style="background:#E3F2FD; border:1px solid #BBDEFB; color:#1565C0; padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:12px;"><strong>Catatan Admin:</strong> Berkas ini telah dibuka kembali. Alasan: ${escapeHTML(c.reopenReason)}</div>` : '';
 
   let progressPct = c.isClosed ? 100 : Math.round((c.currentStep/5)*100);
   let statusLabel = c.isClosed ? 'Ditutup / Selesai' : (STATUS_MAP[c.currentStep]?.label || '-');
@@ -1417,11 +1319,9 @@ function openDetail(id) {
 
   document.getElementById('detail-content').innerHTML = `
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <div style="font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Opsi Administrator</div>
-      ${adminActions}
+      <div style="font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Opsi Administrator</div>${adminActions}
     </div>
-    ${closedBanner}
-    ${reopenBanner}
+    ${closedBanner}${reopenBanner}
     <div class="detail-header">
       <div class="detail-case-id">ID BERKAS</div>
       <div class="detail-title">${escapeHTML(c.nomorberkas)}</div>
@@ -1432,7 +1332,7 @@ function openDetail(id) {
         <div class="detail-meta-item"><strong>Kantah:</strong>${escapeHTML(c.kantah)}</div>
         <div class="detail-meta-item"><strong>Tgl. Usulan:</strong>${fmtDate(c.tglUsulan)}</div>
       </div>
-      <div style="margin-top:20px; display:flex; gap:10px;">${btnUnduhUsulan}</div>
+      <div style="margin-top:20px; display:flex; gap:10px;">${btnsUsulan}</div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 360px;gap:20px" class="dashboard-grid">
       <div class="card"><div class="card-header"><span class="card-title">Riwayat Tahapan</span></div><div class="card-body"><div class="stepper">${steps}</div></div></div>
@@ -1456,7 +1356,7 @@ function openDetail(id) {
                 </div>
               </div>
             </div>
-            ${btnUnduhBT ? `<div style="margin-top:16px;">${btnUnduhBT}</div>` : ''}
+            ${btnsBT}
           </div>
         </div>
         ${c.uraian ? `<div class="card"><div class="card-header"><span class="card-title">Uraian Singkat Kasus</span></div><div class="card-body"><p style="font-size:13px;line-height:1.7;color:var(--text-sub)">${escapeHTML(c.uraian)}</p></div></div>` : ''}
@@ -1482,27 +1382,35 @@ function goBackFromDetail() { navigateTo(prevPage === 'detail' ? 'dashboard' : p
 function viewTahapan(id, stepIdx) {
   const c = cases.find(x => x.id === id); if (!c) return; const t = c.tahapan[stepIdx]; const label = TAHAPAN_LABELS[stepIdx];
   let fileHtml = '<p style="font-size:13px;color:var(--text-muted);font-style:italic;">Tidak ada dokumen pendukung yang diunggah.</p>';
-  if (t.file) fileHtml = `<div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:16px; display:flex; align-items:center; justify-content:space-between;"><div style="display:flex; align-items:center; gap:12px; min-width:0;"><div style="width:40px; height:40px; flex-shrink:0; background:#FFEbee; color:#c0392b; border-radius:8px; display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div><div style="min-width:0; overflow:hidden;"><div style="font-size:13px; font-weight:600; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${escapeHTML(t.fileName)}</div><div style="font-size:11px; color:var(--text-muted);">Dokumen PDF Terverifikasi</div></div></div><a href="${t.file}" download="${t.fileName}" class="btn btn-primary btn-sm" style="text-decoration:none; flex-shrink:0;">Unduh</a></div>`;
+  if (t.file) {
+    fileHtml = `
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:16px; display:flex; align-items:center; justify-content:space-between;">
+        <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+          <div style="width:40px; height:40px; flex-shrink:0; background:#FFEbee; color:#c0392b; border-radius:8px; display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
+          <div style="min-width:0; overflow:hidden;"><div style="font-size:13px; font-weight:600; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${escapeHTML(t.fileName)}</div><div style="font-size:11px; color:var(--text-muted);">Dokumen PDF Terverifikasi</div></div>
+        </div>
+        <div style="display:flex; gap:6px; flex-shrink:0;">
+          <button class="btn btn-primary btn-sm" onclick="viewTahapanDocument('${id}', ${stepIdx})">📄 Lihat</button>
+          <a href="${t.file}" download="${t.fileName}" class="btn btn-secondary btn-sm" style="text-decoration:none;">Unduh</a>
+        </div>
+      </div>`;
+  }
   const statusBadge = `<span style="display:inline-flex; align-items:center; gap:6px; background:#1B5E20; color:white; padding:5px 14px; border-radius:20px; font-size:12px; font-weight:600; box-shadow: 0 2px 8px rgba(27,94,32,0.2);"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Tuntas</span>`;
   document.getElementById('modal-view-tahapan-body').innerHTML = `<div style="margin-bottom:20px;"><div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Nama Tahapan</div><div style="font-size:18px; font-weight:600;">${label}</div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;"><div><div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Tanggal Penyelesaian</div><div style="font-size:15px; font-weight:500;">${fmtDate(t.date)}</div></div><div><div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Status Validasi</div>${statusBadge}</div></div><div style="margin-bottom:24px;"><div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Catatan / Keterangan Petugas</div><div style="font-size:13.5px; line-height:1.6; background:var(--surface); padding:12px 16px; border-radius:var(--radius-sm); color:var(--text-sub);">${escapeHTML(t.note) || '<em>(Tidak ada catatan)</em>'}</div></div><div><div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Bukti Dokumen</div>${fileHtml}</div>`;
   
   const btnEdit = document.getElementById('btn-edit-tahapan');
-  if (c.isClosed) {
-    btnEdit.style.display = 'none';
-  } else {
-    btnEdit.style.display = 'inline-block';
-    btnEdit.onclick = function() { closeModal('modal-view-tahapan'); openUpdateTahapan(id, stepIdx); };
-  }
+  if (c.isClosed) { btnEdit.style.display = 'none'; } else { btnEdit.style.display = 'inline-block'; btnEdit.onclick = function() { closeModal('modal-view-tahapan'); openUpdateTahapan(id, stepIdx); }; }
   openModal('modal-view-tahapan');
 }
 
 // ══════════════════════════════════════════════════════════
-// 10. KALENDER
+// 8. KALENDER
 // ══════════════════════════════════════════════════════════
 const MONTHS = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']; 
 let miniCalDate = new Date(); let fullCalDate = new Date();
 function dateKey(y, m, d) { return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; } 
 function getEventsForDate(key) { return calendarEvents.filter(e => e.date === key); }
+
 function renderMiniCal() { const d = miniCalDate; const y = d.getFullYear(), m = d.getMonth(); document.getElementById('mini-cal-label').textContent = `${MONTHS[m]} ${y}`; const first = new Date(y, m, 1).getDay(); const days = new Date(y, m + 1, 0).getDate(); const today = new Date(); let html = ''; let total = Math.ceil((first + days) / 7) * 7; for (let i = 0; i < total; i++) { const dayNum = i - first + 1; const isOther = dayNum < 1 || dayNum > days; const key = dateKey(y, m, dayNum); const holiday = HOLIDAYS_2025[key]; const events = getEventsForDate(key); let cls = 'cal-cell' + (isOther ? ' other-month' : '') + (!isOther && new Date(y, m, dayNum).toDateString() === today.toDateString() ? ' today' : '') + (holiday ? ' holiday' : '') + (!isOther && events.length ? ' has-event' : ''); html += `<div class="${cls}" onclick="${!isOther ? `openDayModal('${key}')` : ''}">${isOther ? '' : dayNum}${holiday ? `<div class="cal-tooltip">${holiday}</div>` : ''}</div>`; } document.getElementById('mini-cal-grid').innerHTML = html; }
 function miniCalPrev() { miniCalDate = new Date(miniCalDate.getFullYear(), miniCalDate.getMonth() - 1, 1); renderMiniCal(); } 
 function miniCalNext() { miniCalDate = new Date(miniCalDate.getFullYear(), miniCalDate.getMonth() + 1, 1); renderMiniCal(); }
@@ -1521,98 +1429,45 @@ function renderFullCal() {
   } 
   document.getElementById('full-cal-grid').innerHTML = html; 
 }
-
 function fullCalPrev() { fullCalDate = new Date(fullCalDate.getFullYear(), fullCalDate.getMonth() - 1, 1); renderFullCal(); } 
 function fullCalNext() { fullCalDate = new Date(fullCalDate.getFullYear(), fullCalDate.getMonth() + 1, 1); renderFullCal(); } 
 function fullCalToday() { fullCalDate = new Date(); renderFullCal(); }
 
 function openDayModal(key) { 
-  const [y, m, d] = key.split('-'); 
-  const holiday = HOLIDAYS_2025[key]; 
-  const events = getEventsForDate(key); 
+  const [y, m, d] = key.split('-'); const holiday = HOLIDAYS_2025[key]; const events = getEventsForDate(key); 
   document.getElementById('modal-agenda-title').textContent = `Kegiatan — ${parseInt(d)} ${MONTHS[parseInt(m)-1]} ${y}`; 
-  
   let html = holiday ? `<div style="background:#FFF5F5;border:1px solid #FFD0CC;border-radius:8px;padding:12px 16px;margin-bottom:14px;color:#c0392b;font-weight:500;font-size:13px">🎌 ${holiday}</div>` : ''; 
-  
   events.forEach(e => { 
     let berkasHtml = '';
     if (e.berkasId) {
       const b = cases.find(x => x.id === e.berkasId);
       if (b) berkasHtml = `<div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">Berkas Terkait: <strong style="color:var(--text)">${escapeHTML(b.nomorberkas)}</strong></div>`;
     }
-    html += `<div style="border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:10px">
-        <div style="font-size:14px;font-weight:500;">${escapeHTML(e.title)}</div>
-        ${berkasHtml}
-        <button onclick="deleteEvent('${e.id}');closeModal('modal-agenda')" style="margin-top:8px;font-size:11px;color:#c0392b;background:none;border:none;cursor:pointer;padding:0">Hapus Kegiatan</button>
-      </div>`; 
+    html += `<div style="border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:10px"><div style="font-size:14px;font-weight:500;">${escapeHTML(e.title)}</div>${berkasHtml}<button onclick="deleteEvent('${e.id}');closeModal('modal-agenda')" style="margin-top:8px;font-size:11px;color:#c0392b;background:none;border:none;cursor:pointer;padding:0">Hapus Kegiatan</button></div>`; 
   }); 
-  
   let activeCasesOptions = cases.filter(c => !c.isClosed).map(c => `<option value="${c.id}">${escapeHTML(c.nomorberkas)} - ${escapeHTML(c.pemohon)}</option>`).join('');
-
-  html += `<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
-    <input type="text" class="form-control" id="quick-event-title" placeholder="Judul Kegiatan..." style="margin-bottom:8px">
-    <select class="form-control" id="quick-event-berkas" style="margin-bottom:12px; font-size:13px;">
-      <option value="">-- Pilih Berkas Terkait (Opsional) --</option>
-      ${activeCasesOptions}
-    </select>
-    <button class="btn btn-primary" style="width:100%;font-size:13px" onclick="quickAddEvent('${key}')">Tambah</button>
-  </div>`; 
-  
-  document.getElementById('modal-agenda-body').innerHTML = html; 
-  openModal('modal-agenda'); 
+  html += `<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)"><input type="text" class="form-control" id="quick-event-title" placeholder="Judul Kegiatan..." style="margin-bottom:8px"><select class="form-control" id="quick-event-berkas" style="margin-bottom:12px; font-size:13px;"><option value="">-- Pilih Berkas Terkait (Opsional) --</option>${activeCasesOptions}</select><button class="btn btn-primary" style="width:100%;font-size:13px" onclick="quickAddEvent('${key}')">Tambah</button></div>`; 
+  document.getElementById('modal-agenda-body').innerHTML = html; openModal('modal-agenda'); 
 }
 
 function addCalendarEvent() { 
-  const d = document.getElementById('new-event-date').value;
-  const t = document.getElementById('new-event-title').value;
-  const b = document.getElementById('new-event-berkas').value;
-  const desc = document.getElementById('new-event-desc').value;
-  if(d && t) { 
-    calendarEvents.push({id:'ev'+Date.now(), date:d, title:t, desc:desc, berkasId:b}); 
-    saveData(); 
-    renderFullCal(); 
-    renderMiniCal(); 
-    showToast('Tersimpan!','success'); 
-    document.getElementById('new-event-title').value = '';
-    document.getElementById('new-event-desc').value = '';
-    document.getElementById('new-event-berkas').value = '';
-  } 
+  const d = document.getElementById('new-event-date').value, t = document.getElementById('new-event-title').value, b = document.getElementById('new-event-berkas').value, desc = document.getElementById('new-event-desc').value;
+  if(d && t) { calendarEvents.push({id:'ev'+Date.now(), date:d, title:t, desc:desc, berkasId:b}); saveData(); renderFullCal(); renderMiniCal(); showToast('Tersimpan!','success'); document.getElementById('new-event-title').value = ''; document.getElementById('new-event-desc').value = ''; document.getElementById('new-event-berkas').value = ''; } 
 } 
-
 function quickAddEvent(key) { 
-  const t = document.getElementById('quick-event-title').value; 
-  const b = document.getElementById('quick-event-berkas').value;
-  if(t) { 
-    calendarEvents.push({id:'ev'+Date.now(), date:key, title:t, berkasId: b}); 
-    saveData(); 
-    renderFullCal(); 
-    renderMiniCal(); 
-    closeModal('modal-agenda'); 
-    showToast('Tersimpan!','success'); 
-  } 
+  const t = document.getElementById('quick-event-title').value, b = document.getElementById('quick-event-berkas').value;
+  if(t) { calendarEvents.push({id:'ev'+Date.now(), date:key, title:t, berkasId: b}); saveData(); renderFullCal(); renderMiniCal(); closeModal('modal-agenda'); showToast('Tersimpan!','success'); } 
 } 
-
-function deleteEvent(id) { 
-  calendarEvents = calendarEvents.filter(e => e.id !== id); 
-  saveData(); 
-  renderFullCal(); 
-  renderMiniCal(); 
-} 
+function deleteEvent(id) { calendarEvents = calendarEvents.filter(e => e.id !== id); saveData(); renderFullCal(); renderMiniCal(); } 
 
 // ══════════════════════════════════════════════════════════
-// 11. INISIALISASI APLIKASI
+// 9. INISIALISASI APLIKASI
 // ══════════════════════════════════════════════════════════
 if (cases.length === 0) { 
   cases = [ { id: 'c1', nomorberkas: 'BPN/001', jenis: 'cacat', kantah: 'Kota Mataram', tglUsulan: '2025-02-10', pemohon: 'H. Ahmad', pj: 'Budi Santoso', pemeganghak: 'H. Ahmad', luas: '250', kabupaten: 'Kota Mataram', kecamatan: 'Sekarbela', desa: 'Jempong Baru', tahapan: [{date:'2025-02-10', note:'Berkas dianalisa'}], currentStep: 1, isClosed: false } ]; 
   saveData(); 
 }
-
-initWilayah();      
-updateStats();      
-renderDashboard();  
-renderMiniCal();    
-
-checkLogin();
+initWilayah(); updateStats(); renderDashboard(); renderMiniCal(); checkLogin();
 
 </script>
 </body>
